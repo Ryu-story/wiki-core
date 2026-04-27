@@ -9,6 +9,7 @@
 import type { CoreHooks } from './hooks.js';
 import type { WikiAccessControl } from './access.js';
 import type { StorageRouter } from './storage-router.js';
+import { createWikiCore, type WikiCore } from './wiki-core.js';
 
 export interface LabelSet {
   /** plugin 고유 (e.g. "rootric_validation" / "plott_norm" / "enroute_origin") */
@@ -85,19 +86,21 @@ export function validatePlugin(plugin: WikiPlugin): void {
 }
 
 /**
- * Plugin 등록. 현재는 manifest 검증 + plugin 객체 반환.
+ * Plugin 등록 + WikiCore 본체 반환 (Mercury 5차).
  *
- * 4요소 CRUD `WikiCore` 본체 구현은 Mercury 5차 (storage 합류 후).
- * Mercury 4차 시점엔 plugin 작성 시 type checking + 헬퍼 사용 가능.
+ * 호출 시:
+ * 1. Plugin Manifest 검증
+ * 2. storageRouter 필수 확인
+ * 3. WikiCore 본체 생성 (4요소 CRUD + hook chain + access control + storage routing)
  *
  * @throws plugin manifest 가 invalid 하거나 storageRouter 누락 시
  */
-export function registerPlugin(plugin: WikiPlugin): { plugin: WikiPlugin } {
+export function registerPlugin(plugin: WikiPlugin): WikiCore {
   validatePlugin(plugin);
   if (!plugin.hooks.storageRouter) {
     throw new Error(
       'plugin.hooks.storageRouter is required. Provide a StorageRouter implementation.'
     );
   }
-  return { plugin };
+  return createWikiCore(plugin);
 }

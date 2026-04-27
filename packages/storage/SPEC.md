@@ -115,21 +115,23 @@ Plugin 이 `StorageRouter.resolve()` 정책에서 capability 보고 어댑터 �
 
 ```ts
 // @wiki-core/storage/src/postgres.ts
+//
+// Mercury 5차 정정: pg 모듈을 직접 import 하지 않고 DbClient 인터페이스로 추상화.
+// Plugin 이 pg.Pool / Supabase client / 기타 driver 를 DbClient 로 wrap 하여 주입.
 
-import { Pool } from 'pg';
-import type { StorageAdapter, AdapterCapabilities } from './adapter';
+import type { StorageAdapter, AdapterCapabilities } from '@wiki-core/core';
+
+export interface DbClient {
+  query<T = unknown>(
+    sql: string,
+    params?: unknown[]
+  ): Promise<{ rows: T[] }>;
+}
 
 export interface PostgresAdapterOptions {
-  pool: Pool;                              // 외부 주입 (Supabase 클라이언트 또는 직접 pg.Pool)
-  schema?: string;                         // default "public"
+  db: DbClient;                            // 외부 주입 — plugin 이 wrap
   tablePrefix?: string;                    // default "wiki_" (wiki_objects / wiki_attributes / ...)
-  rls?: {
-    /**
-     * RLS context 주입. plugin 이 actor → SQL `SET app.current_user = ...` 형태.
-     * Supabase 의 auth.uid() 같이 자동 set 시 unset.
-     */
-    setActor?(actor: ActorContext): Promise<void>;
-  };
+  setActor?: (db: DbClient, actorId: string) => Promise<void>;
 }
 
 export class PostgresAdapter implements StorageAdapter {
@@ -138,13 +140,27 @@ export class PostgresAdapter implements StorageAdapter {
   capabilities(): AdapterCapabilities {
     return {
       transactional: true,
-      rls: !!this.opts.rls,
+      rls: true,
       fullTextSearch: true,
       vector: false,                       // pgvector 는 plugin 확장
       ttl: false,
     };
   }
 }
+```
+
+**plugin 사용 예 — pg.Pool wrap**:
+
+```ts
+import { Pool } from 'pg';
+import { PostgresAdapter } from '@wiki-core/storage';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PostgresAdapter({
+  db: {
+    query: (sql, params) => pool.query(sql, params).then(({ rows }) => ({ rows })),
+  },
+});
 ```
 
 ### 2.1 마이그레이션 SQL 골격

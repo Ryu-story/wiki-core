@@ -39,6 +39,8 @@ export type {
   StorageRouter,
 } from './storage-router.js';
 
-// Plugin Manifest
+// Plugin Manifest + WikiCore
 export type { LabelSet, WikiPlugin } from './plugin.js';
 export { validatePlugin, registerPlugin } from './plugin.js';
+export type { WikiCore } from './wiki-core.js';
+export { createWikiCore } from './wiki-core.js';

@@ -143,8 +143,50 @@ Mercury 2차 종결(2026-04-28) commit `1f8fd02`(`packages/core/SPEC.md`) + `966
 
 ---
 
+## @wiki-core/core 1차 코드 검증 — 2026-04-28 (Mercury 5차 진입 전)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| rootric | 로고스 | ✅ | type surface 6 파일 모두 SPEC 그대로. rootric plugin 가설 validatePlugin·registerPlugin 통과. stripHtml transform/predicate 분리 정확. ActorContext Module Augmentation으로 tester/persona_mode 5종 확장 가능. |
+| plott | 플로터 | ✅ | 6 파일 plott 도메인 표현 가능. Module Augmentation 주석 박제 확인. noise §3.1 정정 stripHtml 사전 처리 패턴 확인. |
+| enroute | 루터 | ✅ | enroute plugin 가설(@enroute/wiki-plugin, objectTypes 12종, labelSets enroute_origin+enroute_sensitivity, accessControl trivial+storageRouter) validatePlugin 통과 가능. ActorContext trivial이라 미사용. dropPredicate(stripHtml(text)) 패턴 확인. (메모: registerPlugin storageRouter 필수 강제 — Mercury 5차 합류 후 실제 등록 가능) |
+
+→ **3 도메인 모두 코어 1차 코드 통과. 코어 보완 요청 0건.** Mercury 5차 storage + WikiCore 본체 진입 동의 명시.
+
+---
+
+## Phase 3.5 2차 — @wiki-core/storage 코드 + WikiCore 본체 박제 — 2026-04-28 (Mercury 5차)
+
+### 머큐리 단독 작업 (도메인 입력 없음)
+
+- `packages/storage/` 패키지 셋업 + 코드 박제:
+  - `src/postgres.ts` — PostgresAdapter 클래스 (4요소 + 보조 슬롯 CRUD + query). `pg` 모듈 직접 import 안 함 — `DbClient` 인터페이스로 추상화. plugin 이 `pg.Pool` / Supabase client 를 wrap.
+  - `src/router.ts` — `createStorageRouter` helper. `adapter` / `byKind` / `resolver` 3 옵션. resolver 우선순위 가장 높음.
+  - `src/migrations/0001_core.sql` — 4요소 + 보조 슬롯 6 table + index
+  - `src/migrations/0002_rls.sql` — RLS defense-in-depth (plugin 이 자체 정책으로 강화)
+  - `src/index.ts` — public surface
+- `packages/core/src/wiki-core.ts` — WikiCore 본체:
+  - 4요소 CRUD (create / get / update / delete) + 보조 슬롯 CRUD (Provenance / Label) + scopes
+  - Hook chain — validateObjectType (Object create/update) / onAttributeWrite (Attribute create) / provenanceExtension (Provenance create)
+  - Access control wrapping — checkRead / checkWrite (모든 CRUD)
+  - Storage routing — `target.id === '_new'` convention (create 시) + plugin resolver/byKind/adapter fallback
+- `packages/core/src/plugin.ts` 갱신 — `registerPlugin` → `WikiCore` 반환 (Mercury 4차 placeholder 형태 → 본체)
+- `packages/core/src/index.ts` 갱신 — `WikiCore` / `createWikiCore` export
+- TypeScript Project References 셋업 — 루트 `tsconfig.json` (composite + references) + 각 패키지 `composite: true` + `paths` mapping. `tsc -b` build mode 통과 (에러 0건).
+
+### 머큐리 단독 결정
+
+- `target.id === '_new'` magic — create 시점 router resolve convention. plugin resolver 가 인지하지 못하면 byKind / adapter fallback (createStorageRouter helper 가 처리).
+- Relation create 시 양쪽 object write 권한 검증 (from + to). Event create 시 첫 object 만 검증 (다수 object 영향 시 plugin wrapping).
+- deleteLabel 1차 — access control 없이 단순 delete (label row 의 target 알아야 하므로 추후 보강 후보).
+- Storage SPEC §2 정정 — `Pool` (pg 직접 import) → `DbClient` (추상 인터페이스). Plugin 사용 예 박제 (pg.Pool wrap).
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 4차 종결 통보 후 — `@wiki-core/core` 1차 코드 검토 결과 (plugin 작성 시 import / 헬퍼 사용 / 타입 호환성) |
+| 모두 | Mercury 5차 종결 통보 후 — storage 코드 + WikiCore 본체 검토 결과 (plugin 작성 시 PostgresAdapter import / DbClient wrap / WikiCore CRUD 호출 가능 여부) |

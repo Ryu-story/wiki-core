@@ -106,6 +106,20 @@
   5. Phase 3 미해결 5 질문 중 3건 답 (#1 ScopeRef / #2 StorageRouter.resolve / #4 noiseFilter). #3 router / #5 renderer 는 각 패키지 SPEC 에서.
 - 산출물: `bffaf80` (피드백 로그 + 결정 갱신), `1f8fd02` (코어 SPEC + Mercury 2차 박제), `9663db1` (collaboration protocol)
 
+### Mercury 5차 (2026-04-28 — `@wiki-core/storage` 코드 + WikiCore 본체 박제)
+
+- **상태: storage 패키지 + WikiCore 본체 박제 완료. TypeScript Project References (composite + paths) + `tsc -b` build mode 통과. 동작하는 wiki-core 데이터 layer 완성. router/renderer 코드 다음 세션.**
+- 진행 흐름:
+  1. 3 도메인 코어 1차 코드 검증 모두 통과 — 로고스/플로터/루터 이의 0건. validatePlugin / registerPlugin / Module Augmentation / stripHtml→dropPredicate 패턴 모두 확인.
+  2. `packages/storage/` 셋업 + 코드 — postgres.ts (PostgresAdapter, DbClient 추상) / router.ts (createStorageRouter) / migrations 2개 / index.ts
+  3. `packages/core/src/wiki-core.ts` — WikiCore 본체 (4요소 CRUD + 보조 슬롯 + hook chain + access control + storage routing)
+  4. `packages/core/src/plugin.ts` 갱신 — `registerPlugin` → `WikiCore` 반환 (placeholder → 본체)
+  5. TypeScript Project References 셋업 — 루트 `tsconfig.json` + 각 패키지 `composite: true` + `paths` mapping
+  6. Storage SPEC §2 정정 — `Pool` (pg 직접) → `DbClient` (추상)
+- 핵심 박제: 동작하는 `WikiCore` — plugin이 PostgresAdapter (또는 자체 adapter) 주입 + WikiPlugin 등록 → 4요소 CRUD + hook chain + access control 자동 처리.
+- 미해결 후보 (Mercury 6차+): deleteLabel 의 access control 보강 / Relation/Event multi-target 권한 정책 / Phase 4 plugin 합류 가이드 시 ingest 파이프라인 boilerplate.
+- 행동 원칙 #1 정합 — storage 코드 일체에 도메인 어휘 0건.
+
 ### Mercury 4차 (2026-04-28 — pnpm 셋업 + `@wiki-core/core` 1차 코드 박제)
 
 - **상태: pnpm 모노레포 셋업 + `@wiki-core/core` 1차 코드 박제. TypeScript strict typecheck 통과. Phase 3.5 잔여 (storage/router/renderer 코드) 다음 세션.**
@@ -139,22 +153,21 @@
   - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
 - 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
 
-### 다음 작업 후보 (Mercury 5차)
+### 다음 작업 후보 (Mercury 6차)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **`@wiki-core/core` 1차 코드 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
-| 2 | **`@wiki-core/storage` 코드 작성** — PostgresAdapter + 마이그레이션 SQL + StorageRouter reference impl | 4-6h | `packages/storage/SPEC.md` |
-| 3 | **`@wiki-core/core` `WikiCore` 본체 구현** — 4요소 CRUD + hook chain + access control + storage routing (storage 합류 후) | 3-4h | `packages/core/SPEC.md` §5 |
-| 4 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
-| 5 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 6 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 박제) | 3-4h | 신규 |
+| 1 | **storage + WikiCore 본체 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
+| 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
+| 3 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
+| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 박제) | 3-4h | 신규 |
+| 5 | (선택) WikiCore 보강 — deleteLabel access control / Relation·Event multi-target 정책 / 통합 테스트 | 2-3h | `packages/core/src/wiki-core.ts` |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `packages/core/src/` 정독 (Mercury 4차 박제 코드) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
-3. 에드러드에게 코어 1차 코드 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2 (storage 코드 — `WikiCore` 본체 의존) 진입. 의존 그래프상 storage 먼저, 그 다음 core `WikiCore` 본체, router/renderer 는 독립이라 병행 가능.
+2. `packages/storage/src/` + `packages/core/src/wiki-core.ts` 정독 (Mercury 5차 박제) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
+3. 에드워드에게 storage + WikiCore 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2~3 (router + renderer 병행 가능 — 둘 다 코어 의존만, 서로 독립) 진입.
 
 ---
 
