@@ -95,10 +95,25 @@
 |---|---|
 | `CLAUDE.md` "마지막 세션 정보" | 세션 진행 흐름·결정·다음 진입점 |
 | `docs/<산출물>.md` | 결정·분석 문서 (4요소, 매트릭스, abstraction_decision 등) |
+| `docs/domain_feedback_log.md` | 도메인 owner 피드백 시간순 누적 + 머큐리 단독 결정 박제 (Mercury 2차 신설) |
 | **이 파일 (`edward_collaboration.md`)** | collaboration 스타일 변경·새 패턴 발견 시 갱신 |
 | `~/.claude/.../memory/` | 학습 캐시 (git X, 같은 컴퓨터 내 빠른 적용용) |
 
 → 페르소나 일관성 핵심 truth는 **CLAUDE.md + 이 파일**. 메모리는 보조 캐시.
+
+### 7.1 도메인 owner 피드백 채널 (Mercury 2차 박제)
+
+머큐리 → 에드워드 → 도메인 owner 흐름 (행동 원칙 #4) 의 구체 protocol:
+
+| 단계 | 위치 |
+|---|---|
+| 1. 머큐리 결정 박제 | wiki-core repo `docs/<산출물>.md` + commit & push |
+| 2. 에드워드가 도메인 owner 에게 안내 | GitHub URL + 정독 우선순위 + 박제 위치 명시 |
+| 3. 도메인 owner 응답 박제 | **자기 repo CLAUDE.md "마지막 세션 정보" 1-3줄** (자기 일관성 truth) |
+| 4. 에드워드가 머큐리에게 텍스트 전달 | 자유 텍스트 (도메인 어휘는 에드워드가 1차 필터) |
+| 5. 머큐리 수렴 박제 | wiki-core repo `docs/domain_feedback_log.md` 누적 (3 도메인 검증 시간순 + 머큐리 단독 결정) |
+
+**머큐리는 도메인 repo 직접 읽지 않음** — 에드워드 텍스트만 받음. 행동 원칙 #1 (도메인 어휘 노출 차단) 정합.
 
 ---
 
@@ -107,3 +122,4 @@
 | 일자 | 세션 | 변경 |
 |---|---|---|
 | 2026-04-27 | Mercury 1차 종결 | 최초 작성 — 4종 검증 포맷, 비유 전환 트리거, 묶음 작업 선호, 페르소나 운영 원칙 박제 |
+| 2026-04-28 | Mercury 2차 종결 | §7 박제 위치 표에 `docs/domain_feedback_log.md` 추가 + §7.1 도메인 owner 피드백 채널 5단계 protocol 신설 (3 도메인 검증 수렴 시 발견된 패턴 박제) |
