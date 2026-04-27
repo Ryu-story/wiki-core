@@ -80,23 +80,37 @@
 
 ### Mercury 0차 (2026-04-27 — repo 초기 셋업)
 
-- 상태: 셋업만 완료. 아직 실제 비교·추상화 작업 시작 전
-- 셋업한 사람: 로고스 (rootric 31차 세션에서, 머큐리 진입 직전 준비 작업으로)
-- 다음 세션 시작 액션:
-  1. `git pull` → `git log` → 이 CLAUDE.md 정독
-  2. `docs/` 3 명세서 정독 (각 ~470줄)
-  3. `docs/comparison_matrix.md` 작성 시작 — 0~10 섹션 단위로 3 도메인 row 비교
-  4. 4요소(객체/속성/연결/행동) 정렬 표 작성
+- 상태: 셋업만 완료. 셋업한 사람: 로고스 (rootric 31차 세션에서, 머큐리 진입 직전 준비 작업으로)
 
-### 다음 작업 후보 (Mercury 1차)
+### Mercury 1차 (2026-04-27 — Phase 2 종결)
+
+- **상태: Phase 2 완료. 추상화 결정 박제 종료.**
+- 진행 흐름:
+  1. 3 도메인 명세서 정독 (rootric 338줄 / plott 461줄 / enroute 470줄)
+  2. 4요소 정렬(`docs/4element_alignment.md`) — 위험 신호 3개 검증 + plugin 모델 1차 잠정 결정
+  3. 부록 A 4항 닫힘 (네이밍·repo·cross-ref·마이그레이션) — 에드워드 검증
+  4. 7섹션 매트릭스(`docs/comparison_matrix.md`) — 4요소 결정 흔들기 검증 통과 + 신규 hook 2종 발견 (WikiAccessControl, Multi-storage)
+  5. 결정 종합 박제(`docs/abstraction_decision.md`) — 결정 9건 + Phase 3·4 액션 플랜 + 도메인 owner 메시지
+- 에드워드 검증 결과: ① ~ ⑦ + 부록 A 4항 모두 통과
+- 산출물 commit: `f02c584` (4요소+매트릭스), `d3ca7c8` (abstraction_decision)
+- **핵심 결정**: 풀 추상화 거부, plugin 모델 채택. wiki-core repo는 코어 4 패키지(core / storage / router / renderer)만, plugin은 도메인 repo에서 자체 빌드. 자세한 내용은 `docs/abstraction_decision.md` §0·§2 참조.
+
+### 다음 작업 후보 (Mercury 2차)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **3 명세서 정독 + 1차 노트** | 1-2h | `docs/*_wiki_requirements.md` |
-| 2 | **comparison_matrix.md 작성** — Section 0~10 row, 3 도메인 column | 3-4h | 신규 |
-| 3 | **4element_alignment.md** — 객체/속성/연결/행동이 도메인별로 어떤 어휘로 표현되는지 | 2-3h | 신규 |
-| 4 | **abstraction_decision.md 초안** — 풀 추상화 vs plugin 모델 vs 별도 진행 | 2-3h | 신규 |
-| 5 | 에드워드와 추상화 결정 합의 | 토론 1회 | — |
+| 1 | **에드워드로부터 도메인 owner 피드백 수렴** (있으면) — plugin 모델 결정에 도메인 owner 이의 있는지 | 토론 1회 | 에드워드 |
+| 2 | **Phase 3 미해결 5 질문 답** — WikiAccessControl.scopes() schema / StorageRouter.resolve() 정책 / router ingest hook 시그니처 / noiseFilter YAGNI / renderer 입력 형식 | 1-2h | `docs/abstraction_decision.md` §5 |
+| 3 | **packages/core/SPEC.md 작성** — 4요소 인터페이스 + 5+2 hook + 보조 슬롯 | 3-4h | 신규 |
+| 4 | **packages/{storage,router,renderer}/SPEC.md** | 각 2-3h | 신규 |
+| 5 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig | 1-2h | 신규 |
+| 6 | **Phase 4 도메인 합류 가이드** 작성 시작 — plugin 책임 명세 + boilerplate | 2-3h | 신규 |
+
+### 다음 세션 시작 액션
+
+1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
+2. `docs/abstraction_decision.md` §5 (Phase 3 미해결 5 질문) + §7 (도메인 owner 메시지) 정독
+3. 에드워드에게 도메인 owner 피드백 있는지 확인 → 있으면 #1 작업, 없으면 #2/3 진행
 
 ---
 
