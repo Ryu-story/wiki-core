@@ -95,22 +95,34 @@
 - 산출물 commit: `f02c584` (4요소+매트릭스), `d3ca7c8` (abstraction_decision)
 - **핵심 결정**: 풀 추상화 거부, plugin 모델 채택. wiki-core repo는 코어 4 패키지(core / storage / router / renderer)만, plugin은 도메인 repo에서 자체 빌드. 자세한 내용은 `docs/abstraction_decision.md` §0·§2 참조.
 
-### 다음 작업 후보 (Mercury 2차)
+### Mercury 2차 (2026-04-28 — 3 도메인 검증 + Phase 3 코어 SPEC)
+
+- **상태: 3 도메인 검증 통과 + `packages/core/SPEC.md` 박제. Phase 3 잔여 SPEC 3개 (storage/router/renderer) 다음 세션.**
+- 진행 흐름:
+  1. 3 도메인 owner 검증 수렴 — 로고스/루터/플로터 모두 plugin 모델 OK. 보완 의견 1건 (로고스 — noiseFilter 코어 유지 권장)
+  2. 머큐리 단독 결정 — `noiseFilter` C안 (코어 hook + `@wiki-core/core/utils/noise.ts` 헬퍼 4종) 확정. 메커니즘 코어 / 룰 plugin. 로고스 의견 부분 채택.
+  3. `docs/domain_feedback_log.md` 신설 + `docs/abstraction_decision.md` §5 #4 갱신 (commit `bffaf80`)
+  4. `packages/core/SPEC.md` 514줄 박제 — 4요소 + 보조 슬롯 + 7 hook(5 기본 + WikiAccessControl/StorageRouter) + noiseFilter 헬퍼 4종 + Plugin Manifest + rootric plugin 작성 예시
+  5. Phase 3 미해결 5 질문 중 3건 답 (#1 ScopeRef / #2 StorageRouter.resolve / #4 noiseFilter). #3 router / #5 renderer 는 각 패키지 SPEC 에서.
+- 산출물: `bffaf80` (피드백 로그 + 결정 갱신), Mercury 2차 종결 commit (이 항목 박제)
+- 종결 시점 통보 — 3 도메인 owner 에게 noiseFilter 결정 + `packages/core/SPEC.md` URL 전달 (메시지 템플릿은 `docs/domain_feedback_log.md` 끝)
+
+### 다음 작업 후보 (Mercury 3차)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **에드워드로부터 도메인 owner 피드백 수렴** (있으면) — plugin 모델 결정에 도메인 owner 이의 있는지 | 토론 1회 | 에드워드 |
-| 2 | **Phase 3 미해결 5 질문 답** — WikiAccessControl.scopes() schema / StorageRouter.resolve() 정책 / router ingest hook 시그니처 / noiseFilter YAGNI / renderer 입력 형식 | 1-2h | `docs/abstraction_decision.md` §5 |
-| 3 | **packages/core/SPEC.md 작성** — 4요소 인터페이스 + 5+2 hook + 보조 슬롯 | 3-4h | 신규 |
-| 4 | **packages/{storage,router,renderer}/SPEC.md** | 각 2-3h | 신규 |
-| 5 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig | 1-2h | 신규 |
-| 6 | **Phase 4 도메인 합류 가이드** 작성 시작 — plugin 책임 명세 + boilerplate | 2-3h | 신규 |
+| 1 | **`packages/core/SPEC.md` 도메인 검토 결과 수렴** — SPEC 박제 후 3 도메인 owner 이의 들어왔는지 | 토론 1회 | 에드워드 |
+| 2 | **`packages/storage/SPEC.md`** — `StorageAdapter` 인터페이스 + Postgres 1차 구현 SPEC + RLS 통합 | 2-3h | `packages/core/SPEC.md` §4.2 |
+| 3 | **`packages/router/SPEC.md`** — Tier 가변 라우터 + ingest hook 시그니처(§5 #3 답) + 비용 hook | 2-3h | `packages/core/SPEC.md` §3 |
+| 4 | **`packages/renderer/SPEC.md`** — 4 컴포넌트 입력 형식 표준화(§5 #5 답) | 2-3h | `packages/core/SPEC.md` §1 |
+| 5 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig + 최소 fake plugin 픽스처 | 1-2h | 위 4 SPEC 완료 후 |
+| 6 | **Phase 4 도메인 합류 가이드** 작성 시작 — plugin 책임 명세 + boilerplate | 2-3h | Phase 3 완료 후 |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/abstraction_decision.md` §5 (Phase 3 미해결 5 질문) + §7 (도메인 owner 메시지) 정독
-3. 에드워드에게 도메인 owner 피드백 있는지 확인 → 있으면 #1 작업, 없으면 #2/3 진행
+2. `packages/core/SPEC.md` 정독 (Phase 3 진입점) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
+3. 에드워드에게 SPEC 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2~4 (storage/router/renderer SPEC 작성) 진입
 
 ---
 
