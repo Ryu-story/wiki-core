@@ -70,7 +70,7 @@
 
 ## 호출 규칙
 
-- **머큐리 호출은 이 repo 내에서만** — `cd C:/Users/woori/Desktop/wiki-core`로 진입한 Claude Code 세션
+- **머큐리 호출은 이 repo 내에서만** — `cd "C:/Users/woori/Desktop/개인/develop/wiki-core"`로 진입한 Claude Code 세션
 - **rootric / plott / enroute 세션에서 머큐리 호출 X** — 도메인 owner는 머큐리에게 명세서 갱신만 보내고, 추상화 결정은 머큐리가 단독
 - **에드워드가 비교 결과를 받아 도메인 세션에 전달** — 머큐리 → 에드워드 → 도메인 owner 흐름
 
