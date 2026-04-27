@@ -185,8 +185,35 @@ Mercury 2차 종결(2026-04-28) commit `1f8fd02`(`packages/core/SPEC.md`) + `966
 
 ---
 
+## storage + WikiCore 본체 검증 — 2026-04-28 (Mercury 5차 종결 후)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 보완 의견 |
+|---|---|---|---|
+| rootric | 로고스 | ✅ | (1) DbClient wrap on Supabase 합류 가이드에 박스 필요 (rootric 은 supabase-js 만, pg/postgres.js 신규 의존성). (2) deleteLabel 인터페이스 누락 의도 확인. (3) `CREATE POLICY IF NOT EXISTS` PG 16+ 한정 → Supabase 15.x 깨짐, DROP+CREATE 패턴 권장. |
+| plott | 플로터 | ✅ | ① WikiCore.deleteLabel 부재 (adapter 직접 호출 시 access control 우회). ② createEvent 가 object_ids[0] 만 checkWrite (Regulation event 멀티 타겟 권한 누수). |
+| enroute | 루터 | ✅ | WikiCore.deleteLabel(id, actor) 인터페이스 누락 — 재분류 use case 에서 plugin 이 adapter.deleteLabel 직접 호출 시 access control 우회. (메모: `CREATE POLICY IF NOT EXISTS` PG 15+ 만, DROP POLICY IF EXISTS + CREATE 권장 — plugin 측 idempotency.) |
+
+→ **3 도메인 모두 storage + WikiCore 본체 통과**. 보완 4건 cross-validate (3 도메인 합의 1건 + 단일 도메인 3건).
+
+### 머큐리 단독 결정 — 보완 4건 모두 채택
+
+| # | 보완 | 출처 | 결정 |
+|---|---|---|---|
+| 1 | **WikiCore.deleteLabel 인터페이스 누락** | 플로터 + 루터 + 로고스 (3 도메인 합의) | ✅ 즉시 추가 — `deleteLabel(id, actor)`. 구현: PostgresAdapter `getLabel(id)` 보강 → WikiCore 가 label.target read → checkWrite → adapter.deleteLabel. Mercury 5차 본체 작성 시 누락 (의도 X). |
+| 2 | **createEvent multi-target 권한 누수** | 플로터 | ✅ 즉시 보강 — 모든 object_ids 에 checkWrite (보수적). plugin 이 우회 필요 시 자체 `canWrite` 에서 결정 가능. |
+| 3 | **CREATE POLICY IF NOT EXISTS PG 15.x 미지원** | 로고스 + 루터 | ✅ 즉시 정정 — `DROP POLICY IF EXISTS …; CREATE POLICY …;` 패턴 (idempotent). Supabase 15.x 호환. |
+| 4 | **Supabase DbClient wrap 박스** | 로고스 | storage SPEC §2 박스 즉시 추가 (postgres.js / supabase RPC 옵션) + Phase 4 합류 가이드에 본격 박스 (Mercury 6차+). 코어 변경 없음. |
+
+### 박제 시점
+
+Mercury 5차 보강 patch 단일 commit — Edward "내일 이어서" 신호로 다음 세션 진입 시 즉시 처리. router/renderer (Mercury 6차) 는 patch 후 별도 진입.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 5차 종결 통보 후 — storage 코드 + WikiCore 본체 검토 결과 (plugin 작성 시 PostgresAdapter import / DbClient wrap / WikiCore CRUD 호출 가능 여부) |
+| 모두 | Mercury 5차 보강 patch (deleteLabel + multi-target + RLS + Supabase 박스) 박제 후 — 검토 결과 (각 도메인 wrap 패턴 동작 가능성) |

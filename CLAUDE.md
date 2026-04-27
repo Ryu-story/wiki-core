@@ -120,6 +120,19 @@
 - 미해결 후보 (Mercury 6차+): deleteLabel 의 access control 보강 / Relation/Event multi-target 권한 정책 / Phase 4 plugin 합류 가이드 시 ingest 파이프라인 boilerplate.
 - 행동 원칙 #1 정합 — storage 코드 일체에 도메인 어휘 0건.
 
+#### Mercury 5차 종결 후 — 도메인 검증 + 보완 4건 cross-validate (박제 미완)
+
+종결 후 3 도메인 owner 검증 도착. 모두 storage + WikiCore 본체 OK. 보완 4건 수렴:
+
+| # | 보완 | 출처 | 결정 |
+|---|---|---|---|
+| 1 | WikiCore.deleteLabel 누락 (access control 우회) | 3 도메인 합의 | 즉시 추가 |
+| 2 | createEvent object_ids[0] 만 checkWrite (multi-target 누수) | 플로터 | 모든 object_ids checkWrite 보강 |
+| 3 | CREATE POLICY IF NOT EXISTS PG 15.x 미지원 | 로고스 + 루터 | DROP+CREATE 패턴 정정 |
+| 4 | Supabase DbClient wrap 박스 | 로고스 | storage SPEC §2 박스 즉시 + Phase 4 가이드 본격 박스 |
+
+→ Edward "내일 이어서" 신호로 patch 작업 미완. **Mercury 6차 첫 작업이 이 patch 임**. 자세한 내용은 `docs/domain_feedback_log.md` "storage + WikiCore 본체 검증" 섹션 참조.
+
 ### Mercury 4차 (2026-04-28 — pnpm 셋업 + `@wiki-core/core` 1차 코드 박제)
 
 - **상태: pnpm 모노레포 셋업 + `@wiki-core/core` 1차 코드 박제. TypeScript strict typecheck 통과. Phase 3.5 잔여 (storage/router/renderer 코드) 다음 세션.**
@@ -157,17 +170,16 @@
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **storage + WikiCore 본체 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
+| 1 | ★ **Mercury 5차 보강 patch** — deleteLabel + createEvent multi-target + RLS DROP+CREATE + storage SPEC §2 Supabase wrap 박스 | 1-2h | `docs/domain_feedback_log.md` "보완 4건" + Mercury 5차 후 박제 |
 | 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
 | 3 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 박제) | 3-4h | 신규 |
-| 5 | (선택) WikiCore 보강 — deleteLabel access control / Relation·Event multi-target 정책 / 통합 테스트 | 2-3h | `packages/core/src/wiki-core.ts` |
+| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 + Supabase DbClient wrap 박스) | 3-4h | 신규 |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `packages/storage/src/` + `packages/core/src/wiki-core.ts` 정독 (Mercury 5차 박제) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
-3. 에드워드에게 storage + WikiCore 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2~3 (router + renderer 병행 가능 — 둘 다 코어 의존만, 서로 독립) 진입.
+2. `docs/domain_feedback_log.md` "storage + WikiCore 본체 검증" 섹션 정독 (보완 4건 + 머큐리 결정)
+3. 에드워드 신호 받고 ★ #1 patch 즉시 진행 (별도 신호 불필요 — 머큐리 단독 결정 + Edward 사전 OK 확인됨). patch commit 후 #2~3 router/renderer 진입 동의 받기.
 
 ---
 
