@@ -171,7 +171,7 @@ StorageRouter { adapters[], resolve(target) }     // ★ 매트릭스 신규
 | 1 | `WikiAccessControl.scopes()` 의 `ScopeRef` schema | core |
 | 2 | `StorageRouter.resolve()` 정책 (target_kind 기준? plugin?) | storage |
 | 3 | router의 ingest text hook 시그니처 (Tier 4 민감도 분류) | router |
-| 4 | `noiseFilter` 코어 vs plugin (YAGNI 적용 여부) | core/plugin 경계 |
+| 4 | ~~`noiseFilter` 코어 vs plugin (YAGNI 적용 여부)~~ → **확정 (Mercury 2차, 2026-04-28)**: C안 (코어 hook + `@wiki-core/core/utils/noise.ts` 헬퍼 4종) — 메커니즘 코어 / 룰 plugin. 로고스 부분 채택. 자세한 내용은 `docs/domain_feedback_log.md` | core/plugin 경계 |
 | 5 | renderer 4 컴포넌트 입력 표준화 형식 | renderer |
 
 → 답은 SPEC 작성 자체에서 자연 도출. Phase 2 결정에는 영향 없음.
