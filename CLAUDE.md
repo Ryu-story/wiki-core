@@ -104,25 +104,46 @@
   3. `docs/domain_feedback_log.md` 신설 + `docs/abstraction_decision.md` §5 #4 갱신 (commit `bffaf80`)
   4. `packages/core/SPEC.md` 514줄 박제 — 4요소 + 보조 슬롯 + 7 hook(5 기본 + WikiAccessControl/StorageRouter) + noiseFilter 헬퍼 4종 + Plugin Manifest + rootric plugin 작성 예시
   5. Phase 3 미해결 5 질문 중 3건 답 (#1 ScopeRef / #2 StorageRouter.resolve / #4 noiseFilter). #3 router / #5 renderer 는 각 패키지 SPEC 에서.
-- 산출물: `bffaf80` (피드백 로그 + 결정 갱신), Mercury 2차 종결 commit (이 항목 박제)
-- 종결 시점 통보 — 3 도메인 owner 에게 noiseFilter 결정 + `packages/core/SPEC.md` URL 전달 (메시지 템플릿은 `docs/domain_feedback_log.md` 끝)
+- 산출물: `bffaf80` (피드백 로그 + 결정 갱신), `1f8fd02` (코어 SPEC + Mercury 2차 박제), `9663db1` (collaboration protocol)
 
-### 다음 작업 후보 (Mercury 3차)
+### Mercury 3차 (2026-04-28 — 코어 SPEC 검증 + Phase 3 잔여 SPEC 묶음 박제)
+
+- **상태: Phase 3 SPEC 4종 모두 박제 완료. §5 미해결 5 질문 모두 답. 코드 작성 (Phase 3.5) 다음 세션.**
+- 진행 흐름:
+  1. 3 도메인 packages/core/SPEC.md 검증 모두 통과 — 로고스/플로터/루터 이의 0건. 코어 보완 요청 0건.
+     - 플로터: §4.1 ScopeRef 5단계 가시성+scope_id+역할매트릭스 매핑 충분 (★ 가장 부담 큰 영역 통과)
+     - 루터: §4.2 StorageRouter.resolve() 권장 예시가 enroute multi-storage 분리 그대로 반영
+     - 로고스: §부록 가설 코드 명세서 자연 매핑
+  2. `docs/domain_feedback_log.md` SPEC 검증 단계 누적 박제
+  3. `packages/storage/SPEC.md` 365줄 — `StorageAdapter` 인터페이스 + Postgres reference + 마이그레이션 SQL 골격 + `StorageRouter` reference + plugin extension hook table 패턴
+  4. `packages/router/SPEC.md` 310줄 — Router/RouterTier 인터페이스 + RouterInput (★ §5 #3 답 — sensitivity hint plugin 채움) + ModelHandle + budget hook + 3 도메인 사용 예 (rootric 4 / plott 4 / enroute 5 tier)
+  5. `packages/renderer/SPEC.md` 348줄 — 4 컴포넌트 input props (★ §5 #5 답 — 4요소·Provenance 직접 의존) + 입력 변환 헬퍼 + reference 구현 권장 + plugin 사용 예 (가시성 뱃지 wrapping / Constellation 자유 추가)
+- 산출물 commit: Mercury 3차 종결 commit (이 항목 박제 + 4 SPEC + domain_feedback_log 갱신)
+- **§5 미해결 5 질문 모두 답 박제 완료**:
+  - #1 ScopeRef schema → core SPEC §4.1
+  - #2 StorageRouter.resolve() 정책 → core SPEC §4.2 + storage SPEC §3
+  - #3 router ingest hook 시그니처 → router SPEC §1.1 (RouterInput + 호출 순서)
+  - #4 noiseFilter 코어 vs plugin → core SPEC §3.1 (Mercury 2차 확정)
+  - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
+- 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
+
+### 다음 작업 후보 (Mercury 4차)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **`packages/core/SPEC.md` 도메인 검토 결과 수렴** — SPEC 박제 후 3 도메인 owner 이의 들어왔는지 | 토론 1회 | 에드워드 |
-| 2 | **`packages/storage/SPEC.md`** — `StorageAdapter` 인터페이스 + Postgres 1차 구현 SPEC + RLS 통합 | 2-3h | `packages/core/SPEC.md` §4.2 |
-| 3 | **`packages/router/SPEC.md`** — Tier 가변 라우터 + ingest hook 시그니처(§5 #3 답) + 비용 hook | 2-3h | `packages/core/SPEC.md` §3 |
-| 4 | **`packages/renderer/SPEC.md`** — 4 컴포넌트 입력 형식 표준화(§5 #5 답) | 2-3h | `packages/core/SPEC.md` §1 |
-| 5 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig + 최소 fake plugin 픽스처 | 1-2h | 위 4 SPEC 완료 후 |
-| 6 | **Phase 4 도메인 합류 가이드** 작성 시작 — plugin 책임 명세 + boilerplate | 2-3h | Phase 3 완료 후 |
+| 1 | **storage/router/renderer SPEC 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
+| 2 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig + 최소 fake plugin 픽스처 (도메인 어휘 X) | 1-2h | 신규 |
+| 3 | **Phase 3.5 코어 코드 작성** — `@wiki-core/core` types/hooks/Plugin Manifest base impl + noise 헬퍼 4종 구현 | 4-6h | `packages/core/SPEC.md` |
+| 4 | **Phase 3.5 storage 코드 작성** — PostgresAdapter + 마이그레이션 SQL + StorageRouter reference | 4-6h | `packages/storage/SPEC.md` |
+| 5 | **Phase 3.5 router 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
+| 6 | **Phase 3.5 renderer 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
+| 7 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 | 3-4h | 신규 |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `packages/core/SPEC.md` 정독 (Phase 3 진입점) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
-3. 에드워드에게 SPEC 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2~4 (storage/router/renderer SPEC 작성) 진입
+2. `packages/{storage,router,renderer}/SPEC.md` 정독 (Phase 3.5 진입점) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
+3. 에드워드에게 3 SPEC 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2 (pnpm 셋업) 또는 #3 (코어 코드 작성) 진입
 
 ---
 

@@ -78,8 +78,34 @@ https://github.com/Ryu-story/wiki-core/blob/main/docs/abstraction_decision.md
 
 ---
 
+## Phase 3 코어 SPEC 검증 — 2026-04-28 (Mercury 3차)
+
+### 입력
+
+Mercury 2차 종결(2026-04-28) commit `1f8fd02`(`packages/core/SPEC.md`) + `9663db1`(`docs/edward_collaboration.md`) push 후, 에드워드가 3 도메인 owner 에게 동일 안내 전달:
+
+> 정독 우선순위: §0~§2 (모두) → §3.1 noiseFilter 헬퍼 분리선 → §4.1 WikiAccessControl + ScopeRef → §4.2 StorageRouter.resolve() → §5 Plugin Manifest → 부록 (rootric 가설 코드)
+> 박제: 본인 repo CLAUDE.md "마지막 세션 정보" 1-3줄 — "코어 SPEC OK" 또는 구체 이의
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| rootric | 로고스 | ✅ | 1차 noiseFilter 의견 채택 확인. §부록 가설 코드 명세서 §1.1-1.4 + §7.1 자연 매핑. 이의 0건. |
+| plott | 플로터 | ✅ | §4.1 ScopeRef로 5단계 가시성+scope_id+역할매트릭스 매핑 충분 (★ 가장 부담 큰 영역 통과). §3.1 약사 도메인 룰은 plugin combine 으로 흡수. §4.2 drug_master sync 별도 adapter 분리 가능. |
+| enroute | 루터 | ✅ | §4.2 StorageRouter.resolve() 권장 예시가 enroute multi-storage(시트=Trade Event / sqlite_local=C 레이어 / Postgres=일반) 그대로 반영. §4.1 trivial · §3.1 헬퍼 4종 · §5 Plugin Manifest 모두 정합. |
+
+→ **3 도메인 모두 packages/core/SPEC.md 1차 통과. 코어 보완 요청 0건.** storage/router/renderer SPEC 진입 안전 확보.
+
+### 머큐리 결정
+
+- 추가 단독 결정 없음 — 코어 SPEC 그대로 stable.
+- Mercury 3차 본격 진입 — `packages/storage/SPEC.md` + `packages/router/SPEC.md` + `packages/renderer/SPEC.md` 3 SPEC 묶음 작성.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 2차 종결 통보 후 — `packages/core/SPEC.md` 검토 결과 (이의 / 보완 / OK) |
+| 모두 | Mercury 3차 종결 통보 후 — `packages/{storage,router,renderer}/SPEC.md` 검토 결과 |
