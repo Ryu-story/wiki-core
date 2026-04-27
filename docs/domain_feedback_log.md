@@ -104,8 +104,47 @@ Mercury 2차 종결(2026-04-28) commit `1f8fd02`(`packages/core/SPEC.md`) + `966
 
 ---
 
+## Phase 3 잔여 SPEC (storage/router/renderer) 검증 — 2026-04-28 (Mercury 4차 진입 전)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| rootric | 로고스 | ✅ | 명세서 §5.1·§7.1·§8.3 + 30차 결정 4건 모두 수용. 보완 1건은 plugin 자체 컴포넌트 영역 (코어 변경 X). |
+| enroute | 루터 | ✅ | Storage §3.1 resolver(시트=Trade·sqlite=C·postgres=일반), Router §3.3 5 tier(T4_local_forced sensitivity==='C', cloud_forbidden:true), Renderer 4 컴포넌트 + Constellation 자유 조합 모두 wiki_requirements.md 와 동형. (메모: isCLayer(target) 분류기는 Phase 4 plugin 책임 — 이미 SPEC §3.1 plugin 책임 박제) |
+| plott | 플로터 | ✅ | plott 패턴(drug_master_view resolver / 4 Tier WARNING selector / VisibilityBadge wrapping) 모두 §3.1·§3.2·§4.2 직접 예시 박제 확인. **기존 wiki 4 테이블(`wiki_pages`/`wiki_links`/`wiki_versions`/`wiki_embeddings`) → 4요소 + plott_*_ext 매핑 가능** (Phase 4 마이그레이션 가이드 박제 활용). |
+
+→ **3 도메인 모두 storage/router/renderer SPEC 통과. 이의 0건. 코어 보완 요청 0건.** Phase 3.5 코드 작성 + pnpm 셋업 진입 동의 명시.
+
+---
+
+## Phase 3.5 1차 — pnpm 셋업 + `@wiki-core/core` 코드 박제 — 2026-04-28 (Mercury 4차)
+
+### 머큐리 단독 작업 (도메인 입력 없음)
+
+- pnpm workspaces 모노레포 셋업 — `pnpm-workspace.yaml` + 루트 `package.json` + `tsconfig.base.json` + `.gitignore`
+- `packages/core/` — `package.json` + `tsconfig.json` + 8 src 파일
+- 코드 박제 내용:
+  - `src/types.ts` — 4요소 + 보조 슬롯 + 기본 타입 (ID / ISOTimestamp / JSONValue / CreatedOrigin / Directionality / TargetKind)
+  - `src/access.ts` — ActorContext / TargetRef / ScopeRef / WikiAccessControl
+  - `src/hooks.ts` — CoreHooks (5 기본 hook)
+  - `src/storage-router.ts` — StorageAdapter / StorageRouter / QueryFilter / AdapterCapabilities (인터페이스만, 구현은 `@wiki-core/storage`)
+  - `src/utils/noise.ts` — stripHtml / isTooShort / matchesCssNoise / isBlankOrWhitespace / combine (predicate or-chain)
+  - `src/plugin.ts` — WikiPlugin / LabelSet / validatePlugin / registerPlugin (현재 manifest 검증 + storageRouter 필수 체크. WikiCore 본체 구현은 Mercury 5차)
+  - `src/index.ts` — public surface export
+- TypeScript typecheck 통과 (strict + noUncheckedIndexedAccess + verbatimModuleSyntax)
+- SPEC 부록 정정 — `packages/core/SPEC.md` §3.1 + 부록 rootric 가설 코드: `combine` 사용 패턴을 코드 일관 형태로 (stripHtml 은 transform → predicates chain 사전 처리)
+
+### 머큐리 결정
+
+- `registerPlugin` 1차 시그니처: `(plugin: WikiPlugin) => { plugin: WikiPlugin }` (manifest 검증 + storageRouter 필수). SPEC §5 의 `WikiCore` 반환은 Mercury 5차 storage 합류 후.
+- `LabelSet` 타입 신설 — SPEC §5 `labelSets: Array<{id; labels[]}>` 인라인 → 명시적 타입.
+- 도메인 어휘 0건 — 코어 코드 일체에 stock/drug/vision 등장 X (행동 원칙 #1 정합).
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 3차 종결 통보 후 — `packages/{storage,router,renderer}/SPEC.md` 검토 결과 |
+| 모두 | Mercury 4차 종결 통보 후 — `@wiki-core/core` 1차 코드 검토 결과 (plugin 작성 시 import / 헬퍼 사용 / 타입 호환성) |

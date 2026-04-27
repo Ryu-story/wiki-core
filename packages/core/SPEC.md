@@ -245,8 +245,16 @@ export function isBlankOrWhitespace(text: string): boolean {
 }
 
 /**
- * 위 4종 + plugin 자체 룰 chain.
- * 예: const filter = combine([stripHtml, isTooShort(20), matchesCssNoise, myDartSpecificRule])
+ * Predicate or-chain (any true → drop).
+ * stripHtml 은 string 반환 (transform) 이므로 chain 의 *사전 처리* 단계에서 사용.
+ *
+ * 예 (rootric — DART HTML):
+ *   const dropPred = combine([
+ *     (t) => isTooShort(t, 20),
+ *     matchesCssNoise,
+ *     dartHtmlNoise,                 // plugin 도메인 룰
+ *   ]);
+ *   const filter = (text: string) => dropPred(stripHtml(text));
  */
 export function combine(
   rules: Array<(text: string) => boolean>
@@ -490,12 +498,14 @@ export const rootricPlugin: WikiPlugin = {
         throw new Error('ticker must be 6 digits');
       }
     },
-    noiseFilter: combine([
-      stripHtml,             // 코어 헬퍼
-      (t) => isTooShort(t, 20),
-      matchesCssNoise,
-      dartHtmlNoise,         // rootric 도메인 룰
-    ]),
+    noiseFilter: (text) => {
+      const dropPred = combine([
+        (t) => isTooShort(t, 20),
+        matchesCssNoise,
+        dartHtmlNoise,         // rootric 도메인 룰
+      ]);
+      return dropPred(stripHtml(text));   // stripHtml = 코어 헬퍼 (transform → predicates)
+    },
     accessControl: {
       canRead: (actor, target) => true,                    // rootric trivial
       canWrite: (actor, target) => target.kind !== 'object' || actor.user_id != null,

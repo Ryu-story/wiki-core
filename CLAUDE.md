@@ -106,6 +106,18 @@
   5. Phase 3 미해결 5 질문 중 3건 답 (#1 ScopeRef / #2 StorageRouter.resolve / #4 noiseFilter). #3 router / #5 renderer 는 각 패키지 SPEC 에서.
 - 산출물: `bffaf80` (피드백 로그 + 결정 갱신), `1f8fd02` (코어 SPEC + Mercury 2차 박제), `9663db1` (collaboration protocol)
 
+### Mercury 4차 (2026-04-28 — pnpm 셋업 + `@wiki-core/core` 1차 코드 박제)
+
+- **상태: pnpm 모노레포 셋업 + `@wiki-core/core` 1차 코드 박제. TypeScript strict typecheck 통과. Phase 3.5 잔여 (storage/router/renderer 코드) 다음 세션.**
+- 진행 흐름:
+  1. 3 도메인 storage/router/renderer SPEC 검증 모두 통과 — 로고스/루터/플로터 이의 0건. 플로터 신규 정보: 기존 plott wiki 4 테이블 → 4요소 + plott_*_ext 매핑 가능 (Phase 4 마이그레이션 가이드 활용).
+  2. pnpm workspaces 셋업 — `pnpm-workspace.yaml` + 루트 `package.json` + `tsconfig.base.json` + `.gitignore`
+  3. `packages/core/` 1차 코드 — 8 src 파일 (types / access / hooks / storage-router / utils/noise / plugin / index + utils 디렉토리)
+  4. SPEC 부록 정정 — `packages/core/SPEC.md` §3.1 부록 rootric 가설 코드의 combine 사용 패턴 코드 일관 형태로
+  5. TypeScript typecheck 통과 (strict + noUncheckedIndexedAccess + verbatimModuleSyntax)
+- 핵심 박제: 코어 패키지가 plugin import 가능한 surface 갖춤 (모든 type + validatePlugin + registerPlugin manifest 검증). WikiCore 본체 구현 (4요소 CRUD)은 Mercury 5차 storage 합류 후.
+- 행동 원칙 #1 정합 검증 — 코어 코드 일체에 도메인 어휘 (stock / drug / vision) 0건.
+
 ### Mercury 3차 (2026-04-28 — 코어 SPEC 검증 + Phase 3 잔여 SPEC 묶음 박제)
 
 - **상태: Phase 3 SPEC 4종 모두 박제 완료. §5 미해결 5 질문 모두 답. 코드 작성 (Phase 3.5) 다음 세션.**
@@ -127,23 +139,22 @@
   - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
 - 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
 
-### 다음 작업 후보 (Mercury 4차)
+### 다음 작업 후보 (Mercury 5차)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **storage/router/renderer SPEC 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
-| 2 | **pnpm workspaces 모노레포 셋업** — package.json 4개 + tsconfig + 최소 fake plugin 픽스처 (도메인 어휘 X) | 1-2h | 신규 |
-| 3 | **Phase 3.5 코어 코드 작성** — `@wiki-core/core` types/hooks/Plugin Manifest base impl + noise 헬퍼 4종 구현 | 4-6h | `packages/core/SPEC.md` |
-| 4 | **Phase 3.5 storage 코드 작성** — PostgresAdapter + 마이그레이션 SQL + StorageRouter reference | 4-6h | `packages/storage/SPEC.md` |
-| 5 | **Phase 3.5 router 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
-| 6 | **Phase 3.5 renderer 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 7 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 | 3-4h | 신규 |
+| 1 | **`@wiki-core/core` 1차 코드 도메인 검토 결과 수렴** | 토론 1회 | 에드워드 |
+| 2 | **`@wiki-core/storage` 코드 작성** — PostgresAdapter + 마이그레이션 SQL + StorageRouter reference impl | 4-6h | `packages/storage/SPEC.md` |
+| 3 | **`@wiki-core/core` `WikiCore` 본체 구현** — 4요소 CRUD + hook chain + access control + storage routing (storage 합류 후) | 3-4h | `packages/core/SPEC.md` §5 |
+| 4 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
+| 5 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
+| 6 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 박제) | 3-4h | 신규 |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `packages/{storage,router,renderer}/SPEC.md` 정독 (Phase 3.5 진입점) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
-3. 에드워드에게 3 SPEC 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2 (pnpm 셋업) 또는 #3 (코어 코드 작성) 진입
+2. `packages/core/src/` 정독 (Mercury 4차 박제 코드) + `docs/domain_feedback_log.md` 정독 (피드백 누적 상태 확인)
+3. 에드러드에게 코어 1차 코드 박제 후 도메인 owner 응답 도착했는지 확인 → 있으면 #1 작업, 없으면 #2 (storage 코드 — `WikiCore` 본체 의존) 진입. 의존 그래프상 storage 먼저, 그 다음 core `WikiCore` 본체, router/renderer 는 독립이라 병행 가능.
 
 ---
 
