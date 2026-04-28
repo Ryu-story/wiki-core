@@ -255,8 +255,47 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
+## Phase 4 가이드 검증 결과 — 2026-04-28 (Mercury 8차 진입)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| plott | 플로터 | ✅ | §3.2 plott wiki 4 테이블 매핑 plott Phase 4 plugin 시작점 충분. §1.4 accessControl 5단계 가시성+scope_id+역할매트릭스 정합. pgvector → `plott_attribute_ext` + `onAttributeWrite` hook + `ON CONFLICT UPDATE` OK. 코어 인터페이스 보완 요청 0건. |
+| rootric | 로고스 | ✅ critical path 완전 해소 | §2 SupabaseAdapter 자체 빌드 + service-role/anon-key + RLS 2중 게이트 + RPC 트랜잭션 — 모두 rootric 환경 정합. **6차 #4 보완이 본격 박스로 완전 마무리, rootric plugin 코드 시작 가능 상태**. §3 rootric 영향 적음 (신규 합류, 기존 wiki 테이블 없음). 다음: router/renderer 코드 박제 후 enroute plugin 작성 진입. |
+| enroute | 루터 | ✅ critical path 해소 | §2 SupabaseAdapter Next.js API routes + service-role 정합. multi-storage (시트 / sqlite_local / postgres) 자체 빌드 패턴 동일 적용 가능. §4.3 sensitivity 분류기 (A/B/C + C → Tier 4) "민감도 3계층 라우팅" 그대로. 박제 commit `2142f60`. **합류 시점 제약 — Phase 3-A 검증 데이 5일치 통과 후 (2026-05-04 이후)**. 현재 04-28 검증 데이 2일차. |
+
+→ **3 도메인 모두 Phase 4 가이드 OK. 코어 인터페이스 보완 요청 0건.**
+
+### 합류 순서 합의 — enroute → rootric → plott
+
+3 도메인 모두 §6 머큐리 추천 동의.
+- enroute 1차 (trivial accessControl + Phase 3-A 검증 통과 후 = 05-04 이후)
+- rootric 2차 (멀티유저 SaaS, SupabaseAdapter 자체 빌드 검증)
+- plott 3차 (5단계 가시성 + scope_id, 가장 복잡)
+
+### 메모 2건 — 머큐리 결정: 가이드 변경 X (plugin 자유 영역)
+
+| 메모 | 출처 | 머큐리 결정 |
+|---|---|---|
+| §1.4 accessControl `ownsTarget` 표현이 rootric 자동 ingest 환경에 어색 (Wiki 공개·편집 admin/service-role 한정 패턴) | 로고스 | 가이드 변경 X. 도메인 owner 명시 "plugin 자유 정의 영역". §0.2 일반 원칙(plugin 이 안 해도 되는 것)으로 박제됨. |
+| §3.4 `enroute_attribute_ext.sensitivity_layer` 가 ext attr vs `enroute_sensitivity` labelSet 둘 다 옵션 (plugin 자유 선택) | 루터 | 가이드 변경 X. 동일 사유. enroute manifest 가설은 labelSet 으로 갈 가능성 높음 (plugin 자체 빌드 영역). |
+
+### 머큐리 단독 결정 — Mercury 8차 본 작업: router/renderer 코드 박제
+
+**근거**:
+- 3 도메인 합류 순서 (enroute → rootric → plott) 합의
+- enroute 합류 가능 시점 = 2026-05-04 이후 (약 1주 여유)
+- 로고스 명시: "router/renderer 코드 박제 후 enroute plugin 작성 진입"
+- 루터 명시: "Mercury 8차+ router/renderer 코드 도착 시 합류 작업 중 통합"
+
+→ 1주 여유 안에 router/renderer 코드 박제 → enroute 합류 (05-04 이후) 시 통합. 행동 원칙 #5 YAGNI 정합 (즉시 필요한 게 우선).
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 7차 Phase 4 합류 가이드 박제 후 — 본격 Supabase RPC wrap 박스 + plugin boilerplate 검토 (각 도메인 plugin 작성 시작 가능 여부). router/renderer 코드 박제는 Phase 4 후 별도. |
+| 모두 | Mercury 8차 router/renderer 코드 박제 후 — Tier 라우터 (rootric 4 / plott 4 / enroute 5 tier) + 4 컴포넌트 reference (TimeSeriesChart / RelationGraph / Timeline / SourceCard) 도메인 환경 검증 |
+| enroute (특수) | Phase 3-A 검증 데이 5일치 통과 (2026-05-04 이후) — enroute plugin 합류 본격 진입 |
