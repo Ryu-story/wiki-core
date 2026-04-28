@@ -204,20 +204,39 @@
 - 행동 원칙 #1 정합 — router 코드 일체 도메인 어휘 0건
 - 다음 입력 대기: 3 도메인 router 코드 검증 결과 (Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성)
 
-### 다음 작업 후보 (Mercury 9차+)
+### Mercury 9차 (2026-04-28 — Router.resetBudget patch + `@wiki-core/renderer` 코드 박제)
+
+- **상태: router patch + renderer 코드 박제 완료. tsc -b 통과 (5 workspace projects). Phase 3.5 코어 4 패키지 모두 박제 완료. 첫 도메인 plugin 합류 (enroute, 05-04 이후) 대기.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull (Mercury 8차 종결 후 합쳐진 환경)
+  2. 3 도메인 router 코드 검증 응답 수렴 — 모두 OK, 코어 변경 요청 0건. **로고스 보완 의견 1건** (Budget window reset 메커니즘 미명시, singleton 캐시 영원 누적 트랩 — 변경 요청 X)
+  3. 머큐리 단독 결정 — `Router.resetBudget()` 추가 (semver minor additive, 부분 채택). 의견 "변경 요청 X" 받아들이되 머큐리 자체 판단 *방어적 추가*. Mercury 2차 noiseFilter 패턴 동일.
+  4. router patch 박제 — `types.ts` Router 인터페이스 + `router.ts` createRouter + `SPEC.md` §1·§2.1 (월별 reset 패턴 박스 신설)
+  5. 머큐리 단독 결정 — renderer 박제 범위 축소: **JSX reference 컴포넌트는 plugin 책임** (frontend dep boundary 회피, monorepo backend dep 만 유지). 코어는 input props + 변환 헬퍼만.
+  6. renderer 코드 박제 — `src/types.ts` (4 컴포넌트 props + 보조) + `src/transform.ts` (attributesToTimeSeries / buildRelationGraph / groupEvents) + `src/index.ts` + `SPEC.md` §0.1·§3 갱신
+- 산출물 commit: `e4b5e7b` (Router.resetBudget patch), `6150e06` (renderer 코드)
+- 핵심 박제:
+  - `Router.resetBudget(newWindowStart?)` — singleton 캐시 영원 누적 트랩 차단
+  - `TimeSeriesSeries / RelationGraphNode/Edge / TimelineProps / SourceCardProps` 4 input props 표준
+  - 3 변환 헬퍼 — 같은 (object_id, key) 묶음 + valid_at 정렬 / drop_isolated 옵션 / day/week ISO 주차 키
+- 행동 원칙 #1 정합 — router patch + renderer 코드 일체 도메인 어휘 0건. core/storage/router/renderer 모두 backend 가능 surface (frontend dep 미도입)
+- **Phase 3.5 종결**: 코어 4 패키지 (core/storage/router/renderer) 모두 박제 완료. 첫 도메인 plugin 합류 진입 가능 상태.
+- 다음 입력 대기: 3 도메인 router patch + renderer 코드 검증 결과
+
+### 다음 작업 후보 (Mercury 10차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **3 도메인 router 코드 검증 수렴** — Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성 OK 또는 보완 | 토론 1회 | 에드워드 |
-| 2 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 3 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott, enroute 시작 가능 시점 = 2026-05-04 이후) | 도메인 owner | 신규 |
+| 1 | **3 도메인 router patch + renderer 코드 검증 수렴** — Router.resetBudget 추가 + 4 input props + 3 변환 헬퍼 도메인 환경 동작 가능성 | 토론 1회 | 에드워드 |
+| 2 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott, enroute 시작 가능 시점 = 2026-05-04 이후) | 도메인 owner | 신규 |
+| 3 | **renderer JSX reference 컴포넌트 추가** (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 | 4 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — router 코드 검증 도착 여부 확인 + enroute 시점 제약 (05-04 이후) 인지
-3. 검증 도착 → #1 수렴 박제 + (renderer 코드 또는 첫 도메인 plugin 합류 진입). 미도착 → #2 renderer 진입 동의 받기.
+2. `docs/domain_feedback_log.md` 정독 — router patch + renderer 코드 검증 도착 여부 + enroute 시점 제약 (05-04 이후) 인지
+3. 검증 도착 → #1 수렴 박제 + (도메인 plugin 합류 또는 추가 patch). 미도착 → 도메인 owner 응답 기다림 (router/renderer 후속 작업 없음, Phase 3.5 종결 상태)
 
 ---
 

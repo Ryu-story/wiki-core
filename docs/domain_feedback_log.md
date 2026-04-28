@@ -326,5 +326,5 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 9차 (a) Router.resetBudget patch + (b) renderer 코드 박제 후 — 두 단계 검증. (a) 는 단순 추가 (영향 적음), (b) 는 4 컴포넌트 + 변환 헬퍼. |
+| 모두 | commit `e4b5e7b` (Router.resetBudget patch) + commit `6150e06` (renderer 코드) — Phase 3.5 코어 4 패키지 모두 박제 완료. 두 단계 검증 (Router.resetBudget 단순 추가 + renderer 4 input props + 3 변환 헬퍼 + JSX 컴포넌트 plugin 책임 결정). |
 | enroute (특수) | Phase 3-A 검증 데이 5일치 통과 (2026-05-04 이후) — enroute plugin 합류 본격 진입 |
