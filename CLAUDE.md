@@ -244,7 +244,6 @@
 | 2 | **rootric plugin 합류** (enroute 1차 검증 통과 후) | 도메인 owner | 신규 |
 | 3 | **plott plugin 합류** (rootric 2차 검증 통과 후, 가장 복잡 — 5단계 가시성 + scope_id) | 도메인 owner | 신규 |
 | 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
-| 5 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
