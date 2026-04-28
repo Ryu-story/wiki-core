@@ -178,13 +178,18 @@ StorageRouter { adapters[], resolve(target) }     // ★ 매트릭스 신규
 
 ### Phase 4 — 도메인 plugin 합류 (도메인 owner 작업)
 
-머큐리가 작성할 합류 가이드 (Phase 3 SPEC 완료 후):
+머큐리 합류 가이드 박제 완료 — `docs/phase4_plugin_guide.md` (Mercury 7차, 2026-04-28):
 
-1. **plugin 책임 명세** — 4.3 표 확장
-2. **plugin 작성 boilerplate** — 코어 인터페이스 구현 템플릿
-3. **합류 순서 결정** — rootric 먼저? plott 먼저? (도메인 owner의 작업 가능 시점에 따라)
-4. **기존 schema 마이그레이션 가이드** — plugin이 기존 테이블을 코어 인터페이스로 read/write 어댑터 작성
-5. **검증 체크리스트** — plugin이 코어 hook 5개 모두 구현했는지, label_set 등록했는지 등
+- ✅ §0 plugin 책임 (5 의무 + 안 해도 되는 것 + 충돌 흐름)
+- ✅ §1 plugin manifest boilerplate (Module Augmentation + 5 hook + accessControl 도메인별 패턴)
+- ✅ §2 **Supabase RPC wrap 본격 박스** ★ rootric+enroute critical path 해소 — `SupabaseAdapter` 자체 빌드 권장 (PostgresAdapter wrap 시도 X) + service-role/anon-key 가이드 + Postgres function 트랜잭션 옵션
+- ✅ §3 기존 schema 마이그레이션 가이드 — ★ plott wiki 4 테이블(`wiki_pages`/`wiki_links`/`wiki_versions`/`wiki_embeddings`) → 4요소 + `plott_*_ext` 매핑 케이스 + 다른 도메인 매핑 패턴 참고표
+- ✅ §4 ingest 파이프라인 boilerplate — noiseFilter → sensitivity → router → adapter
+- ✅ §5 검증 체크리스트 — Manifest / Hook / Storage / 마이그레이션 / 빌드·타입 / 통합 동작
+- §6 합류 순서 머큐리 추천 — enroute → rootric → plott (단 도메인 owner 작업 가능 시점에 따라 자유, 합의는 에드워드 경유)
+- 부록 A — 자주 만나는 트랩 5종 (storageRouter 누락 / stripHtml combine 오용 / service-role 노출 / PG 15.x CREATE POLICY / multi-storage label 조회)
+
+→ 다음: 3 도메인 검증 → 첫 도메인 plugin 합류 진입.
 
 ---
 

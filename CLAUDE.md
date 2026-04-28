@@ -135,14 +135,25 @@
 
 ### Mercury 6차 (2026-04-28 — Mercury 5차 보강 patch 박제)
 
-- **상태: Mercury 5차 종결 후 도메인 검증 보완 4건 patch 박제 완료. tsc -b 통과. router/renderer 코드 박제는 도메인 검토 후 진입.**
+- **상태: Mercury 5차 종결 후 도메인 검증 보완 4건 patch 박제 완료. tsc -b 통과.**
 - 진행 흐름:
   1. 시작 루틴 — git pull 7 commits (Mercury 2~5차 작업 다른 환경에서 진행됨), CLAUDE.md / edward_collaboration.md / abstraction_decision.md / domain_feedback_log.md 정독
   2. 영향 파일 5종 + 추가 정독 (wiki-core.ts / index.ts / postgres.ts / 0002_rls.sql / storage/SPEC.md / storage-router.ts / types.ts / access.ts)
   3. patch 4건 일괄 적용 — deleteLabel + multi-target checkWrite + RLS DROP+CREATE + DbClient wrap 박스
   4. tsc -b build 통과 확인 (npx pnpm install 후)
 - 산출물 commit: `2a9b65f` (Mercury 5차 보강 patch 4건 — `wiki-core.ts` / `storage-router.ts` / `postgres.ts` / `0002_rls.sql` / `storage/SPEC.md`)
-- 다음 입력 대기: 3 도메인 owner의 patch 4건 검토 결과 (특히 #4 DbClient wrap 옵션 — 각 도메인 환경에서 동작 가능성)
+
+### Mercury 7차 (2026-04-28 — Phase 4 합류 가이드 박제)
+
+- **상태: 3 도메인 patch 4건 검증 통과 + `docs/phase4_plugin_guide.md` 박제 완료. 도메인 owner Phase 4 가이드 검증 대기. router/renderer 코드는 Mercury 8차+ 별도 진입.**
+- 진행 흐름:
+  1. 3 도메인 patch 4건 검토 응답 수렴 — plott `a217abc` / rootric (#4 ⚠️ 부분 OK, Phase 4 가이드 critical path 명시) / enroute `52049a2`. 4건 모두 OK, 코어 인터페이스 변경 요청 0건.
+  2. 머큐리 단독 결정 — Phase 4 합류 가이드 우선 (rootric + enroute 차단 요인 명시). router/renderer 후행 (semver minor additive).
+  3. `docs/phase4_plugin_guide.md` 박제 — 5 박스 (manifest / Supabase RPC 본격 박스 / 마이그레이션 / ingest / 체크리스트) + 합류 순서 추천 + 부록 A 트랩 5종
+  4. `docs/abstraction_decision.md` §5 Phase 4 박스 갱신 — 가이드 박제 결과 반영
+- 산출물 commit: `a44eece` (patch 검토 결과 수렴 + Mercury 7차 결정 박제), 다음 commit (Mercury 7차 종결 박제 + Phase 4 가이드)
+- 핵심 박제: **Supabase RPC wrap 본격 박스** — `SupabaseAdapter` 자체 빌드 권장 (PostgresAdapter wrap 시도 X) + service-role/anon-key 가이드 + Postgres function 트랜잭션 옵션. rootric + enroute critical path 해소.
+- 다음 입력 대기: 3 도메인 owner의 Phase 4 가이드 검증 결과
 
 ### Mercury 4차 (2026-04-28 — pnpm 셋업 + `@wiki-core/core` 1차 코드 박제)
 
@@ -177,21 +188,21 @@
   - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
 - 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
 
-### 다음 작업 후보 (Mercury 7차+)
+### 다음 작업 후보 (Mercury 8차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **3 도메인 patch 검토 결과 수렴** — 4건 patch OK 또는 추가 보완 의견 | 토론 1회 | 에드워드 |
-| 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
+| 1 | **3 도메인 Phase 4 가이드 검증 수렴** — 5 박스 OK 또는 보완 의견 (특히 §2 SupabaseAdapter 자체 빌드 권장이 rootric+enroute 환경에서 동작 가능성) | 토론 1회 | 에드워드 |
+| 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 | 3-4h | `packages/router/SPEC.md` |
 | 3 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 + Supabase DbClient wrap 본격 박스) | 3-4h | 신규 |
+| 4 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott) | 도메인 owner | 신규 |
 | 5 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` "박제 시점" + "다음 입력 대기" 정독 — patch 4건 박제 완료 (commit `2a9b65f`) 확인
-3. 에드워드에게 도메인 검토 결과 있는지 확인 → 있으면 #1 수렴, 없으면 #2/3 router/renderer 진입 동의 받기
+2. `docs/domain_feedback_log.md` 정독 — Phase 4 가이드 검증 도착 여부 확인
+3. 검증 도착 → #1 수렴 박제 + (router/renderer 또는 첫 도메인 plugin 합류 진입). 미도착 → #2/3 router/renderer 진입 동의 받기.
 
 ---
 
