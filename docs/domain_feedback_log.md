@@ -218,8 +218,45 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
+## patch 4건 검토 결과 — 2026-04-28 (Mercury 7차 진입)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| plott | 플로터 | ✅ | #2 직접 영향 — Regulation event admin 발행 표준, 권한 누수 방지가 본질. 부분 성공 필요 시 클라이언트 사전 권한 필터링 후 object_ids 전달 패턴 OK. 완화 요청 없음. #1 단일 Postgres 라 multi-storage 영향 없음. #3·#4 정합. 박제 commit `a217abc`. |
+| rootric | 로고스 | ✅ (단 #4 ⚠️ 부분 OK) | #1 ✅ 잘못 분류 정정 케이스. #2 ✅ supplies_to·competes_with 정합 (보수적 OK, plugin 자체 canWrite 우회 가능). #3 ✅ Supabase 15.x 호환. **#4 ⚠️ 옵션 C (Supabase RPC) "옵션 존재만 명시" 상태라 현재 §2 박스만으로는 plugin 코드 시작 불가**. 코어 인터페이스 변경 없음 인지. **Phase 4 합류 가이드 본격 박스 = rootric 합류의 critical path**. |
+| enroute | 루터 | ✅ | #1 multi-storage 순회 정합 — UUID v7 글로벌 고유 + 최악 3 round-trip 허용 가능. #3 PG 9.1+ idempotent + Supabase 15.x (zeqnonlukuroexoxifem). #2 Container↔Activity multi-target 보수적 OK. **#4 enroute Phase 4 plugin 작성 시 옵션 C (Supabase RPC) 우선 검토 예정** — 이미 supabase-js + service-role 인프라 갖춤, pg/postgres.js 신규 의존성 회피. 박제 commit `52049a2`. |
+
+→ **3 도메인 모두 patch 4건 OK. 코어 인터페이스 변경 요청 0건.**
+
+### 머큐리 단독 결정 — 다음 작업: Phase 4 합류 가이드 우선
+
+**근거**:
+- rootric: "Phase 4 합류 가이드가 차단 요인. 옵션 C RPC 패턴 정의 없으면 plugin 작성 못 시작"
+- enroute: "본격 박스 Mercury 7차+ Phase 4 합류 가이드에서 받음. supabase-js 단독 환경"
+- plott: 차단 요인 명시 X (router/renderer / Phase 4 가이드 모두 OK)
+
+→ 2/3 도메인이 Phase 4 합류 가이드 = critical path 로 명시. router/renderer 코드는 plugin 합류 후 semver minor 추가 가능 (additive). 행동 원칙 #5 YAGNI — plugin 작성에 즉시 필요한 게 우선.
+
+### Phase 4 합류 가이드 신규 산출물 후보 (Mercury 7차)
+
+산출물 위치 후보: `docs/phase4_plugin_guide.md` 또는 `packages/core/PLUGIN_GUIDE.md` (Phase 4 진입 시 결정).
+
+핵심 박스:
+1. **plugin manifest boilerplate** — 4요소 type 카탈로그 + 5 hook + storageRouter + labelSets
+2. **Supabase RPC wrap 본격 박스** ★ rootric + enroute critical path
+   - `wiki_query` Postgres function 정의 (security definer / params binding)
+   - supabase-js 호출 패턴 (`.rpc()` 또는 PostgREST 우회)
+   - service-role vs anon-key 가이드 + RLS 상호작용
+3. **기존 schema 마이그레이션 가이드** — ★ plott wiki 4 테이블(`wiki_pages`/`wiki_links`/`wiki_versions`/`wiki_embeddings`) → 4요소 + `plott_*_ext` 매핑 케이스
+4. **ingest 파이프라인 boilerplate** — `noiseFilter` → sensitivity 분류 → router → adapter (Mercury 5차 미해결 후보)
+5. **검증 체크리스트** — plugin이 코어 hook·label_set·storage adapter 모두 구현했는지
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | commit `2a9b65f` (Mercury 5차 보강 patch 4건 박제 완료, Mercury 6차) — 4건 patch 검토 결과. 특히 #4 DbClient wrap 옵션 박스 (pg / postgres.js / Supabase RPC) 각 도메인 환경 동작 가능성 |
+| 모두 | Mercury 7차 Phase 4 합류 가이드 박제 후 — 본격 Supabase RPC wrap 박스 + plugin boilerplate 검토 (각 도메인 plugin 작성 시작 가능 여부). router/renderer 코드 박제는 Phase 4 후 별도. |
