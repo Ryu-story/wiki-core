@@ -188,21 +188,36 @@
   - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
 - 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
 
-### 다음 작업 후보 (Mercury 8차+)
+### Mercury 8차 (2026-04-28 — `@wiki-core/router` 코드 박제)
+
+- **상태: router 패키지 박제 완료. tsc -b 통과 (4 workspace projects). renderer 코드는 Mercury 9차+ 별도 진입.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull (Mercury 7차 종결 후 합쳐진 환경)
+  2. 3 도메인 Phase 4 가이드 검증 응답 수렴 — 모두 OK, 코어 인터페이스 보완 요청 0건. critical path 해소 (rootric+enroute). 합류 순서 합의 (enroute → rootric → plott).
+  3. enroute 합류 시점 제약 명시 (2026-05-04 이후 Phase 3-A 검증 통과 후) → router/renderer 코드 박제가 약 1주 여유 안에 진행 가능
+  4. 로고스 메모 (ownsTarget 표현) + 루터 메모 (sensitivity ext-vs-label) — 머큐리 결정 가이드 변경 X (plugin 자유 영역, §0.2 일반 원칙으로 박제됨)
+  5. 머큐리 단독 결정 — Mercury 8차 본 작업: router 코드 우선 (renderer 후행, plugin 합류에 더 critical)
+  6. packages/router/ 셋업 + 코드 박제 (package.json + tsconfig.json + 4 src 파일) + 루트 tsconfig references 추가
+  7. tsc -b 통과 검증
+- 산출물 commit: `a9244af` (Phase 4 가이드 검증 결과 수렴), `2ccc82c` (router 코드 박제)
+- 핵심 박제: `Router` (tiers / route / getBudget) + `RouterTier` (id / selector / model | null / cost_estimator? / meta?) + `RouterInput` (★ §5 #3 답 — text / context / sensitivity / hints) + `ModelHandle` (id / invoke / stream? / capabilities) + `BudgetTracker` (add / snapshot / reset) + `NoTierMatch` error + `createRouter` factory
+- 행동 원칙 #1 정합 — router 코드 일체 도메인 어휘 0건
+- 다음 입력 대기: 3 도메인 router 코드 검증 결과 (Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성)
+
+### 다음 작업 후보 (Mercury 9차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **3 도메인 Phase 4 가이드 검증 수렴** — 5 박스 OK 또는 보완 의견 (특히 §2 SupabaseAdapter 자체 빌드 권장이 rootric+enroute 환경에서 동작 가능성) | 토론 1회 | 에드워드 |
-| 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 | 3-4h | `packages/router/SPEC.md` |
-| 3 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 4 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott) | 도메인 owner | 신규 |
-| 5 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
+| 1 | **3 도메인 router 코드 검증 수렴** — Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성 OK 또는 보완 | 토론 1회 | 에드워드 |
+| 2 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
+| 3 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott, enroute 시작 가능 시점 = 2026-05-04 이후) | 도메인 owner | 신규 |
+| 4 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — Phase 4 가이드 검증 도착 여부 확인
-3. 검증 도착 → #1 수렴 박제 + (router/renderer 또는 첫 도메인 plugin 합류 진입). 미도착 → #2/3 router/renderer 진입 동의 받기.
+2. `docs/domain_feedback_log.md` 정독 — router 코드 검증 도착 여부 확인 + enroute 시점 제약 (05-04 이후) 인지
+3. 검증 도착 → #1 수렴 박제 + (renderer 코드 또는 첫 도메인 plugin 합류 진입). 미도착 → #2 renderer 진입 동의 받기.
 
 ---
 

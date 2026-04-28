@@ -297,5 +297,5 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 8차 router/renderer 코드 박제 후 — Tier 라우터 (rootric 4 / plott 4 / enroute 5 tier) + 4 컴포넌트 reference (TimeSeriesChart / RelationGraph / Timeline / SourceCard) 도메인 환경 검증 |
+| 모두 | commit `2ccc82c` (Mercury 8차 router 코드 박제) — Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성 검증. renderer 코드는 Mercury 9차+ 별도. |
 | enroute (특수) | Phase 3-A 검증 데이 5일치 통과 (2026-05-04 이후) — enroute plugin 합류 본격 진입 |
