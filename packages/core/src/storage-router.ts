@@ -59,6 +59,7 @@ export interface StorageAdapter {
   listProvenance(target: TargetRef): Promise<WikiProvenance[]>;
 
   createLabel(payload: Omit<WikiLabel, 'id'>): Promise<WikiLabel>;
+  getLabel(id: ID): Promise<WikiLabel | null>;
   listLabels(target: TargetRef): Promise<WikiLabel[]>;
   deleteLabel(id: ID): Promise<void>;
 

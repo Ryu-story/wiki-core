@@ -25,6 +25,7 @@ import type {
   TargetRef,
   ScopeRef,
 } from './access.js';
+import type { StorageAdapter } from './storage-router.js';
 import type { WikiPlugin } from './plugin.js';
 
 export interface WikiCore {
@@ -79,6 +80,7 @@ export interface WikiCore {
     actor: ActorContext
   ): Promise<WikiLabel>;
   listLabels(target: TargetRef, actor: ActorContext): Promise<WikiLabel[]>;
+  deleteLabel(id: ID, actor: ActorContext): Promise<void>;
 
   // Access control 노출
   scopes(target: TargetRef, actor: ActorContext): Promise<ScopeRef[]>;
@@ -198,10 +200,10 @@ export function createWikiCore(plugin: WikiPlugin): WikiCore {
     // ─── Event ──────────────────────────────────────────
 
     async createEvent(payload, actor) {
-      // 첫 object 의 write 권한 검증 (event 는 N개 object 영향)
-      const firstObjectId = payload.object_ids[0];
-      if (firstObjectId) {
-        await checkWrite(actor, { kind: 'object', id: firstObjectId });
+      // 모든 object_ids 에 write 권한 검증 (multi-target 누수 차단 — Mercury 5차 종결 후 보강).
+      // 한 번이라도 실패 시 즉시 throw (보수적). plugin 이 더 느슨한 정책 원하면 자체 canWrite 에서 결정.
+      for (const objectId of payload.object_ids) {
+        await checkWrite(actor, { kind: 'object', id: objectId });
       }
       const adapter = await router.resolve({ kind: 'event', id: NEW_ID });
       return adapter.createEvent(payload);
@@ -255,6 +257,28 @@ export function createWikiCore(plugin: WikiPlugin): WikiCore {
       await checkRead(actor, target);
       const adapter = await router.resolve(target);
       return adapter.listLabels(target);
+    },
+
+    async deleteLabel(id, actor) {
+      // Label 은 4요소 보조 슬롯 — TargetKind 에 'label' 없음.
+      // router.resolve 는 4요소만 받으므로 adapters 순회로 label 위치 찾고
+      // label.target 으로 checkWrite. single-storage 는 1회 조회.
+      let found: { adapter: StorageAdapter; label: WikiLabel } | null = null;
+      for (const adapter of Object.values(router.adapters)) {
+        const label = await adapter.getLabel(id);
+        if (label) {
+          found = { adapter, label };
+          break;
+        }
+      }
+      if (!found) {
+        throw new Error(`label not found: ${id}`);
+      }
+      await checkWrite(actor, {
+        kind: found.label.target_kind,
+        id: found.label.target_id,
+      });
+      await found.adapter.deleteLabel(id);
     },
 
     // ─── Access control 노출 ────────────────────────────

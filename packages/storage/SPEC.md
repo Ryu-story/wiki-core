@@ -79,6 +79,7 @@ export interface StorageAdapter {
   listProvenance(target: TargetRef): Promise<WikiProvenance[]>;
 
   createLabel(payload: Omit<WikiLabel, 'id'>): Promise<WikiLabel>;
+  getLabel(id: ID): Promise<WikiLabel | null>;       // Mercury 5차 종결 후 추가 — WikiCore.deleteLabel 에서 access control 위해 label.target 조회용
   listLabels(target: TargetRef): Promise<WikiLabel[]>;
   deleteLabel(id: ID): Promise<void>;
 
@@ -149,9 +150,12 @@ export class PostgresAdapter implements StorageAdapter {
 }
 ```
 
-**plugin 사용 예 — pg.Pool wrap**:
+**plugin 사용 예 — DbClient wrap 옵션** (Mercury 5차 종결 후 박제 — 로고스 보완):
+
+도메인 환경에 따라 driver 선택. 모두 동일 `DbClient` 인터페이스 구현.
 
 ```ts
+// 옵션 A — pg.Pool wrap (Node 서버, 신규 의존성 OK)
 import { Pool } from 'pg';
 import { PostgresAdapter } from '@wiki-core/storage';
 
@@ -162,6 +166,30 @@ const adapter = new PostgresAdapter({
   },
 });
 ```
+
+```ts
+// 옵션 B — postgres.js wrap (Edge runtime / Cloudflare Workers)
+import postgres from 'postgres';
+import { PostgresAdapter } from '@wiki-core/storage';
+
+const sql = postgres(process.env.DATABASE_URL!);
+const adapter = new PostgresAdapter({
+  db: {
+    query: async (q, params = []) => ({ rows: await sql.unsafe(q, params as unknown[]) }),
+  },
+});
+```
+
+```ts
+// 옵션 C — Supabase RPC wrap (supabase-js 만 쓰는 환경, e.g. rootric — pg/postgres.js 신규 의존성 회피)
+// → 정확한 RPC function 정의 + 호출 패턴은 Phase 4 합류 가이드에서 본격 박제.
+//   이 박스는 옵션 존재만 명시 (Mercury 5차 종결 후 로고스 보완 의견 반영).
+```
+
+**선택 기준**:
+- Node 서버 환경 (rootric Supabase 외 backend) → 옵션 A
+- Edge / Workers → 옵션 B
+- 기존 Supabase 프로젝트 + supabase-js 만 사용 → 옵션 C (Phase 4 가이드 대기)
 
 ### 2.1 마이그레이션 SQL 골격
 
@@ -248,6 +276,9 @@ CREATE INDEX wiki_labels_set ON wiki_labels(label_set_id, label_id);
 ```sql
 -- @wiki-core/storage/migrations/0002_rls.sql
 -- WikiAccessControl hook 이 application layer 에서 결정. RLS 는 그 위 안전망.
+--
+-- Mercury 5차 종결 후 정정 (로고스 + 루터): `CREATE POLICY IF NOT EXISTS` 는 PG 16+ 한정.
+-- Supabase 15.x 호환을 위해 DROP POLICY IF EXISTS + CREATE POLICY 패턴 사용 (idempotent).
 
 ALTER TABLE wiki_objects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wiki_attributes ENABLE ROW LEVEL SECURITY;
@@ -258,11 +289,13 @@ ALTER TABLE wiki_events ENABLE ROW LEVEL SECURITY;
 -- rootric: auth.uid() 기반 단순 격리
 -- plott:   auth.uid() + pharmacy_id + circle_id (plugin extension 정책)
 -- enroute: auth.uid() 본인만
+DROP POLICY IF EXISTS wiki_objects_default_select ON wiki_objects;
 CREATE POLICY wiki_objects_default_select ON wiki_objects
   FOR SELECT USING (true);                 -- plugin 이 override
+DROP POLICY IF EXISTS wiki_objects_default_modify ON wiki_objects;
 CREATE POLICY wiki_objects_default_modify ON wiki_objects
-  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
--- (attributes/relations/events 동일 패턴)
+  FOR ALL USING (auth.uid() IS NOT NULL) WITH CHECK (auth.uid() IS NOT NULL);
+-- (attributes / relations / events / provenance / labels 동일 패턴 — 0002_rls.sql 참조)
 ```
 
 **중요**: WikiAccessControl hook 이 1차 게이트. RLS 는 application bypass 시 안전망 (defense in depth).

@@ -284,6 +284,14 @@ export class PostgresAdapter implements StorageAdapter {
     return ensureRow(rows, 'wiki_labels insert');
   }
 
+  async getLabel(id: ID): Promise<WikiLabel | null> {
+    const { rows } = await this.db.query<WikiLabel>(
+      `SELECT * FROM ${this.prefix}labels WHERE id = $1`,
+      [id]
+    );
+    return rows[0] ?? null;
+  }
+
   async listLabels(target: TargetRef): Promise<WikiLabel[]> {
     const { rows } = await this.db.query<WikiLabel>(
       `SELECT * FROM ${this.prefix}labels
