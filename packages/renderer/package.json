@@ -1,0 +1,27 @@
+{
+  "name": "@wiki-core/renderer",
+  "version": "0.1.0",
+  "description": "wiki-core renderer — 4 component input props + transform helpers (4요소 → props reshape). JSX reference 컴포넌트는 plugin 책임 (frontend dep boundary 회피, Mercury 9차 결정)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@wiki-core/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

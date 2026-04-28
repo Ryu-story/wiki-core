@@ -19,8 +19,8 @@
 
 - **4 컴포넌트 input props 표준** (TypeScript 인터페이스)
 - **입력 변환 헬퍼** — 4요소 row 들을 컴포넌트 props 로 reshape
-- **reference 구현** (React + 기본 차트 라이브러리 — Phase 3.5 코드 작성 시점)
-- 컴포넌트 capability declaration (interactive / static / responsive)
+- ~~**reference 구현** (React + 기본 차트 라이브러리)~~ → **plugin 책임** (Mercury 9차 결정 — §3 참조)
+- 컴포넌트 capability declaration (interactive / static / responsive) — TBD Phase 4 합류 가이드
 
 ### 0.2 코어가 *제공하지 않는* 것
 
@@ -211,27 +211,47 @@ export function groupEvents(
 
 ---
 
-## 3. Reference 구현 (Phase 3.5 코드 작성 시점)
+## 3. Reference 구현 — plugin 책임 (Mercury 9차 결정)
 
-권장 라이브러리:
+**머큐리 단독 결정 (2026-04-28, Mercury 9차)**: JSX reference 컴포넌트는 plugin 책임. 코어는 input props + 변환 헬퍼만.
 
-| 컴포넌트 | reference | 이유 |
+**근거**:
+- core/storage/router 모두 backend 가능. renderer 에 React/Recharts/react-force-graph install 시 monorepo 가 frontend dep 보유 → boundary blur
+- plugin 모두 자체 React 환경 보유 (rootric/plott/enroute 모두 Next.js) — input props 호환만 유지하면 자체 컴포넌트 빌드 가능
+- 도메인 owner 검증에서 "reference 컴포넌트 필요" 신호 오면 semver minor additive 추가 (현재는 YAGNI)
+
+**권장 라이브러리** (plugin 자체 install):
+
+| 컴포넌트 | 권장 | 이유 |
 |---|---|---|
 | TimeSeriesChart | Recharts | React 친화 + 3 도메인 이미 사용 (plott Recharts 명시) |
 | RelationGraph | react-force-graph | plott 명시 + Force layout 표준 |
 | Timeline | react-vis-timeline 또는 자체 구현 | 도메인 timeline 요구 다양 |
 | SourceCard | 자체 구현 (단순 카드) | 라이브러리 불필요 |
 
-Plugin 이 reference 대신 자체 구현 시 input props 호환만 유지하면 됨.
+**Plugin 컴포넌트 작성 패턴**:
+
+```tsx
+// @<domain>/wiki-plugin/src/components/TimeSeriesChart.tsx
+import type { TimeSeriesChartProps } from '@wiki-core/renderer';
+import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
+
+export function TimeSeriesChart(props: TimeSeriesChartProps) {
+  return (
+    <LineChart data={props.series.flatMap(s => s.points)}>
+      {/* ... Recharts mapping */}
+    </LineChart>
+  );
+}
+```
+
+**코어 surface**:
 
 ```ts
-// @wiki-core/renderer/src/index.ts
-export { TimeSeriesChart } from './components/TimeSeriesChart';
-export { RelationGraph } from './components/RelationGraph';
-export { Timeline } from './components/Timeline';
-export { SourceCard } from './components/SourceCard';
-export * from './types';
-export * from './transform';
+// @wiki-core/renderer/src/index.ts (Mercury 9차)
+// types + transforms 만 — JSX 컴포넌트 X
+export type { TimeSeriesChartProps, RelationGraphProps, TimelineProps, SourceCardProps, ... } from './types.js';
+export { attributesToTimeSeries, buildRelationGraph, groupEvents } from './transform.js';
 ```
 
 ---
