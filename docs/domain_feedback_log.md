@@ -322,9 +322,43 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
+## Mercury 9차 검증 결과 — 2026-04-28 (Mercury 10차 진입, Phase 3.5 종결 합의)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| plott | 플로터 | ✅ | (a) Router.resetBudget — budget_hook $0.5 alert + 월별 cron singleton 결합 정합. (b) renderer — `SourceCardExtension.is_official?: boolean` 명명 슬롯 + `[key: string]: JSONValue` 자유 슬롯 = plott 5단계 visibility 뱃지 wrapping (SPEC §4.2) 그대로 통과. JSX plugin 책임 OK (plott-stock Recharts 자산 활용). 코어 인터페이스 보완 요청 0건. |
+| rootric | 로고스 | ✅ Phase 3.5 종결 동의 | (a) Router.resetBudget — 8차 의견 부분 채택 + 머큐리 방어적 추가 인정. SPEC §2.1 박스 자연 적용. (b) renderer — JSX plugin 책임 근거 동의 (boundary blur 회피). Next.js 14 + Recharts 자산 (PERBandChart/financial-chart) 활용 plugin 자체 빌드 부담 X. **`SourceCard.extension.strength` 명시 박제 ★** = `rootric_provenance_ext.strength` 자유 매핑. 4 컴포넌트 props rootric 도메인 정합 (시총/PER 추이 + on_point_click 출처 호출 / BU→Product→Customer + drop_isolated / 공시·리포트·뉴스 group_by='day'). |
+| enroute | 루터 | ✅ | (a) Router.resetBudget — multi-tier (T0~T4) 일괄 reset 정합. Vercel cron 또는 systemd timer (Phase 3-A `enroute-kiwoom-sync.timer` 패턴 재사용). Trap 차단 박스 인지. (b) renderer — **JSX plugin 책임 결정 = enroute multi-storage backend 정합과 1:1 일치** ★ (sheets / sqlite_local / postgres 어댑터 모두 backend, 코어 backend surface 유지가 enroute 에 유리). `recharts ^3.8.1` 이미 보유 (SPEC §3 권장 표 정확). Constellation View 자유 조합 (RelationGraph radial + Timeline week + 자체 ConstellationView) 그대로 동작. 박제 commit `9822307`. |
+
+→ **3 도메인 모두 patch + renderer OK. 코어 인터페이스 보완 요청 0건. Phase 3.5 종결 합의 박제.**
+
+### Phase 3.5 종결 합의
+
+| 패키지 | 상태 | 도메인 검증 통과 |
+|---|---|---|
+| `@wiki-core/core` | ✅ stable | Mercury 5차 storage + WikiCore 본체 검증 + Mercury 6차 patch (deleteLabel + multi-target + RLS + DbClient wrap) |
+| `@wiki-core/storage` | ✅ stable | Mercury 5차 + 6차 patch |
+| `@wiki-core/router` | ✅ stable | Mercury 8차 검증 + Mercury 9차 Router.resetBudget patch |
+| `@wiki-core/renderer` | ✅ stable | Mercury 9차 (types + transforms, JSX plugin 책임) |
+
+→ 코어 surface 변경 0건 상태로 첫 도메인 plugin 합류 진입 가능.
+
+### 합류 순서 (3 도메인 합의)
+
+| 순 | 도메인 | 진입 시점 |
+|---|---|---|
+| 1 | enroute | **2026-05-04 (월) 이후** (Phase 3-A 검증 데이 5일치 통과 후). 루터: "owner 가 plugin 작성 시작 신호 보내드리겠습니다." |
+| 2 | rootric | enroute 1차 합류 검증 통과 후 |
+| 3 | plott | rootric 2차 합류 검증 통과 후 (가장 복잡) |
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | commit `e4b5e7b` (Router.resetBudget patch) + commit `6150e06` (renderer 코드) — Phase 3.5 코어 4 패키지 모두 박제 완료. 두 단계 검증 (Router.resetBudget 단순 추가 + renderer 4 input props + 3 변환 헬퍼 + JSX 컴포넌트 plugin 책임 결정). |
-| enroute (특수) | Phase 3-A 검증 데이 5일치 통과 (2026-05-04 이후) — enroute plugin 합류 본격 진입 |
+| enroute (1차) | Phase 3-A 검증 5일치 통과 (2026-05-04 이후) — 루터의 plugin 작성 시작 신호. wiki-core 측 작업 대기 모드. |
+| rootric (2차) | enroute 1차 합류 검증 통과 후 |
+| plott (3차) | rootric 2차 합류 검증 통과 후 |

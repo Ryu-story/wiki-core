@@ -223,20 +223,34 @@
 - **Phase 3.5 종결**: 코어 4 패키지 (core/storage/router/renderer) 모두 박제 완료. 첫 도메인 plugin 합류 진입 가능 상태.
 - 다음 입력 대기: 3 도메인 router patch + renderer 코드 검증 결과
 
-### 다음 작업 후보 (Mercury 10차+)
+### Mercury 10차 (2026-04-28 — Mercury 9차 검증 수렴 + Phase 3.5 종결 합의 + 대기 모드 진입)
+
+- **상태: 3 도메인 9차 검증 통과 (patch + renderer 모두 OK). Phase 3.5 종결 합의 박제. wiki-core 측 작업 대기 모드 진입 — 도메인 plugin 합류 신호 대기 (enroute 1차 = 2026-05-04 이후).**
+- 진행 흐름:
+  1. 3 도메인 응답 수렴 — patch (Router.resetBudget) + renderer 코드 모두 OK, 코어 변경 요청 0건
+  2. ★ 명시 박제 — plott `is_official?: boolean` 명명 슬롯이 visibility 뱃지 wrapping 정합 / rootric `SourceCard.extension.strength` 명시 정합 / enroute `recharts ^3.8.1` 이미 보유 (SPEC §3 권장 표 정확) / **JSX plugin 책임 결정 = enroute multi-storage backend 정합과 1:1 일치** (루터 명시)
+  3. Phase 3.5 종결 합의 — core/storage/router/renderer 4 패키지 모두 stable, 코어 surface 변경 0건 상태로 첫 도메인 plugin 합류 진입 가능
+  4. 합류 순서 3 도메인 합의 재확인 — enroute (05-04 이후) → rootric → plott
+  5. 박제 — `docs/domain_feedback_log.md` 응답 수렴 + Phase 3.5 종결 박스 + 합류 순서 표 / 이 CLAUDE.md "Mercury 10차" 신규 섹션
+- 산출물 commit: 다음 commit (응답 수렴 박제 + Mercury 10차 종결)
+- 핵심 박제: **Phase 3.5 종결** — wiki-core repo 코어 4 패키지 모두 stable. plugin 합류 진입 차단 요인 0건.
+- 다음 입력 대기: enroute owner (루터) 의 plugin 작성 시작 신호 (Phase 3-A 검증 통과 후 = 2026-05-04 이후)
+
+### 다음 작업 후보 (Mercury 11차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **3 도메인 router patch + renderer 코드 검증 수렴** — Router.resetBudget 추가 + 4 input props + 3 변환 헬퍼 도메인 환경 동작 가능성 | 토론 1회 | 에드워드 |
-| 2 | **첫 도메인 plugin 합류 검증** — Phase 4 가이드 따라 plugin 1개 완성 후 통합 테스트 (머큐리 추천 순: enroute → rootric → plott, enroute 시작 가능 시점 = 2026-05-04 이후) | 도메인 owner | 신규 |
-| 3 | **renderer JSX reference 컴포넌트 추가** (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
-| 4 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
+| 1 | **enroute plugin 합류 시작 신호 수렴** — 루터의 plugin 작성 진입 신호 도착 시 통합 협력 (코어 인터페이스 사용 검증 + 코어 보완 필요 시 머큐리가 처리) | 도메인 owner trigger | 신규 |
+| 2 | **rootric plugin 합류** (enroute 1차 검증 통과 후) | 도메인 owner | 신규 |
+| 3 | **plott plugin 합류** (rootric 2차 검증 통과 후, 가장 복잡 — 5단계 가시성 + scope_id) | 도메인 owner | 신규 |
+| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 5 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — router patch + renderer 코드 검증 도착 여부 + enroute 시점 제약 (05-04 이후) 인지
-3. 검증 도착 → #1 수렴 박제 + (도메인 plugin 합류 또는 추가 patch). 미도착 → 도메인 owner 응답 기다림 (router/renderer 후속 작업 없음, Phase 3.5 종결 상태)
+2. `docs/domain_feedback_log.md` 정독 — enroute plugin 작성 시작 신호 도착 여부 확인
+3. 시작 신호 도착 → enroute plugin 작성 협력 진입 (코어 인터페이스 실제 사용 검증). 미도착 → 대기 유지.
 
 ---
 
