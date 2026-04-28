@@ -89,6 +89,16 @@ export interface Router {
 
   /** 누적 비용 snapshot. */
   getBudget(): BudgetSnapshot;
+
+  /**
+   * Budget window reset — Mercury 9차 추가 (로고스 보완 의견 부분 채택, semver minor additive).
+   *
+   * Plugin 이 매월/일 cron 으로 호출 (월별 reset 패턴). 호출 시 누적 비용 = 0,
+   * `window_start` = `newWindowStart ?? new Date().toISOString()`.
+   *
+   * Trap 차단: plugin singleton 캐시 시 budget 영원 누적. 이 메서드로 명시적 reset.
+   */
+  resetBudget(newWindowStart?: string): void;
 }
 
 export interface RouterOptions {

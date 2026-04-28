@@ -58,6 +58,13 @@ export interface Router {
 
   /** 누적 비용 조회 */
   getBudget(): BudgetSnapshot;
+
+  /**
+   * Budget window reset (Mercury 9차 추가, semver minor additive).
+   * Plugin 이 매월/일 cron 호출 — 월별 reset 패턴.
+   * Trap 차단: plugin singleton 캐시 시 budget 영원 누적.
+   */
+  resetBudget(newWindowStart?: string): void;
 }
 
 export interface RouterTier {
@@ -190,8 +197,24 @@ export function createRouter(opts: RouterOptions): Router;
 ```
 
 **책임 분리**:
-- 코어 router: 비용 추적·snapshot 제공
-- Plugin: limit 정책 (`budget_hook` 안에서 throw / fallback / Tier 강제 등)
+- 코어 router: 비용 추적·snapshot 제공 + `resetBudget()` 메커니즘
+- Plugin: limit 정책 (`budget_hook` 안에서 throw / fallback / Tier 강제 등) + reset cron (월별/일별)
+
+### 2.1 월별 reset 패턴 (Mercury 9차 추가)
+
+```ts
+// plugin 측 — 매월 1일 cron
+import { router } from './router-instance';   // singleton
+
+// monthly reset (예: vercel cron / node-cron / Postgres pg_cron)
+function monthlyResetBudget() {
+  router.resetBudget(new Date().toISOString());
+}
+```
+
+**Trap 차단**: plugin 이 router 를 singleton 캐시 + reset 호출 안 하면 budget 영원 누적 → `budget_hook` limit (예: 월 $10 throw) 가 영원히 trigger 후 모든 tier fail 가능. `resetBudget()` 명시적 호출로 차단.
+
+**대안 (resetBudget 사용 안 함)**: router 자체를 매월 재생성 (createRouter 새로 호출). 단 plugin singleton 패턴과 충돌 가능 — `resetBudget()` 권장.
 
 ---
 

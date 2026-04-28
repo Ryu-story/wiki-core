@@ -293,9 +293,38 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
+## router 코드 검증 결과 — 2026-04-28 (Mercury 9차 진입)
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 검증 | 핵심 신호 |
+|---|---|---|---|
+| plott | 플로터 | ✅ 100% 정합 | SPEC §3.2 가설 코드 (4 tier, T3 selector `hints?.label_candidate === 'WARNING'` + `meta.requires_human_confirm`) 와 createRouter 구현 100% 일치. WARNING 거짓음성 0% plugin selector 레벨 enforce 충분. 코어 변경 요청 X. |
+| rootric | 로고스 | ✅ (단 1건 보완 의견) | createRouter 시그니처 SPEC §3.1 정확 일치. RouterTier 구조 그대로 매핑. T3 fallback (`selector: () => true`) NoTierMatch 회피 정합. ModelHandle wrap 가능 (현재 `lib/factsheet/ai.ts callAI()` 구조와 매우 유사 — Tier wrap trivial). budget_hook 월 $10 throw 정합. **보완 의견**: Budget window reset 메커니즘 미명시 — singleton 캐시 시 영원 누적 트랩. *이번 변경 요청 X* (가이드 박제로 충분). |
+| enroute | 루터 | ✅ | T4_local_forced 가설 정합 (`sensitivity === 'C'` selector + `meta.cloud_forbidden: true` + `ModelCapabilities.local`). privacy-filter → sensitivity 흐름 §4.3 그대로. NoTierMatch 우려 발생 없음 (T3 ≠C / T4 ===C 분기로 항상 hit). multi-storage 와 router 독립 layer 충돌 X. 행동 원칙 #1 정합 (도메인 어휘 0건). 박제 commit `9584dc0`. |
+
+→ **3 도메인 모두 router 코드 OK. 코어 인터페이스 변경 요청 0건.**
+
+### 머큐리 단독 결정 — `Router.resetBudget()` 추가 (semver minor additive, 부분 채택)
+
+**로고스 의견 처리**:
+- 의견 "변경 요청 X (plugin README 자체 박제로 충분)" — *변경 거부* 부분 받아들임
+- 단 **머큐리 자체 판단**으로 *방어적 추가* 결정 — `Router.resetBudget(newWindowStart?: string): void` 메서드 1개 노출 (semver minor additive)
+
+**근거**:
+1. 로고스 명시 트랩 — plugin singleton 캐시 시 budget 영원 누적이 *실제 발생 가능*. plugin 작성자가 매월 router 재생성 cron 잊으면 발생.
+2. semver minor additive — 기존 plugin 호출 코드 영향 0건 (도메인 owner 부담 0).
+3. `BudgetTracker.reset()` 이미 박제됨 — Router 인터페이스에 노출만 추가 (5분 작업).
+4. 행동 원칙 #2 — 코어 인터페이스가 *방어적* 이어야 trap 차단 가능. plugin 책임에 모두 떠넘기는 것보다 코어가 reset 메커니즘 명시적 제공이 안전.
+5. Mercury 2차 noiseFilter 패턴 동일 — 도메인 owner 의견 *부분 채택*, 머큐리 단독 결정으로 코어 design 보강.
+
+**박제 위치**: `packages/router/src/types.ts` Router 인터페이스 / `packages/router/src/router.ts` createRouter 구현 / `packages/router/SPEC.md` §1·§2 (월별 reset 패턴 명시).
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | commit `2ccc82c` (Mercury 8차 router 코드 박제) — Tier 가변 N + ModelHandle 어댑터 + budget hook 도메인 환경 동작 가능성 검증. renderer 코드는 Mercury 9차+ 별도. |
+| 모두 | Mercury 9차 (a) Router.resetBudget patch + (b) renderer 코드 박제 후 — 두 단계 검증. (a) 는 단순 추가 (영향 적음), (b) 는 4 컴포넌트 + 변환 헬퍼. |
 | enroute (특수) | Phase 3-A 검증 데이 5일치 통과 (2026-05-04 이후) — enroute plugin 합류 본격 진입 |

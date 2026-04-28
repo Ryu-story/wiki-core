@@ -67,9 +67,14 @@ export function createRouter(opts: RouterOptions): Router {
     return budget.snapshot();
   }
 
+  function resetBudget(newWindowStart?: string): void {
+    budget.reset(newWindowStart);
+  }
+
   return {
     tiers,
     route,
     getBudget,
+    resetBudget,
   };
 }
