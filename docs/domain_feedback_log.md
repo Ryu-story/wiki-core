@@ -208,7 +208,13 @@ Mercury 2차 종결(2026-04-28) commit `1f8fd02`(`packages/core/SPEC.md`) + `966
 
 ### 박제 시점
 
-Mercury 5차 보강 patch 단일 commit — Edward "내일 이어서" 신호로 다음 세션 진입 시 즉시 처리. router/renderer (Mercury 6차) 는 patch 후 별도 진입.
+Mercury 6차 첫 작업으로 patch 박제 완료 — commit `2a9b65f` (5 파일 / +100 / -19, tsc -b 통과). 4건 모두 적용:
+- #1 WikiCore.deleteLabel + StorageAdapter.getLabel — `wiki-core.ts` / `storage-router.ts` / `postgres.ts`
+- #2 createEvent 모든 object_ids checkWrite — `wiki-core.ts`
+- #3 0002_rls.sql DROP POLICY IF EXISTS + CREATE 패턴 (12 정책)
+- #4 storage SPEC §2 DbClient wrap 옵션 박스 (pg / postgres.js / Supabase RPC) — Phase 4 가이드 본격 박스는 별도
+
+router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
@@ -216,4 +222,4 @@ Mercury 5차 보강 patch 단일 commit — Edward "내일 이어서" 신호로 
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| 모두 | Mercury 5차 보강 patch (deleteLabel + multi-target + RLS + Supabase 박스) 박제 후 — 검토 결과 (각 도메인 wrap 패턴 동작 가능성) |
+| 모두 | commit `2a9b65f` (Mercury 5차 보강 patch 4건 박제 완료, Mercury 6차) — 4건 patch 검토 결과. 특히 #4 DbClient wrap 옵션 박스 (pg / postgres.js / Supabase RPC) 각 도메인 환경 동작 가능성 |

@@ -120,18 +120,29 @@
 - 미해결 후보 (Mercury 6차+): deleteLabel 의 access control 보강 / Relation/Event multi-target 권한 정책 / Phase 4 plugin 합류 가이드 시 ingest 파이프라인 boilerplate.
 - 행동 원칙 #1 정합 — storage 코드 일체에 도메인 어휘 0건.
 
-#### Mercury 5차 종결 후 — 도메인 검증 + 보완 4건 cross-validate (박제 미완)
+#### Mercury 5차 종결 후 — 도메인 검증 + 보완 4건 cross-validate (Mercury 6차 patch 완료)
 
-종결 후 3 도메인 owner 검증 도착. 모두 storage + WikiCore 본체 OK. 보완 4건 수렴:
+종결 후 3 도메인 owner 검증 도착. 모두 storage + WikiCore 본체 OK. 보완 4건 수렴 → Mercury 6차 첫 작업으로 patch 박제 완료 (commit `2a9b65f`):
 
-| # | 보완 | 출처 | 결정 |
+| # | 보완 | 출처 | 박제 |
 |---|---|---|---|
-| 1 | WikiCore.deleteLabel 누락 (access control 우회) | 3 도메인 합의 | 즉시 추가 |
-| 2 | createEvent object_ids[0] 만 checkWrite (multi-target 누수) | 플로터 | 모든 object_ids checkWrite 보강 |
-| 3 | CREATE POLICY IF NOT EXISTS PG 15.x 미지원 | 로고스 + 루터 | DROP+CREATE 패턴 정정 |
-| 4 | Supabase DbClient wrap 박스 | 로고스 | storage SPEC §2 박스 즉시 + Phase 4 가이드 본격 박스 |
+| 1 | WikiCore.deleteLabel 누락 (access control 우회) | 3 도메인 합의 | ✅ deleteLabel + StorageAdapter.getLabel 추가 |
+| 2 | createEvent object_ids[0] 만 checkWrite (multi-target 누수) | 플로터 | ✅ 모든 object_ids checkWrite 보강 |
+| 3 | CREATE POLICY IF NOT EXISTS PG 15.x 미지원 | 로고스 + 루터 | ✅ DROP POLICY IF EXISTS + CREATE 패턴 (12 정책 정정) |
+| 4 | Supabase DbClient wrap 박스 | 로고스 | ✅ storage SPEC §2 옵션 박스 (pg / postgres.js / Supabase RPC) — Phase 4 가이드 본격 박스는 별도 |
 
-→ Edward "내일 이어서" 신호로 patch 작업 미완. **Mercury 6차 첫 작업이 이 patch 임**. 자세한 내용은 `docs/domain_feedback_log.md` "storage + WikiCore 본체 검증" 섹션 참조.
+자세한 내용은 `docs/domain_feedback_log.md` "storage + WikiCore 본체 검증" 섹션 참조.
+
+### Mercury 6차 (2026-04-28 — Mercury 5차 보강 patch 박제)
+
+- **상태: Mercury 5차 종결 후 도메인 검증 보완 4건 patch 박제 완료. tsc -b 통과. router/renderer 코드 박제는 도메인 검토 후 진입.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull 7 commits (Mercury 2~5차 작업 다른 환경에서 진행됨), CLAUDE.md / edward_collaboration.md / abstraction_decision.md / domain_feedback_log.md 정독
+  2. 영향 파일 5종 + 추가 정독 (wiki-core.ts / index.ts / postgres.ts / 0002_rls.sql / storage/SPEC.md / storage-router.ts / types.ts / access.ts)
+  3. patch 4건 일괄 적용 — deleteLabel + multi-target checkWrite + RLS DROP+CREATE + DbClient wrap 박스
+  4. tsc -b build 통과 확인 (npx pnpm install 후)
+- 산출물 commit: `2a9b65f` (Mercury 5차 보강 patch 4건 — `wiki-core.ts` / `storage-router.ts` / `postgres.ts` / `0002_rls.sql` / `storage/SPEC.md`)
+- 다음 입력 대기: 3 도메인 owner의 patch 4건 검토 결과 (특히 #4 DbClient wrap 옵션 — 각 도메인 환경에서 동작 가능성)
 
 ### Mercury 4차 (2026-04-28 — pnpm 셋업 + `@wiki-core/core` 1차 코드 박제)
 
@@ -166,20 +177,21 @@
   - #5 renderer 4 컴포넌트 입력 형식 → renderer SPEC §1
 - 종결 시점 통보 — 3 도메인 owner 에게 storage/router/renderer SPEC URL 전달
 
-### 다음 작업 후보 (Mercury 6차)
+### 다음 작업 후보 (Mercury 7차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | ★ **Mercury 5차 보강 patch** — deleteLabel + createEvent multi-target + RLS DROP+CREATE + storage SPEC §2 Supabase wrap 박스 | 1-2h | `docs/domain_feedback_log.md` "보완 4건" + Mercury 5차 후 박제 |
+| 1 | **3 도메인 patch 검토 결과 수렴** — 4건 patch OK 또는 추가 보완 의견 | 토론 1회 | 에드워드 |
 | 2 | **`@wiki-core/router` 코드 작성** — Tier 라우터 + budget 추적 + ModelHandle 어댑터 인터페이스 | 3-4h | `packages/router/SPEC.md` |
 | 3 | **`@wiki-core/renderer` 코드 작성** — 4 컴포넌트 reference (React + Recharts + react-force-graph) + 변환 헬퍼 | 3-4h | `packages/renderer/SPEC.md` |
-| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 케이스 + Supabase DbClient wrap 박스) | 3-4h | 신규 |
+| 4 | **Phase 4 도메인 합류 가이드** — plugin boilerplate + ingest 파이프라인(noiseFilter→sensitivity→router) + 마이그레이션 가이드 (★ plott 기존 wiki 4 테이블 매핑 + Supabase DbClient wrap 본격 박스) | 3-4h | 신규 |
+| 5 | (보류) `pnpm-lock.yaml` 추적 정책 결정 | 5분 | `.gitignore` 또는 add |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` "storage + WikiCore 본체 검증" 섹션 정독 (보완 4건 + 머큐리 결정)
-3. 에드워드 신호 받고 ★ #1 patch 즉시 진행 (별도 신호 불필요 — 머큐리 단독 결정 + Edward 사전 OK 확인됨). patch commit 후 #2~3 router/renderer 진입 동의 받기.
+2. `docs/domain_feedback_log.md` "박제 시점" + "다음 입력 대기" 정독 — patch 4건 박제 완료 (commit `2a9b65f`) 확인
+3. 에드워드에게 도메인 검토 결과 있는지 확인 → 있으면 #1 수렴, 없으면 #2/3 router/renderer 진입 동의 받기
 
 ---
 
