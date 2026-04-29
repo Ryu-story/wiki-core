@@ -355,10 +355,54 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 ---
 
+## Mercury 11차 — link 패턴 환경 매트릭스 결정 — 2026-04-29
+
+### 입력
+
+루터 (enroute owner) 가 plugin 작성 진입 직전 wiki-core repo ↔ enroute repo link 방식 질문 도착 (3 옵션 — git submodule / pnpm workspace sibling / GitHub Packages publish). 머큐리 1차 권장 (b) pnpm workspace sibling. 에드워드 경유 3 도메인 owner 모두에게 동일 환경 점검 요청.
+
+### 응답 누적
+
+| 도메인 | 페르소나 | 패키지 매니저 | sibling | 배포 환경 | 권장 응답 |
+|---|---|---|---|---|---|
+| enroute | 루터 | npm → pnpm 마이그레이션 (05-04 본격 진입 직전) | 1단계 sibling ✓ (`develop/enroute/`) | 본인 PC | **(b) sibling link 채택** — 검증 데이 (04-29~05-01) 안정성 위해 마이그레이션 timing 본격 진입 직전. trap 5종 체크리스트 머큐리 박제. |
+| rootric | 로고스 | npm 유지 | 부모 다름 ❌ (`c:/Users/woori/rootric/`) | **Vercel SaaS — 결정적 차단** | **(a) git submodule 채택** — Vercel 단일 root 업로드 → sibling link 빌드 시점 의존성 누락. submodule fetch 활성화 + postinstall pnpm build 패턴. (c) publish 대기는 합류 무한 지연 → 거부. |
+| plott | 플로터 | pnpm (처음부터, MVP 미착수) | 2단계 sibling ✓ (`develop/plott/plott-wiki/`) | 미정 (MVP 미착수) | **(b) sibling link 채택** — 마이그레이션 0건. 2단계 sibling path (`../../wiki-core/packages/*`) 글롭 한 줄 차이. plott-wiki MVP 시작 시 pnpm 출발. |
+
+→ **link 패턴은 plugin 환경별 결정**. 코어 surface 변경 0건. 머큐리 1차 권장 (b) 단일 권장 = enroute 환경 편향이었음. 인정 + 환경 매트릭스로 재박제.
+
+### 머큐리 단독 결정 — 환경 매트릭스 박제
+
+| 환경 조건 | 채택 link 패턴 | 머큐리 측 prep |
+|---|---|---|
+| sibling ✓ + 본인 PC/단일 컨테이너 배포 | **(b) pnpm workspace sibling link** | pnpm-workspace.yaml `'../wiki-core/packages/*'` 또는 `'../../wiki-core/packages/*'` (1/2단계 모두 OK) |
+| Vercel/Cloud 단일 root 업로드 배포 (sibling 무관) | **(a) git submodule + postinstall build** | wiki-core 패키지 dist 빌드 출력 박제 (`main`/`types`/`files`) |
+| Phase 5 evolution (모든 도메인) | (c) GitHub Packages publish | wiki-core CI publish 셋업 (Phase 4 종결 후) |
+
+**1단계/2단계 sibling 둘 다 OK** 가이드 명시 (플로터 권장).
+
+### Mercury 측 prep 작업 (rootric (a) 합류 차단 풀기)
+
+각 wiki-core 패키지 `package.json` 박제 (semver 영향 0건, 빌드 출력 추가만):
+- `"main": "./dist/index.js"` / `"types": "./dist/index.d.ts"` / `"files": ["dist"]`
+- 각 패키지 `tsconfig.json` 이미 `outDir: dist`, `declaration: true` (composite 모드).
+
+→ Mercury 11차 본 commit 에서 박제. enroute 1차 합류 (b) 검증 통과 후 별도 추가 작업 0건.
+
+### Phase 4 가이드 박제 시점
+
+`docs/phase4_plugin_guide.md` 신규 §0 박스 — link 패턴 환경 매트릭스 + npm→pnpm 마이그레이션 trap 5종. enroute 1차 합류 (b) 검증 통과 후 박제 (검증된 precedent 만 가이드에 박제 — 행동 원칙 #5 YAGNI).
+
+### 합류 순서 영향 0건
+
+enroute (b) 검증 → wiki-core dist build prep 박제 → rootric (a) submodule 검증 → plott (b) 합류. 합의 순서 (enroute → rootric → plott) 그대로.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| enroute (1차) | Phase 3-A 검증 5일치 통과 (2026-05-04 이후) — 루터의 plugin 작성 시작 신호. wiki-core 측 작업 대기 모드. |
-| rootric (2차) | enroute 1차 합류 검증 통과 후 |
-| plott (3차) | rootric 2차 합류 검증 통과 후 |
+| enroute (1차) | Phase 3-A 검증 5일치 통과 (2026-05-04 이후) — 루터의 plugin 작성 시작 신호. (b) sibling link + npm→pnpm 마이그레이션 검증. wiki-core 측 작업 대기 모드. |
+| rootric (2차) | enroute 1차 합류 검증 통과 후. (a) submodule + postinstall pnpm build 검증. |
+| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). (b) 2단계 sibling link 검증. |

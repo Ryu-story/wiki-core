@@ -191,6 +191,25 @@ StorageRouter { adapters[], resolve(target) }     // ★ 매트릭스 신규
 
 → 다음: 3 도메인 검증 → 첫 도메인 plugin 합류 진입.
 
+### Phase 4-pre — link 패턴 환경 매트릭스 (Mercury 11차, 2026-04-29)
+
+3 도메인 owner 환경 점검 결과 link 패턴이 환경별로 갈라짐. 머큐리 1차 권장 (b) sibling link 단일 권장 = enroute 환경 편향이었음. 환경 매트릭스로 재박제.
+
+| 환경 조건 | 채택 link 패턴 | 적용 도메인 | 머큐리 측 prep |
+|---|---|---|---|
+| sibling ✓ + 본인 PC/단일 컨테이너 배포 | (b) pnpm workspace sibling link | enroute (1단계) / plott (2단계) | pnpm-workspace.yaml glob 한 줄 — 1/2단계 모두 OK |
+| Vercel/Cloud 단일 root 업로드 배포 (sibling 무관) | (a) git submodule + postinstall pnpm build | rootric | wiki-core 패키지 `package.json` 에 `main`/`types`/`files` 박제 |
+| Phase 5 evolution (모든 도메인) | (c) GitHub Packages publish | (모두 표준 npm 의존성으로 자연 마이그레이션) | wiki-core CI publish 셋업 (Phase 4 종결 후) |
+
+**3 도메인 응답**:
+- enroute (루터): (b) 채택. npm→pnpm 마이그레이션은 05-04 본격 진입 직전 (검증 데이 안정성 우선).
+- rootric (로고스): Vercel SaaS 배포 = (b) 결정적 차단. (a) submodule 채택.
+- plott (플로터): (b) 채택. plott-wiki MVP 미착수 → pnpm 처음부터. 2단계 sibling.
+
+**Phase 4 가이드 박제 시점**: enroute 1차 합류 (b) 검증 통과 후 `docs/phase4_plugin_guide.md` 신규 §0 박스로 link 패턴 매트릭스 + npm→pnpm 마이그레이션 trap 5종 박제. 검증된 precedent 만 가이드에 박제 — 행동 원칙 #5 YAGNI.
+
+자세한 내용은 `docs/domain_feedback_log.md` "Mercury 11차 — link 패턴 환경 매트릭스" 참조.
+
 ---
 
 ## 6. 머큐리 행동 원칙과의 정합 검토

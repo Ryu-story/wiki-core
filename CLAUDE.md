@@ -236,20 +236,39 @@
 - 핵심 박제: **Phase 3.5 종결** — wiki-core repo 코어 4 패키지 모두 stable. plugin 합류 진입 차단 요인 0건.
 - 다음 입력 대기: enroute owner (루터) 의 plugin 작성 시작 신호 (Phase 3-A 검증 통과 후 = 2026-05-04 이후)
 
-### 다음 작업 후보 (Mercury 11차+)
+### Mercury 11차 (2026-04-29 — link 패턴 환경 매트릭스 결정 + dist build prep)
+
+- **상태: 3 도메인 link 패턴 응답 수렴 + 환경 매트릭스 박제 + wiki-core 패키지 dist build prep 박제. tsc -b 통과. enroute 1차 합류 진입 차단 요인 0건.**
+- 진행 흐름:
+  1. 루터 (enroute owner) plugin 작성 진입 직전 wiki-core ↔ enroute repo link 방식 질문 도착 (3 옵션 — git submodule / pnpm workspace sibling / GitHub Packages publish)
+  2. 머큐리 1차 권장 — (b) pnpm workspace sibling link (단, enroute 환경 편향)
+  3. 에드워드 경유 3 도메인 owner 모두에게 환경 점검 요청 → link 패턴 환경별로 갈라짐 발견:
+     - enroute (루터): (b) 채택. npm→pnpm 마이그레이션 05-04 본격 진입 직전 (검증 데이 안정성 우선)
+     - rootric (로고스): **Vercel SaaS 배포 = (b) 결정적 차단** → (a) git submodule 채택
+     - plott (플로터): (b) 채택. plott-wiki MVP 미착수 → pnpm 처음부터. 2단계 sibling
+  4. 머큐리 단독 결정 — link 패턴 환경 매트릭스 박제 ((b) sibling / (a) submodule / (c) publish Phase 5+). 1단계/2단계 sibling 둘 다 OK 명시.
+  5. wiki-core 측 prep — rootric (a) submodule 합류 차단 풀기 위해 각 패키지 `package.json` 에 `main`/`types`/`files` 박제 (semver 영향 0건, 빌드 출력 추가만)
+  6. 박제 — `docs/domain_feedback_log.md` 신규 섹션 + `docs/abstraction_decision.md` §5 Phase 4-pre 박스 + 4 패키지 `package.json` dist 필드
+- 산출물 commit: 다음 commit (Mercury 11차 박제)
+- 핵심 박제: **link 패턴 환경 매트릭스** — plugin 환경별 결정 (one-size-fits-all 거부). 코어 surface 변경 0건. Phase 4 가이드 §0 박스 박제 시점은 enroute 1차 합류 (b) 검증 통과 후 (검증된 precedent 만 박제 — 행동 원칙 #5 YAGNI).
+- 행동 원칙 #1 정합 — 3 도메인 환경 평등 검토 + 단일 권장 → 환경 매트릭스 재박제로 도메인 편향 차단.
+- 다음 입력 대기: enroute (루터) plugin 작성 시작 신호 (Phase 3-A 검증 5일치 통과 후 = 2026-05-04 이후)
+
+### 다음 작업 후보 (Mercury 12차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **enroute plugin 합류 시작 신호 수렴** — 루터의 plugin 작성 진입 신호 도착 시 통합 협력 (코어 인터페이스 사용 검증 + 코어 보완 필요 시 머큐리가 처리) | 도메인 owner trigger | 신규 |
-| 2 | **rootric plugin 합류** (enroute 1차 검증 통과 후) | 도메인 owner | 신규 |
-| 3 | **plott plugin 합류** (rootric 2차 검증 통과 후, 가장 복잡 — 5단계 가시성 + scope_id) | 도메인 owner | 신규 |
-| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 1 | **enroute plugin 합류 시작 신호 수렴** — 루터의 plugin 작성 진입 신호 도착 시 통합 협력 ((b) sibling link + npm→pnpm 마이그레이션 trap 5종 검증) | 도메인 owner trigger | 신규 |
+| 2 | **enroute 1차 검증 통과 후 Phase 4 가이드 §0 박스 박제** — link 패턴 환경 매트릭스 + npm→pnpm 마이그레이션 trap 5종 (검증된 precedent 만 박제) | 1-2h | 신규 |
+| 3 | **rootric plugin 합류** ((a) submodule + postinstall pnpm build 검증) | 도메인 owner | 신규 |
+| 4 | **plott plugin 합류** (가장 복잡 — 5단계 가시성 + scope_id + 2단계 sibling) | 도메인 owner | 신규 |
+| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
 2. `docs/domain_feedback_log.md` 정독 — enroute plugin 작성 시작 신호 도착 여부 확인
-3. 시작 신호 도착 → enroute plugin 작성 협력 진입 (코어 인터페이스 실제 사용 검증). 미도착 → 대기 유지.
+3. 시작 신호 도착 → enroute plugin 작성 협력 진입 (코어 인터페이스 실제 사용 검증 + (b) sibling link 검증). 미도착 → 대기 유지.
 
 ---
 
