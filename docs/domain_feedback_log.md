@@ -371,6 +371,16 @@ router/renderer 코드 박제는 patch 도메인 검토 통과 후 진입.
 
 → **link 패턴은 plugin 환경별 결정**. 코어 surface 변경 0건. 머큐리 1차 권장 (b) 단일 권장 = enroute 환경 편향이었음. 인정 + 환경 매트릭스로 재박제.
 
+### Mercury 11차 결정 응답 수렴 (2026-04-29)
+
+| 도메인 | 페르소나 | 검증 | 모니터링 항목 |
+|---|---|---|---|
+| enroute | 루터 | ✅ trap 5종 체크리스트 인지. 05-04 마이그레이션 commit 단일 묶음 진행 예정 | 없음 |
+| rootric | 로고스 | ✅ 합류 가이드 4 항목 모두 rootric 환경 정합. submodule + postinstall corepack+pnpm + file: deps + Vercel Settings 그대로 적용 가능. 합류 작업 ~30분 | **Vercel 빌드 캐시 미포함 시 첫 빌드 +30s~1m 가능** (캐시 후 영향 없음). 가이드 변경 X, 발생 시 별도 검토 |
+| plott | 플로터 | ✅ 2단계 sibling glob 한 줄 차이. plott-wiki MVP 시작 시점 그대로 적용 | 없음 |
+
+→ **3 도메인 모두 link 패턴 결정 OK. 코어 인터페이스 변경 요청 0건.** Phase 4 가이드 §0 박스 박제는 enroute 1차 합류 (b) 검증 통과 후 (Vercel 캐시 메모 함께 박제 예정).
+
 ### 머큐리 단독 결정 — 환경 매트릭스 박제
 
 | 환경 조건 | 채택 link 패턴 | 머큐리 측 prep |
