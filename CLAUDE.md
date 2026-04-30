@@ -305,6 +305,7 @@
   - #3 공통점 검증 의무 — A.12·A.13 모두 (a) 환경 특화 트랩, (b) sibling 환경 영향 0건. 환경 발산 명시 박제.
   - #5 YAGNI — 보완 2건 *완전 채택* (부분 채택 X). 트랩 본질이 명확 + 환경 critical path 차단 → 일반화 박제 가치 충분.
 - 다음 입력 대기: rootric Phase 3 결과 — preinstall + npx pnpm 정정 적용 후 IngestAdapter 마이그레이션 + smoke + Vercel 배포
+- **후속 검증 통과** (2026-04-30, 같은 세션): 로고스 patch 적용 — dist-tarballs 삭제 후 `npm install` preinstall 자동 빌드 ✅ / 365 packages audit 9s ✅ / import 정상 ✅ / Vercel critical path 해소 ✅ / Phase 3 진입 동의 ✅. 추가 결정 0건. patch stable.
 
 ### Mercury 14차 (2026-04-30 — 로고스 patch 최종 검증 + 트랩 A.11 응답 + `pack:dist` 패턴 박제)
 

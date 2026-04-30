@@ -672,11 +672,22 @@ npm error Unsupported URL Type "workspace:": workspace:*
 | wiki-core 본체 코드 변경 | 0건 (가이드 patch only) |
 | semver 영향 | 0건 |
 
+### 후속 입력 — Mercury 15차 patch 검증 통과
+
+로고스 정정 적용 + 검증 결과:
+- `dist-tarballs` 삭제 후 `npm install` → preinstall 자동 빌드 ✅
+- 365 packages audit ✅ 9s 통과
+- import 정상 ✅
+- Vercel critical path 해소 확인 ✅
+- Phase 3 (IngestAdapter 마이그레이션) 진입 동의 ✅
+
+머큐리 결정: 추가 결정 0건. Mercury 15차 patch 그대로 stable. 코어 인터페이스 변경 0건. rootric Phase 3 모니터링 자세 유지.
+
 ### 다음 입력 대기
 
 | 도메인 | trigger |
 |---|---|
-| **rootric (Phase 3)** | preinstall + npx pnpm 정정 적용 후 IngestAdapter 마이그레이션 + smoke + Vercel 배포 결과 |
+| **rootric (Phase 3 결과)** | IngestAdapter 마이그레이션 + hooks 5종 본체 + smoke-crud (★ A.6 검증) + Vercel 배포 cold start 결과 |
 | plott | rootric 2차 검증 통과 후 |
 
 ---
