@@ -562,6 +562,56 @@ function getAdapter(actor?: ActorContext): SupabaseAdapter {
 - 추가 결정 없음 — Mercury 13차 박제 그대로 stable. 코어 인터페이스 변경 0건.
 - 합류 모니터링 자세 유지 — Phase 1+2 첫 세션 결과 보고 도착 시 머큐리 15차 진입.
 
+### 후속 입력 — 트랩 A.11 보고 (rootric Phase 4 §0-pre Step 1-3)
+
+로고스 첫 시도 (`git submodule add` + `npm install`) 트랩 발견 보고:
+
+```
+npm error EUNSUPPORTEDPROTOCOL
+npm error Unsupported URL Type "workspace:": workspace:*
+```
+
+**원인 진단**: `packages/{storage,router,renderer}/package.json` 의 `"@wiki-core/core": "workspace:*"` 가 npm 비호환. (b) pnpm sibling 환경 (enroute) 은 pnpm magic 으로 회피. (a) submodule + npm 환경은 첫 검증.
+
+### 머큐리 단독 결정 — 옵션 C (`pack:dist` 패턴) 채택
+
+3 옵션 분석 후 **C 채택** (Edward 통찰 정합):
+
+| 옵션 | 본질 | 평가 |
+|---|---|---|
+| B. `workspace:*` → `file:../core` 한 줄 변경 | monorepo dependencies 직접 수정 | ❌ pnpm sibling 환경에서 workspace member 인식 깨질 위험 ((b) 환경 회귀) |
+| **C. `pnpm pack` → .tgz 4종 출력 + `file:./*.tgz` dep** ★ | 추가 build 출력만, 본체 변경 X | ✅ pnpm sibling (workspace:* 유지) + npm submodule (file:.tgz) 양 환경 정합 |
+| A. `pnpm pack` 동일 본질 | (C 와 본질 동일) | (C 로 흡수) |
+
+**박제 산출물**:
+- `package.json` script 추가 — `"pack:dist": "node scripts/pack-dist.mjs"`
+- `scripts/pack-dist.mjs` — cross-platform node script (4 패키지 loop pack)
+- `.gitignore` — `dist-tarballs/` 추가 (postinstall 시 매번 생성, git 추적 X)
+- `docs/phase4_plugin_guide.md` §0-pre.1 (a) submodule 박스 + 부록 A-2 A.11 신설
+
+**검증**:
+- (b) pnpm sibling — `pnpm install` + `tsc -b` 통과 (4 workspace projects build, 회귀 0건).
+- `pnpm pack:dist` — 4 .tgz 생성 (`wiki-core-{core,storage,router,renderer}-0.1.0.tgz`).
+- `wiki-core-storage-0.1.0.tgz/package/package.json` 의 `"@wiki-core/core": "0.1.0"` 자동 변환 확인 (npm 호환).
+- (a) npm submodule — 로고스 측 재시도 검증 대기.
+
+**rootric 재시도 가이드**:
+1. `git submodule update --remote vendor/wiki-core` — Mercury 14차 patch 받기
+2. rootric `package.json` postinstall 갱신:
+   ```
+   "postinstall": "cd vendor/wiki-core && corepack enable && corepack prepare pnpm@9 --activate && pnpm install --frozen-lockfile && pnpm build && pnpm pack:dist"
+   ```
+3. rootric `dependencies` 4종 갱신:
+   ```
+   "@wiki-core/core":     "file:./vendor/wiki-core/dist-tarballs/wiki-core-core-0.1.0.tgz",
+   "@wiki-core/storage":  "file:./vendor/wiki-core/dist-tarballs/wiki-core-storage-0.1.0.tgz",
+   "@wiki-core/router":   "file:./vendor/wiki-core/dist-tarballs/wiki-core-router-0.1.0.tgz",
+   "@wiki-core/renderer": "file:./vendor/wiki-core/dist-tarballs/wiki-core-renderer-0.1.0.tgz"
+   ```
+4. `npm install` 재실행 — postinstall 이 .tgz 4종 생성 후 file: dep 해석. 정상 호환 예상.
+
+**코어 인터페이스 변경 0건** — 본체 `workspace:*` 그대로 유지. semver 영향 0건.
+
 ---
 
 ## 다음 입력 대기

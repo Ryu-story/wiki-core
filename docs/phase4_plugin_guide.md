@@ -27,7 +27,7 @@
 | 환경 조건 | 채택 link 패턴 | 적용 도메인 |
 |---|---|---|
 | sibling ✓ + 본인 PC / 단일 컨테이너 배포 | (b) pnpm workspace sibling link | enroute (1단계 sibling, 검증 통과) / plott (2단계 sibling 예정) |
-| Vercel / Cloud 단일 root 업로드 배포 (sibling 무관) | (a) git submodule + postinstall pnpm build | rootric 예정 |
+| Vercel / Cloud 단일 root 업로드 배포 (sibling 무관) | (a) git submodule + **`pack:dist` 후 `file:./dist-tarballs/*.tgz` dep** | rootric 예정 (Mercury 14차 패치) |
 | Phase 5 evolution (모든 도메인) | (c) GitHub Packages publish | (모두 표준 npm 의존성으로 자연 마이그레이션) |
 
 **1단계/2단계 sibling 둘 다 OK** — pnpm-workspace.yaml glob 한 줄 차이.
@@ -43,6 +43,47 @@ packages:
   - 'plott-wiki'
   - '../../wiki-core/packages/*'
 ```
+
+#### (a) git submodule + `pack:dist` 패턴 (Mercury 14차 박제 — 로고스 트랩 A.11 응답)
+
+(a) submodule 환경에서는 npm 이 `workspace:*` 를 인식 못 함 (트랩 A.11). 해결 — wiki-core build 후 `pnpm pack` 으로 `.tgz` 4종 출력 → `file:./dist-tarballs/*.tgz` dep.
+
+**wiki-core 측 자동 출력**: 루트 `pnpm pack:dist` script (Mercury 14차 신규) 가 `scripts/pack-dist.mjs` 실행 → `dist-tarballs/wiki-core-{core,storage,router,renderer}-0.1.0.tgz` 4종 생성. `workspace:*` 가 publish 시점 버전 (`0.1.0`) 으로 자동 변환됨 (npm 호환).
+
+**rootric `package.json`** (가이드 §1-2 보강):
+
+```json
+{
+  "scripts": {
+    "postinstall": "cd vendor/wiki-core && corepack enable && corepack prepare pnpm@9 --activate && pnpm install --frozen-lockfile && pnpm build && pnpm pack:dist"
+  },
+  "dependencies": {
+    "@wiki-core/core":     "file:./vendor/wiki-core/dist-tarballs/wiki-core-core-0.1.0.tgz",
+    "@wiki-core/storage":  "file:./vendor/wiki-core/dist-tarballs/wiki-core-storage-0.1.0.tgz",
+    "@wiki-core/router":   "file:./vendor/wiki-core/dist-tarballs/wiki-core-router-0.1.0.tgz",
+    "@wiki-core/renderer": "file:./vendor/wiki-core/dist-tarballs/wiki-core-renderer-0.1.0.tgz"
+  }
+}
+```
+
+**진행 순서** (rootric):
+```bash
+# 1. submodule 추가
+git submodule add https://github.com/Ryu-story/wiki-core.git vendor/wiki-core
+
+# 2. package.json 위 형식 적용
+
+# 3. npm install — postinstall 이 vendor/wiki-core 안에서 pnpm install + build + pack:dist 실행 후
+#    상위 npm 이 file:.tgz 4종 해석 (정상 호환)
+npm install
+```
+
+**Vercel 배포**: `vendor/wiki-core/` 도 git submodule 로 함께 업로드됨. Vercel build 가 `npm install` → postinstall → `pnpm pack:dist` → `.tgz` 생성. install 정상.
+
+**보장 invariant**:
+- wiki-core 본체 변경 X — `workspace:*` 그대로. (b) sibling 회귀 0건.
+- 추가 build 출력 (`dist-tarballs/`) 만 (.gitignore — submodule 안에서 생성/소비).
+- semver 영향 0건.
 
 ### 0-pre.2 npm → pnpm 마이그레이션 trap 5종 (enroute 05-04 검증)
 
@@ -962,7 +1003,33 @@ npx tsx scripts/smoke-crud.ts
 
 → smoke / 통합 테스트 작성 시 코어 패키지 dist (또는 src) 직접 확인 후 작성.
 
+### A.11 (a) submodule 환경 — `workspace:*` 가 npm 에서 fail (Mercury 14차 박제 — 로고스 발견)
+
+**증상**: rootric 합류 첫 시도 (`git submodule add` + `npm install`) 시:
+```
+npm error EUNSUPPORTEDPROTOCOL
+npm error Unsupported URL Type "workspace:": workspace:*
+```
+
+**원인**: wiki-core 의 `packages/{storage,router,renderer}/package.json` dependencies 에 `"@wiki-core/core": "workspace:*"`. npm 이 `workspace:` protocol 모름 (pnpm/yarn berry 전용). file: dep 가 vendor/wiki-core/packages/storage 같은 monorepo 디렉토리 가리키면, 거기 package.json 의 workspace:* 도 npm 이 해석 시도 → fail. postinstall 도달 X.
+
+**enroute 가 회피한 이유**: (b) sibling pnpm workspace 환경 — wiki-core/packages/* 와 enroute-plugin 이 같은 pnpm root. workspace:* 가 정상 동작 (pnpm magic). (a) 환경 검증 X.
+
+**해결 — `pack:dist` 패턴** (가이드 §0-pre.1 (a) submodule 박스 참조):
+- wiki-core 루트에 `pnpm pack:dist` script (Mercury 14차) — `pnpm pack` 4회 실행 → `dist-tarballs/wiki-core-*-0.1.0.tgz` 4종 출력. `workspace:*` 가 publish 시점 `0.1.0` 으로 자동 변환됨.
+- rootric `package.json` postinstall 에 `pnpm pack:dist` 추가 — submodule 안에서 매번 자동 실행.
+- rootric `dependencies` 4종 → `file:./vendor/wiki-core/dist-tarballs/wiki-core-<pkg>-0.1.0.tgz` (npm 호환).
+
+**검증** (Mercury 14차):
+- (b) pnpm sibling — `workspace:*` 그대로. `pnpm install` + `tsc -b` 통과 (회귀 0건).
+- pack:dist — 4 .tgz 생성. `wiki-core-storage-0.1.0.tgz/package/package.json` 의 `dependencies."@wiki-core/core"` = `"0.1.0"` 자동 변환 확인.
+- (a) npm submodule — 로고스 측 재시도로 검증 (Mercury 14차 commit push 후).
+
+**대안 거부**:
+- `workspace:*` → `file:../core` 한 줄 변경 (옵션 B): pnpm sibling 환경에서 *workspace member 인식* 깨질 가능성 — workspace:* 는 magic 한 sibling 참조, file:../core 는 외부 디렉토리. 회귀 위험.
+- 코어 패키지 dependencies 직접 변경 (옵션 D): semver 영향 + (b) 환경 비효율. 거부.
+
 ---
 
-**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차)**
-**다음 액션**: rootric 합류 — 옵션 A + SupabaseAdapter + hooks 팩토리 + (a) git submodule + Vercel Settings → Git submodule fetch 활성화. plott 합류는 rootric 검증 통과 후 (5단계 가시성 + scope_id 확장).
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차)**
+**다음 액션**: rootric 합류 — 옵션 A + SupabaseAdapter + hooks 팩토리 + (a) git submodule + `pack:dist` 패턴 + Vercel Settings → Git submodule fetch 활성화. plott 합류는 rootric 검증 통과 후 (5단계 가시성 + scope_id 확장).

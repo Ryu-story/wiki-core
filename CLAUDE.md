@@ -288,16 +288,23 @@
   - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
 - 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
 
-### Mercury 14차 (2026-04-30 — 로고스 patch 최종 검증 + rootric 합류 진입 동의)
+### Mercury 14차 (2026-04-30 — 로고스 patch 최종 검증 + 트랩 A.11 응답 + `pack:dist` 패턴 박제)
 
-- **상태: 로고스 Mercury 13차 cron 분기 박스 patch + Q1·Q2·Q3 답 모두 OK 검증. rootric 합류 진입 동의 확정 — 첫 세션 Phase 1+2 (~2-3h, 집 PC 전환 후) 진입 대기. 트랩 5종 모니터링 동시 진입.**
+- **상태: 로고스 patch 최종 검증 OK + 합류 진입 후 첫 시도 트랩 A.11 발견 (`workspace:*` npm 비호환). 머큐리 단독 결정 — 옵션 C (`pack:dist` 패턴) 채택, 박제 완료. 로고스 재시도 검증 대기.**
 - 진행 흐름:
   1. 시작 루틴 — git pull (Mercury 6~13차 합쳐진 환경 7 commits) + CLAUDE.md / edward_collaboration.md / domain_feedback_log.md 정독
-  2. 로고스 응답 수렴 — §0-pre.3 #2 cron 분기 박스 rootric Vercel 환경 정합 (`ingest-batch`=service-role / 일반 user=actor-aware cache). 합류 동의 명시.
-  3. 머큐리 결정 — 추가 결정 0건. Mercury 13차 박제 그대로 stable. 코어 인터페이스 변경 0건.
-  4. 박제 — `docs/domain_feedback_log.md` Mercury 14차 섹션 + 이 CLAUDE.md
-- 산출물 commit: 다음 commit (Mercury 14차 박제)
-- 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후
+  2. 로고스 Mercury 13차 cron 분기 박스 patch + Q1·Q2·Q3 답 검증 응답 — 모두 OK, 합류 동의 명시. 박제 (commit `b38483e`).
+  3. 로고스 후속 입력 — Phase 4 첫 시도 트랩 A.11 보고 (`git submodule add` + `npm install` 시 `EUNSUPPORTEDPROTOCOL "workspace:": workspace:*`). (b) pnpm sibling 환경 (enroute) 은 pnpm magic 으로 회피, (a) submodule + npm 첫 검증.
+  4. 머큐리 단독 결정 — 옵션 C (`pack:dist` 패턴) 채택. 본체 `workspace:*` 그대로, 추가 build 출력만 (`dist-tarballs/*.tgz`).
+  5. 박제 — `package.json` `pack:dist` script + `scripts/pack-dist.mjs` (cross-platform node) + `.gitignore` `dist-tarballs/` + `docs/phase4_plugin_guide.md` §0-pre.1 (a) submodule 박스 + 부록 A-2 A.11.
+  6. 검증 — (b) pnpm sibling `pnpm install` + `tsc -b` 통과 (회귀 0건). pack:dist 4 .tgz 생성. `workspace:*` → `0.1.0` 자동 변환 확인.
+- 산출물 commit: `b38483e` (로고스 patch 최종 검증), 다음 commit (트랩 A.11 응답 + pack:dist 패턴 박제)
+- 핵심 박제: **(a) submodule 환경 호환 — `pack:dist` 패턴**. wiki-core 본체 변경 0건. 코어 인터페이스 변경 0건. semver 영향 0건. 추가 build 출력만.
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 인터페이스 변경 X (build 출력 추가만), 영향 범위 명확
+  - #3 공통점 검증 의무 — (b) sibling 환경 회귀 검증 통과 후 (a) 환경 push, 양 환경 정합
+  - #5 YAGNI — 옵션 B (한 줄 변경) 거부 = (b) 환경 회귀 위험 회피 우선
+- 다음 입력 대기: 로고스 (a) 환경 재시도 결과 — `pack:dist` 후 `file:.tgz` dep 정상 해석되는지
 
 ### 다음 작업 후보 (Mercury 15차+)
 
