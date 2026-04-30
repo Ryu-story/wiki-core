@@ -999,31 +999,42 @@ label 은 4요소 보조 슬롯 (TargetKind 에 'label' 없음). `WikiCore.delet
 
 ## 부록 A-2 — enroute 1차 합류 트랩 5종 (Mercury 12차 박제)
 
-### A.6 NOT NULL DEFAULT 컬럼의 ON CONFLICT COALESCE 깨짐 ★ 명시 박제
+### A.6 NOT NULL DEFAULT 컬럼의 ON CONFLICT COALESCE 깨짐 ★ 명시 박제 (Mercury 17차 일반화 — BOOLEAN/NUMERIC/INTEGER 모든 타입)
 
-**증상**: ext_upsert RPC 함수에서 NOT NULL DEFAULT (예: `wisdom BOOLEAN NOT NULL DEFAULT false`) 컬럼을 `COALESCE(EXCLUDED.x, 기존.x)` 로 작성. INSERT 시 NULL 들어가면 DEFAULT 가 적용되어 EXCLUDED 에 false 가 들어가고 → 기존 true 를 false 로 덮음. 2차 호출 (다른 컬럼만 채움) 시 wisdom 이 false 로 떨어지는 정합 사고.
+**증상**: ext_upsert RPC 함수에서 NOT NULL DEFAULT 컬럼을 `COALESCE(EXCLUDED.x, 기존.x)` 로 작성. INSERT 시 NULL 들어가면 DEFAULT 가 적용되어 EXCLUDED 에 default 값이 들어가고 → 기존 값을 default 로 덮음. 2차 호출 (다른 컬럼만 채움) 시 정합 사고.
+
+**발생 사례**:
+- enroute `wisdom BOOLEAN NOT NULL DEFAULT false` (Mercury 12차 발견) — 1차 true → 2차 NULL 전달 → false 로 덮힘
+- rootric `strength NUMERIC NOT NULL DEFAULT 0.5` (Mercury 17차 발견) — 1차 0.85 → 2차 NULL 전달 → 0.5 로 덮힘
+
+**원인 (메커니즘 일반)**: `INSERT VALUES` 단계에서 이미 default 로 치환된 EXCLUDED 를 받음 → "원래 NULL 이었나" 구분 불가. 타입 (BOOLEAN/NUMERIC/INTEGER) 무관하게 동일 메커니즘.
 
 ```sql
--- ❌ wisdom = false 로 덮힘
-INSERT INTO <domain>_object_ext (object_id, wisdom, metric_type)
-VALUES (p_object_id, p_wisdom, p_metric_type)
+-- ❌ NOT NULL DEFAULT 컬럼 모두 깨짐 (BOOLEAN/NUMERIC/INTEGER)
+INSERT INTO <domain>_object_ext (object_id, wisdom, strength, metric_type)
+VALUES (p_object_id, p_wisdom, p_strength, p_metric_type)
 ON CONFLICT (object_id) DO UPDATE SET
-  wisdom      = COALESCE(EXCLUDED.wisdom, <domain>_object_ext.wisdom),
+  wisdom      = COALESCE(EXCLUDED.wisdom, <domain>_object_ext.wisdom),       -- BOOLEAN false 로 덮힘
+  strength    = COALESCE(EXCLUDED.strength, <domain>_object_ext.strength),   -- NUMERIC 0.5 로 덮힘
   metric_type = COALESCE(EXCLUDED.metric_type, <domain>_object_ext.metric_type);
 
--- ✅ NOT NULL DEFAULT 컬럼은 CASE WHEN, NULL 허용 컬럼만 EXCLUDED COALESCE
-INSERT INTO <domain>_object_ext (object_id, wisdom, metric_type)
-VALUES (p_object_id, p_wisdom, p_metric_type)
+-- ✅ NOT NULL DEFAULT 컬럼은 모두 CASE WHEN, NULL 허용 컬럼만 EXCLUDED COALESCE
+INSERT INTO <domain>_object_ext (object_id, wisdom, strength, metric_type)
+VALUES (p_object_id, p_wisdom, p_strength, p_metric_type)
 ON CONFLICT (object_id) DO UPDATE SET
-  wisdom      = CASE WHEN p_wisdom IS NULL THEN <domain>_object_ext.wisdom ELSE p_wisdom END,
+  wisdom      = CASE WHEN p_wisdom   IS NULL THEN <domain>_object_ext.wisdom   ELSE p_wisdom   END,
+  strength    = CASE WHEN p_strength IS NULL THEN <domain>_object_ext.strength ELSE p_strength END,
   metric_type = COALESCE(EXCLUDED.metric_type, <domain>_object_ext.metric_type);
 ```
 
-**규칙**:
-- **NOT NULL DEFAULT 컬럼** (BOOLEAN/INTEGER 등) → `CASE WHEN p_x IS NULL THEN <table>.x ELSE p_x END`
-- **NULL 허용 컬럼** (TEXT/JSONB nullable 등) → `COALESCE(EXCLUDED.x, <table>.x)` 그대로 OK
+**규칙 (Mercury 17차 일반화)**:
+- **NOT NULL DEFAULT 컬럼** (모든 타입 — BOOLEAN/NUMERIC/INTEGER/TEXT NOT NULL/...) → `CASE WHEN p_x IS NULL THEN <table>.x ELSE p_x END`
+- **NULL 허용 컬럼** (TEXT/JSONB/TIMESTAMPTZ nullable 등) → `COALESCE(EXCLUDED.x, <table>.x)` 그대로 OK
 
-enroute `wisdom` 컬럼에서 실제 발생 (Phase 4-A 검증 중 발견, 수정 commit). plott / rootric 작성 시 처음부터 패턴 분리.
+**적용 도메인**:
+- enroute (wisdom BOOLEAN) — Phase 4-A 검증 통과
+- rootric (strength NUMERIC, is_key BOOLEAN) — Phase 3-B 검증 통과 (2026-04-30, 10/10 PASS)
+- plott — NUMERIC/BOOLEAN ext 컬럼 사용 시 처음부터 CASE WHEN 패턴 적용 권장 (예: `is_official BOOLEAN NOT NULL DEFAULT false`, `confidence NUMERIC NOT NULL DEFAULT 0.5`)
 
 ### A.7 `created_origin TEXT vs JSONB` 가정 충돌 → 옵션 A 패턴 채택
 

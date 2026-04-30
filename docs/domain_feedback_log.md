@@ -733,6 +733,65 @@ npm error Unsupported URL Type "workspace:": workspace:*
 
 ---
 
+## Mercury 17차 — rootric Phase 3-B 종결 + A.6 NUMERIC 일반화 박제 — 2026-04-30
+
+### 입력
+
+로고스 Phase 3-B 종결 보고:
+- step 1-6 모두 완료
+- **smoke-crud 10/10 PASS** — ★ A.6 + ★ multi-target checkWrite + ★ deleteLabel access control 3 핵심 통과
+- 마이그레이션 4건 적용 (wiki_core_0001/0002 + rootric_plugin_0001/0002)
+- ⏳ Vercel deploy 결과 추후
+
+### ★ A.6 보강 발견 — NUMERIC NOT NULL DEFAULT 동일 트랩
+
+**기존 박제 (Mercury 12차)**: NOT NULL DEFAULT *BOOLEAN* (`wisdom`) 만 명시.
+
+**Mercury 17차 신규 발견** (rootric Phase 3-B 검증 중):
+- `rootric_provenance_ext.strength NUMERIC NOT NULL DEFAULT 0.5`
+- 1차 INSERT(strength=0.85) → 2차 RPC NULL 전달
+- 결과: 0.85 → 0.5 로 덮힘 (FAIL)
+- 메커니즘: `INSERT VALUES` 가 이미 default 로 치환된 `EXCLUDED` 받음 → "원래 NULL 이었나" 구분 불가 (BOOLEAN false 트랩과 동일).
+
+**해결 (rootric 0001 마이그레이션 정정 적용)**:
+```sql
+strength = CASE WHEN p_strength IS NULL THEN existing ELSE p_strength END
+is_key   = CASE WHEN p_is_key   IS NULL THEN existing ELSE p_is_key   END
+expires_at = COALESCE(EXCLUDED.expires_at, existing)   -- nullable 라 OK
+```
+
+### 머큐리 단독 결정 — A.6 일반화 (BOOLEAN → 모든 NOT NULL DEFAULT 타입)
+
+**판단**: enroute (BOOLEAN) + rootric (NUMERIC) 양면 발생 → 메커니즘이 *타입 무관* 하게 일반. plott 합류 시 (`is_official BOOLEAN`, `confidence NUMERIC` 등) 동일 사고 차단 가치 critical.
+
+**박제 patch**:
+- `docs/phase4_plugin_guide.md` 부록 A.6 본문 일반화 — BOOLEAN/NUMERIC/INTEGER/TEXT NOT NULL 모든 타입에 CASE WHEN 명시
+- 발생 사례 표 추가 (enroute wisdom BOOLEAN + rootric strength NUMERIC)
+- 메커니즘 설명 (`INSERT VALUES` default 치환 → EXCLUDED 구분 불가)
+- plott 적용 권장 박제 (처음부터 CASE WHEN 패턴 채택)
+
+**대안 거부**:
+- 별도 트랩 (A.14) 신설: 같은 메커니즘 — 별도 박제는 중복. A.6 일반화가 정합.
+- 코어 schema 영향: 0건 (plugin 마이그레이션 SQL only).
+
+### 코어 측 작업
+
+| 항목 | 상태 |
+|---|---|
+| 부록 A.6 일반화 (BOOLEAN → 모든 NOT NULL DEFAULT 타입) | ✅ 본 commit |
+| 코어 인터페이스 변경 | 0건 |
+| wiki-core 본체 코드 변경 | 0건 |
+| semver 영향 | 0건 |
+
+### 다음 입력 대기
+
+| 도메인 | trigger |
+|---|---|
+| **rootric (Phase 4-A 종결)** | Vercel deploy 결과 + 첫 ingest 본격 실행 (source=news / dart) |
+| plott | rootric Phase 4-A 종결 후 합류 (5단계 가시성 + scope_id) |
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |

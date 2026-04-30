@@ -288,6 +288,23 @@
   - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
 - 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
 
+### Mercury 17차 (2026-04-30 — rootric Phase 3-B 종결 + A.6 NUMERIC 일반화 박제)
+
+- **상태: 로고스 Phase 3-B 종결 (rootric smoke-crud 10/10 PASS, 0 build error). 3 ★ 검증 통과 — A.6 BOOLEAN CASE WHEN / createEvent multi-target checkWrite / deleteLabel access control. ★ NUMERIC NOT NULL DEFAULT 동일 트랩 신규 발견. 머큐리 단독 결정 — A.6 일반화 (BOOLEAN → NOT NULL DEFAULT 모든 타입). 가이드 patch 박제. 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull 없음 (Mercury 16차 commit `169d3b4` 그대로)
+  2. 로고스 Phase 3-B 결과 수렴 — smoke-crud 10/10 (createObject/Attribute/Relation/Event + Provenance + Label + checkWrite × 3 ★) / 4 migrations applied / RLS DROP+CREATE 정합 / SupabaseAdapter actor-aware 풀 cron 분기 정합
+  3. ★ 신규 발견 — `rootric_object_ext` 의 `strength NUMERIC NOT NULL DEFAULT 0.5` 가 ON CONFLICT COALESCE 시 동일하게 `0.5` 로 덮히는 트랩 발생. enroute (`wisdom BOOLEAN false`) + rootric (`strength NUMERIC 0.5`) 양면 발생.
+  4. 머큐리 단독 결정 — A.6 *일반화 완전 채택*. "BOOLEAN NOT NULL DEFAULT" → "NOT NULL DEFAULT 모든 컬럼 (BOOLEAN/NUMERIC/INTEGER)" 로 본질 박제. plott 합류 전 박제로 같은 사고 차단. (Mercury 15차 보완 2건 *완전 채택* 패턴 동일.)
+  5. 박제 — `docs/phase4_plugin_guide.md` 부록 A-2 A.6 일반화 (발생 사례 표 + plott 권장 박제) / `docs/domain_feedback_log.md` Mercury 17차 + 다음 입력 대기 갱신 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 17차 박제 — 가이드 patch only)
+- 핵심 박제: **A.6 일반화 — NOT NULL DEFAULT 모든 컬럼 ON CONFLICT CASE WHEN 패턴 필수** (COALESCE 는 nullable 컬럼에만 안전). enroute + rootric 양면 검증. plott 합류 시 기본값.
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 인터페이스 변경 X. 가이드 patch 만.
+  - #3 공통점 검증 의무 — enroute (BOOLEAN) + rootric (NUMERIC) 양면 cross-validate 후 일반화 박제. 한 도메인 사례만으로 일반화 X.
+  - #5 YAGNI — *완전 채택* (부분 채택 X). 트랩 본질이 명확 (DEFAULT 가 NULL 을 가리는 SQL 패턴) + 양면 발생 → 일반화 박제 가치 충분. 가설 박제 X.
+- 다음 입력 대기: rootric Vercel deploy 결과 + 첫 ingest 실행 (cron / actor-aware 풀 / SupabaseAdapter 실 환경 검증). 도메인 owner trigger.
+
 ### Mercury 16차 (2026-04-30 — rootric Phase 3-A 검증 통과 + `moduleResolution: bundler` 박제)
 
 - **상태: 로고스 Phase 3-A 통과 (SupabaseAdapter + storageRouter + 5 hooks 팩토리 + type-check + §1-§3 박스 1·2·3 매핑). 신규 환경 정합 — `tsconfig moduleResolution: bundler` (subpath exports `@wiki-core/core/utils/noise` 인식). 가이드 §1.0 박스 박제. registerPlugin runtime 검증은 Phase 3-B smoke 단계.**
@@ -341,21 +358,20 @@
   - #5 YAGNI — 옵션 B (한 줄 변경) 거부 = (b) 환경 회귀 위험 회피 우선
 - 다음 입력 대기: 로고스 (a) 환경 재시도 결과 — `pack:dist` 후 `file:.tgz` dep 정상 해석되는지
 
-### 다음 작업 후보 (Mercury 17차+)
+### 다음 작업 후보 (Mercury 18차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **rootric Phase 1+2 결과 수렴** — submodule + plugin manifest + access-control + migrations 0001 검증. 코어 인터페이스 사용 검증 + (a) submodule 패턴 검증 + 트랩 5종 재발 모니터링 | 도메인 owner trigger | 신규 |
-| 2 | **rootric Phase 3+4+5 검증** — IngestAdapter 마이그레이션 + smoke + 정리. 코어 SPEC 영향 가능성 있는 변경 발견 시 별도 박제 협의 | 도메인 owner trigger | 신규 |
-| 3 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). | 도메인 owner trigger | 신규 |
-| 4 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 1 | **rootric Vercel deploy + 첫 ingest 검증 수렴** — actor-aware 풀 / cron 분기 / SupabaseAdapter 실 환경 동작. 코어 인터페이스 사용 검증 + (a) submodule + pack:dist + preinstall 실 환경 검증 + 신규 트랩 모니터링 | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). A.6 일반화 patch 사전 적용 권장. | 도메인 owner trigger | 신규 |
+| 3 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — rootric Phase 1+2 결과 보고 도착 여부 확인
-3. 결과 보고 도착 → rootric Phase 1+2 검증 응답 박제 + Phase 3+4+5 진입 가이드. 미도착 → 대기 유지.
+2. `docs/domain_feedback_log.md` 정독 — rootric Vercel deploy / 첫 ingest 결과 보고 도착 여부 확인
+3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
 
 ---
 
