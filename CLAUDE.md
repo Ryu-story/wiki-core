@@ -288,6 +288,22 @@
   - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
 - 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
 
+### Mercury 16차 (2026-04-30 — rootric Phase 3-A 검증 통과 + `moduleResolution: bundler` 박제)
+
+- **상태: 로고스 Phase 3-A 통과 (SupabaseAdapter + storageRouter + 5 hooks 팩토리 + type-check + §1-§3 박스 1·2·3 매핑). 신규 환경 정합 — `tsconfig moduleResolution: bundler` (subpath exports `@wiki-core/core/utils/noise` 인식). 가이드 §1.0 박스 박제. registerPlugin runtime 검증은 Phase 3-B smoke 단계.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull 없음 (직전 Mercury 15차 commit `85c9897` 그대로)
+  2. 로고스 결과 수렴 — Phase 3-A 통과 + tsconfig moduleResolution `bundler` 적용 (subpath exports 인식 위해)
+  3. 머큐리 단독 결정 — 코어 인터페이스 변경 X. 단순 환경 정합 정보 가이드 박제. Next.js / 모던 번들러 환경 표준 (plott 합류 시 동일 필요).
+  4. 박제 — `docs/phase4_plugin_guide.md` §1.0 tsconfig 환경 정합 박스 + `docs/domain_feedback_log.md` Mercury 16차 + 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 16차 박제)
+- 핵심 박제: **tsconfig `moduleResolution: bundler` 환경 정합 박스** — Next.js / 모던 번들러 표준. rootric Phase 3-A 검증 + plott 합류 precedent.
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 변경 X. 환경 정합 정보 박제만.
+  - #3 공통점 검증 의무 — rootric (Next.js) + plott (Next.js 합류 예정) 양쪽 적용. enroute (pnpm sibling) 자연 호환.
+  - #5 YAGNI — 검증된 patch 만 박제 (rootric Phase 3-A 적용 결과). 가설 박제 X.
+- 다음 입력 대기: rootric Phase 3-B 결과 — smoke-crud (rootric 6 케이스 + ★ A.6 검증) + registerPlugin runtime + Vercel cold start
+
 ### Mercury 15차 (2026-04-30 — rootric Phase 1+2 결과 수렴 + 트랩 A.12/A.13 응답)
 
 - **상태: 로고스 Phase 1+2 합류 통과 (rootric `7988da09`, type-check OK, 60min) + 트랩 2건 신규 보고. 머큐리 단독 결정 — 보완 2건 모두 완전 채택. 가이드 §0-pre.1 (a) submodule 박스 정정 (preinstall + npx pnpm) + 부록 A-2 A.12+A.13 신설. wiki-core 본체 변경 0건.**
@@ -325,7 +341,7 @@
   - #5 YAGNI — 옵션 B (한 줄 변경) 거부 = (b) 환경 회귀 위험 회피 우선
 - 다음 입력 대기: 로고스 (a) 환경 재시도 결과 — `pack:dist` 후 `file:.tgz` dep 정상 해석되는지
 
-### 다음 작업 후보 (Mercury 16차+)
+### 다음 작업 후보 (Mercury 17차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|

@@ -692,6 +692,47 @@ npm error Unsupported URL Type "workspace:": workspace:*
 
 ---
 
+## Mercury 16차 — rootric Phase 3-A 검증 통과 + tsconfig 환경 정합 박제 — 2026-04-30
+
+### 입력
+
+로고스 Phase 3-A 결과:
+- SupabaseAdapter 자체 빌드 + storageRouter + 5 hooks (link-free + 팩토리 패턴) ✅
+- type-check ✅
+- 가이드 §1-§3 박스 1·2·3 정확 매핑 ✅
+- **tsconfig `moduleResolution: bundler`** (subpath exports `@wiki-core/core/utils/noise` 인식) — 신규 환경 정합 정보
+- registerPlugin runtime 검증 ⏳ Phase 3-B smoke 단계 (env 의존)
+- Phase 3-B 진입 동의 ✅
+
+### 머큐리 결정 — `moduleResolution: bundler` 가이드 박스 박제
+
+**판단**: 코어 인터페이스 변경 X. 단순 환경 정합 정보. Next.js / 모던 번들러 환경 표준 (rootric Phase 3-A 검증 + plott Next.js 합류 시 동일 필요).
+
+**박제 위치**: `docs/phase4_plugin_guide.md` §1.0 (Plugin Manifest Boilerplate 직전 — 가장 먼저 plugin tsconfig 셋업 시 만남).
+
+**도메인별 적용**:
+- rootric: ✅ Phase 3-A 검증 (Next.js)
+- enroute: 이미 정합 ((b) sibling pnpm 으로 자연 호환)
+- plott: rootric precedent 채택 권장 (Next.js)
+
+### 코어 측 작업
+
+| 항목 | 상태 |
+|---|---|
+| 가이드 §1.0 tsconfig 환경 정합 박스 | ✅ 본 commit |
+| 코어 인터페이스 변경 | 0건 |
+| wiki-core 본체 코드 변경 | 0건 |
+| semver 영향 | 0건 |
+
+### 다음 입력 대기
+
+| 도메인 | trigger |
+|---|---|
+| **rootric (Phase 3-B)** | smoke-crud (rootric 6 케이스 + ★ A.6 검증) + registerPlugin runtime 검증 + Vercel 배포 cold start 결과 |
+| plott | rootric Phase 3-B 검증 통과 후 |
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
