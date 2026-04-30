@@ -288,7 +288,18 @@
   - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
 - 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
 
-### 다음 작업 후보 (Mercury 14차+)
+### Mercury 14차 (2026-04-30 — 로고스 patch 최종 검증 + rootric 합류 진입 동의)
+
+- **상태: 로고스 Mercury 13차 cron 분기 박스 patch + Q1·Q2·Q3 답 모두 OK 검증. rootric 합류 진입 동의 확정 — 첫 세션 Phase 1+2 (~2-3h, 집 PC 전환 후) 진입 대기. 트랩 5종 모니터링 동시 진입.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull (Mercury 6~13차 합쳐진 환경 7 commits) + CLAUDE.md / edward_collaboration.md / domain_feedback_log.md 정독
+  2. 로고스 응답 수렴 — §0-pre.3 #2 cron 분기 박스 rootric Vercel 환경 정합 (`ingest-batch`=service-role / 일반 user=actor-aware cache). 합류 동의 명시.
+  3. 머큐리 결정 — 추가 결정 0건. Mercury 13차 박제 그대로 stable. 코어 인터페이스 변경 0건.
+  4. 박제 — `docs/domain_feedback_log.md` Mercury 14차 섹션 + 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 14차 박제)
+- 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후
+
+### 다음 작업 후보 (Mercury 15차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|

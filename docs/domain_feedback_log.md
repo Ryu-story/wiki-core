@@ -542,10 +542,32 @@ function getAdapter(actor?: ActorContext): SupabaseAdapter {
 
 ---
 
+## Mercury 14차 — 로고스 Mercury 13차 patch 최종 검증 + rootric 합류 진입 동의 — 2026-04-30
+
+### 입력
+
+로고스 (rootric owner) Mercury 13차 cron 분기 박스 patch + Q1·Q2·Q3 답 검증 응답:
+
+| 항목 | 결과 |
+|---|---|
+| §0-pre.3 #2 cron 분기 박스 | ✅ rootric Vercel 환경 정합 (`ingest-batch`=service-role / 일반 user=actor-aware cache) |
+| Q1 (cron 분기 박스 추가) | ✅ |
+| Q2 (코어 SPEC 영향 변경 별도 협의) | ✅ |
+| Q3 (plott 시점 추정 X) | ✅ |
+| 합류 동의 | ✅ — 첫 세션 Phase 1+2 (~2-3h, 집 PC 전환 후) 가이드 그대로 진행 |
+| 트랩 5종 모니터링 | ✅ 진입 |
+
+### 머큐리 결정
+
+- 추가 결정 없음 — Mercury 13차 박제 그대로 stable. 코어 인터페이스 변경 0건.
+- 합류 모니터링 자세 유지 — Phase 1+2 첫 세션 결과 보고 도착 시 머큐리 15차 진입.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
 | ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님) |
-| rootric (2차) | **합류 진입 신호 박제됨**. 집 PC 전환 후 Phase 1+2 (~2-3h) 진입. 첫 세션 종결 후 결과 보고 도착 시 머큐리 14차 진입. |
+| **rootric (2차)** | **합류 진입 동의 확정 (Mercury 14차)**. 집 PC 전환 후 Phase 1+2 (~2-3h) 진입. 첫 세션 종결 후 결과 보고 도착 시 머큐리 15차 진입. 트랩 5종 모니터링 동시 진입. |
 | plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 (scope_id) RLS 다단 join + `plott_target_visibility` 함수. **합류 시점 추정 X (플로터 작업 일정에 의존)** — PLANNER 일정대로 공모전 후 + Agent Skills 파일럿. |
