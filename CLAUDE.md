@@ -272,20 +272,37 @@
   - #5 YAGNI — 트랩 5종 모두 enroute 에서 *실제 발생* 한 사례만. 가설 트랩 박제 X.
 - 다음 입력 대기: rootric (로고스) plugin 작성 시작 신호 (가이드 §0-pre + (a) git submodule + 옵션 A 채택 검증)
 
-### 다음 작업 후보 (Mercury 13차+)
+### Mercury 13차 (2026-04-30 — rootric 합류 진입 신호 + 보완 의견 부분 채택)
+
+- **상태: 로고스 (rootric owner) Mercury 12차 검증 통과 (이의 0건) + 합류 진입 신호 박제 + 보완 의견 1건 부분 채택 (가이드 §0-pre.3 #2 actor-aware cron 분기 패턴 박제). rootric 첫 세션 (집 PC 전환 후) 진입 대기.**
+- 진행 흐름:
+  1. 로고스 검증 응답 수렴 — §0-pre 7 패턴 + 부록 A-2 5 트랩 모두 rootric 환경 정합. rootric 33차 commit `9a94eae` (`docs/phase4_rootric_entry_plan.md`)
+  2. 보완 의견 1건 수렴 — SupabaseAdapter actor-aware 풀의 cron 트리거 분기 패턴 (`getAdapter(actor?)` 시그니처에서 actor 부재 또는 service-role 분기)
+  3. 머큐리 단독 결정 — *부분 채택* (Mercury 9차 Router.resetBudget 패턴 동일). 가이드 §0-pre.3 #2 (SupabaseAdapter) 본문에 "actor-aware 인스턴스 풀 — cron / service-role 분기 패턴" 박스 추가. 코어 인터페이스 변경 X.
+  4. 머큐리 답변 박제 — 로고스 3 질문 답변 (cron 분기 박스 추가 / 코어 SPEC 영향 변경 별도 협의 / plott 시점 추정 X)
+  5. 박제 — `docs/phase4_plugin_guide.md` §0-pre.3 #2 갱신 / `docs/domain_feedback_log.md` Mercury 13차 섹션 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 13차 박제)
+- 핵심 박제: **actor-aware 인스턴스 풀 cron / service-role 분기 패턴** — multi-user 도메인 (rootric/plott) 공통 패턴. plott 합류 시 admin 영역 재사용. 보완 의견 부분 채택 + 가이드 박스 명시 (코어 인터페이스 변경 X).
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 SPEC 영향 가능성 있는 변경은 *반드시* 별도 박제 협의 (5단계 protocol 그대로). 현재 채택은 plugin 영역 가이드 박스 추가만, 코어 변경 0건
+  - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
+- 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
+
+### 다음 작업 후보 (Mercury 14차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **rootric plugin 합류** — (a) git submodule + 옵션 A `created_by` + SupabaseAdapter + hooks 팩토리 + Vercel Settings 검증 | 도메인 owner trigger | 신규 |
-| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡) | 도메인 owner trigger | 신규 |
-| 3 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 1 | **rootric Phase 1+2 결과 수렴** — submodule + plugin manifest + access-control + migrations 0001 검증. 코어 인터페이스 사용 검증 + (a) submodule 패턴 검증 + 트랩 5종 재발 모니터링 | 도메인 owner trigger | 신규 |
+| 2 | **rootric Phase 3+4+5 검증** — IngestAdapter 마이그레이션 + smoke + 정리. 코어 SPEC 영향 가능성 있는 변경 발견 시 별도 박제 협의 | 도메인 owner trigger | 신규 |
+| 3 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). | 도메인 owner trigger | 신규 |
+| 4 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — rootric plugin 작성 시작 신호 도착 여부 확인
-3. 시작 신호 도착 → rootric plugin 작성 협력 진입 (가이드 §0-pre 그대로 + (a) submodule 검증). 미도착 → 대기 유지.
+2. `docs/domain_feedback_log.md` 정독 — rootric Phase 1+2 결과 보고 도착 여부 확인
+3. 결과 보고 도착 → rootric Phase 1+2 검증 응답 박제 + Phase 3+4+5 진입 가이드. 미도착 → 대기 유지.
 
 ---
 

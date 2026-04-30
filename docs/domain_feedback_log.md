@@ -467,10 +467,85 @@ enroute 측 후속 작업 (rootric/plott blocking 아님): anon-key 시뮬레이
 
 ---
 
+## Mercury 13차 — rootric 합류 진입 신호 + 보완 의견 부분 채택 — 2026-04-30
+
+### 입력
+
+로고스 (rootric owner) Mercury 12차 가이드 §0-pre + 부록 A-2 검증 응답 도착 (rootric 33차 세션):
+
+**검증 결과**: 이의 0건. §0-pre 7 패턴 + 부록 A-2 5 트랩 모두 rootric 환경 정합.
+
+| # | 패턴 | rootric 정합 |
+|---|---|---|
+| 1 | (a) submodule | Mercury 11차 결정 + enroute Phase 4-A smoke 96/96 검증으로 확정 |
+| 2 | created_by 옵션 A | RLS 정책 (`auth.uid()` 직접) 자연 통합 |
+| 3 | SupabaseAdapter 자체 빌드 | supabase-js 단일 의존성, Next.js `cache()` request-scoped 정합 |
+| 4 | hooks 팩토리 패턴 | strength·is_key·expires_at 재계산 hook 에 자연 적용 |
+| 5 | RPC SECURITY DEFINER + SET search_path | Postgres 보안 정석 |
+| 6 | source_ref JSON 컨벤션 | rootric source (매일경제·DART·연합뉴스) 매핑 가능 |
+| 7 | rootric_target_owner STABLE 함수 | provenance/event polymorphic 참조 효율적 |
+
+**부록 A-2 트랩**: `is_key` (NOT NULL DEFAULT BOOLEAN) 컬럼 A.6 패턴 처음부터 적용 예정. 나머지 4 트랩 모두 가이드 그대로 채택.
+
+### 보완 의견 1건 — SupabaseAdapter cron 트리거 분기 패턴
+
+**의견**: actor-aware 인스턴스 풀의 cron 트리거 (ingest-batch, no actor) 케이스 분기. user-scoped 캐시에 actor=undefined 들어가면 정합 깨짐. rootric IngestAdapter 에서 service-role 어댑터 별도 인스턴스로 처리 예정. plott 합류 시 admin 영역에서 동일 케이스 발생 가능.
+
+**제안 패턴**:
+```ts
+function getAdapter(actor?: ActorContext): SupabaseAdapter {
+  if (!actor || actor.role === 'service_role') {
+    return cachedServiceRoleAdapter();
+  }
+  return cache(() => createUserAdapter(actor))();
+}
+```
+
+### 머큐리 단독 결정 — 부분 채택 (가이드 §0-pre.3 #2 박스 갱신)
+
+**채택**: 가이드 §0-pre.3 #2 (SupabaseAdapter) 본문에 **actor-aware 인스턴스 풀 — cron / service-role 분기 패턴** 박스 추가. 코드 예시 + 적용 영역 (ingest pipeline / admin 작업 / 일반 user) 명시.
+
+**근거**:
+1. enroute (single-user, `defaultCreatedBy` 1회) + rootric (multi-user, cron 분기) 모두 발생 → multi-user 도메인의 보편 패턴
+2. plott multi-user 합류 시 admin 영역에서 동일 케이스 재발 예측 → precedent 박제 가치
+3. 코어 인터페이스 변경 X (plugin 영역 가이드 박스 추가만) — semver 영향 0건
+4. Mercury 9차 Router.resetBudget 패턴 동일 — 보완 의견 *부분 채택*, 머큐리 자체 판단으로 가이드 박제
+
+**박제 위치**: `docs/phase4_plugin_guide.md` §0-pre.3 #2 본문 (추가 박스 신설).
+
+### 합류 신호 박제 — 옵션 A (인프라 먼저)
+
+**진입 시점**: 로고스 집 PC 전환 후 (오늘 저녁 또는 내일).
+
+**기획 박제**: rootric repo `docs/phase4_rootric_entry_plan.md` (commit `9a94eae`).
+
+**첫 세션 목표 — Phase 1 + 2 (~2-3h)**:
+- Phase 1: submodule + postinstall + Vercel Settings (~30min)
+- Phase 2: plugin 패키지 셋업 (manifest + access-control + migrations 0001) (~2-3h)
+- Phase 3 (IngestAdapter 마이그레이션) + 4 (smoke) + 5 (정리) → 다음 세션
+
+**rootric manifest 카탈로그**:
+- `object_kinds` 10종 (stock / sector / business_unit / product / customer / competitor / policy / macro_event / person / article)
+- `relation_types` 6종 (belongs_to_sector / has_business_unit / produces / supplies_to / competes_with / mentioned_in)
+- `event_types` 6종 (production_started / capex_announced / m_and_a / rate_decision / export_regulation / earnings_release)
+- `label_set: rootric_classification` (FACT / ASSUMPTION / MIXED / PLAIN)
+
+근거: rootric repo `docs/factsheet_wiki_requirements.md` §1.1~1.4 + Section 4.4 + Section 7.5.
+
+### 코어 측 작업
+
+| 항목 | 상태 |
+|---|---|
+| 가이드 §0-pre.3 #2 actor-aware cron 분기 패턴 박제 | ✅ 본 commit |
+| 코어 인터페이스 변경 | 0건 |
+| rootric 합류 모니터링 진입 | ✅ — 통합 협력 진입 동의 (코어 인터페이스 사용 검증 + (a) submodule 검증 + 트랩 5종 재발 방지) |
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
 | ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님) |
-| rootric (2차) | **다음**. enroute precedent 채택: (a) git submodule + 옵션 A `created_by` 컬럼 + SupabaseAdapter + hooks 팩토리 + Vercel Settings → Git submodule fetch 활성화. multi-user 라 `defaultCreatedBy` 대신 actor-aware 인스턴스 풀 검토. |
-| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 (scope_id) RLS 다단 join + `plott_target_visibility` 함수. |
+| rootric (2차) | **합류 진입 신호 박제됨**. 집 PC 전환 후 Phase 1+2 (~2-3h) 진입. 첫 세션 종결 후 결과 보고 도착 시 머큐리 14차 진입. |
+| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 (scope_id) RLS 다단 join + `plott_target_visibility` 함수. **합류 시점 추정 X (플로터 작업 일정에 의존)** — PLANNER 일정대로 공모전 후 + Agent Skills 파일럿. |

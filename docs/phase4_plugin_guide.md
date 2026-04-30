@@ -79,6 +79,27 @@ npm-only repo 가 (b) sibling link 채택 시 마이그레이션 필요. **plott
 
 **`defaultCreatedBy` 옵션** — 싱글 유저 도메인 (enroute) 은 constructor 에 1회 주입, multi-user 도메인 (rootric/plott) 은 actor-aware 인스턴스 풀 (request-scoped).
 
+**actor-aware 인스턴스 풀 — cron / service-role 분기 패턴** (Mercury 13차 박제 — 로고스 보완 의견 부분 채택):
+
+multi-user 도메인이라도 cron 트리거 (ingest-batch / 정기 sync 등) 는 actor 가 없음. user-scoped 캐시에 actor=undefined 들어가면 정합 깨짐. → `getAdapter(actor?)` 시그니처에서 actor 부재 또는 service-role 케이스 분기:
+
+```ts
+// rootric/plott 측 plugin 에서 적용
+function getAdapter(actor?: ActorContext): SupabaseAdapter {
+  if (!actor || actor.role === 'service_role') {
+    return cachedServiceRoleAdapter();   // 단일 cached service-role 인스턴스
+  }
+  return cache(() => createUserAdapter(actor))();  // user-scoped (Next.js cache() / request-scoped)
+}
+```
+
+**적용 영역**:
+- ingest pipeline (cron 트리거, no actor) — service-role 어댑터
+- admin / 시스템 작업 (role==='service_role') — service-role 어댑터
+- 일반 user 요청 (actor.role==='user') — actor-aware 어댑터
+
+**근거**: enroute 는 single-user 라 `defaultCreatedBy` 1개로 종결, rootric/plott multi-user 는 cron 분기 케이스가 보편. 머큐리 단독 결정 — 보완 의견 부분 채택 (Mercury 9차 Router.resetBudget 패턴 동일 — 코어 인터페이스 변경 X, plugin 영역 가이드 박스 명시).
+
 #### 결정 #3 — hooks 팩토리 패턴 (RPC 의존 hook)
 
 **문제**: 코어 `CoreHooks.onAttributeWrite?(attr)` signature 단일 인자. RPC 호출에 client 가 필요한데 hook 자체엔 들어갈 자리 없음.
