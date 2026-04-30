@@ -11,9 +11,154 @@
 > - `packages/storage/SPEC.md` §1~§4 (Adapter + Router + extension table)
 > - `docs/domain_feedback_log.md` (검증 누적)
 >
-> **status**: 1차. 도메인 owner 검증 후 보완.
+> **status**: 2차. enroute 1차 합류 (Phase 4-A) 검증된 precedent 박스 §0-pre 추가 (Mercury 12차, 2026-04-30).
 >
 > **범위**: plugin 작성 5 박스 + 검증 체크리스트. router/renderer 코드는 wiki-core 측 추후 박제 (semver minor — additive). 이 가이드는 plugin 이 코어 + storage 만으로 합류 가능한 범위까지.
+
+---
+
+## 0-pre. Phase 4-A enroute precedent 박스 ★ rootric / plott reference
+
+> Mercury 12차 (2026-04-30) 박제. enroute 1차 합류 (Ryu-story/enroute commit `8817d86`, smoke 96/96 + 0 build error) 검증 통과 결과 박스화.
+> rootric / plott 합류 시 이 박스의 결정 5건 + 트랩 5종을 *기본값으로* 채택. 환경 차이만 따로 검토.
+
+### 0-pre.1 link 패턴 환경 매트릭스 (Mercury 11차 박제)
+
+| 환경 조건 | 채택 link 패턴 | 적용 도메인 |
+|---|---|---|
+| sibling ✓ + 본인 PC / 단일 컨테이너 배포 | (b) pnpm workspace sibling link | enroute (1단계 sibling, 검증 통과) / plott (2단계 sibling 예정) |
+| Vercel / Cloud 단일 root 업로드 배포 (sibling 무관) | (a) git submodule + postinstall pnpm build | rootric 예정 |
+| Phase 5 evolution (모든 도메인) | (c) GitHub Packages publish | (모두 표준 npm 의존성으로 자연 마이그레이션) |
+
+**1단계/2단계 sibling 둘 다 OK** — pnpm-workspace.yaml glob 한 줄 차이.
+
+```yaml
+# 1단계 sibling (enroute: develop/enroute/ ↔ develop/wiki-core/)
+packages:
+  - 'packages/*'
+  - '../wiki-core/packages/*'
+
+# 2단계 sibling (plott: develop/plott/plott-wiki/ ↔ develop/wiki-core/)
+packages:
+  - 'plott-wiki'
+  - '../../wiki-core/packages/*'
+```
+
+### 0-pre.2 npm → pnpm 마이그레이션 trap 5종 (enroute 05-04 검증)
+
+npm-only repo 가 (b) sibling link 채택 시 마이그레이션 필요. **plott 처럼 처음부터 pnpm 시작 시 0건**:
+
+1. `package.json` 에 `"packageManager": "pnpm@9.x.x"` 추가 — Vercel 자동 감지 안정화 (enroute 적용 X 환경엔 무시)
+2. `package-lock.json` 삭제 + `pnpm install` — lockfile 충돌 방지
+3. peerDependency strict 해석 — npm 자동 hoist, pnpm strict. CI missing peer 경고 발생 시 React/Next major peer 만 명시 (대부분 무해)
+4. `.npmrc` → `.pnpmrc` (auth token / registry 설정 그대로 옮김)
+5. wiki-core sibling link 추가는 마이그레이션과 **같은 commit** 권장 — 두 commit 으로 나누면 중간 빌드 깨짐
+
+### 0-pre.3 핵심 결정 5건 (enroute precedent)
+
+#### 결정 #1 — `created_by` 컬럼: 옵션 A (코어 테이블 ALTER) ★
+
+**채택**: plugin 마이그레이션이 `wiki_objects` / `wiki_events` 에 `created_by UUID` 컬럼을 ALTER TABLE 로 추가. RLS 는 이 컬럼 직접 비교.
+
+**대안 (옵션 B)**: `<domain>_object_ext.user_id` + RLS join. 거부 — 단일 패턴 깨지고 join 비용 발생.
+
+**RLS 패턴**:
+- `wiki_objects` / `wiki_events` 직접: `FOR ALL USING (created_by = auth.uid())`
+- `wiki_attributes` / `wiki_relations`: 부모 wiki_objects 의 created_by 경유 (`object_id IN (SELECT id FROM wiki_objects WHERE created_by = auth.uid())`)
+- `wiki_provenance` / `wiki_labels`: target_kind 분기 STABLE SQL 함수 도입 → `<domain>_target_owner(target_kind, target_id) = auth.uid()` 한 줄
+
+**확장 패턴** (plott 5단계 가시성):
+- `wiki_objects.circle_id` ALTER 추가 → join 정책 다단으로 확장
+- `plott_target_visibility(target_kind, target_id, viewer)` 함수 도입 — enroute `enroute_target_owner` 구조 그대로
+
+**근거**: "plugin 이 코어 테이블 ALTER" 는 머큐리 가이드 §3.4 (마이그레이션 어댑터 패턴) 에 금지 명시 없음. 단일 RLS 패턴 + RLS join 0 + 확장 가능.
+
+#### 결정 #2 — SupabaseAdapter 자체 빌드 (PostgresAdapter wrap 거부)
+
+머큐리 7차 §2 박스 그대로. `supabase-js` `.from()` chain. `transactional: false` 명시 (supabase-js native tx 없음 — RPC function 으로 우회).
+
+**`defaultCreatedBy` 옵션** — 싱글 유저 도메인 (enroute) 은 constructor 에 1회 주입, multi-user 도메인 (rootric/plott) 은 actor-aware 인스턴스 풀 (request-scoped).
+
+#### 결정 #3 — hooks 팩토리 패턴 (RPC 의존 hook)
+
+**문제**: 코어 `CoreHooks.onAttributeWrite?(attr)` signature 단일 인자. RPC 호출에 client 가 필요한데 hook 자체엔 들어갈 자리 없음.
+
+**해결**: 두 surface 동시 export.
+
+```ts
+// link-free placeholder (코어 SPEC 의존성 검사용)
+export async function onAttributeWrite(attr: WikiAttribute): Promise<void> {
+  // no-op
+}
+
+// 실제 동작 팩토리
+export function makeOnAttributeWrite(
+  client: SupabaseClient
+): (attr: WikiAttribute) => Promise<void> {
+  return async (attr) => {
+    try {
+      await client.rpc('<domain>_aggregate_sum', { ... });
+    } catch (e) {
+      console.warn('aggregate_sum failed', e); // fire-and-forget
+    }
+  };
+}
+
+// registerPlugin 측
+hooks: {
+  onAttributeWrite: makeOnAttributeWrite(opts.supabaseClient),
+  provenanceExtension: makeProvenanceExtension(opts.supabaseClient),
+  ...
+}
+```
+
+**fire-and-forget 정책**: hook 내 RPC 실패는 `console.warn` 만 (throw X). 코어 흐름 깨지면 안 됨. aggregate / ext upsert 는 부수 효과라 1회 실패가 데이터 정합 손상 안 일으킴.
+
+#### 결정 #4 — RPC SECURITY DEFINER + GRANT 패턴
+
+```sql
+CREATE OR REPLACE FUNCTION <domain>_aggregate_sum(...)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  ...
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION <domain>_aggregate_sum(...) TO authenticated, service_role;
+```
+
+hook 이 RLS 통과 후 호출하므로 함수 내부에선 elevated 권한. `search_path = public` 고정 (search_path injection 방지).
+
+#### 결정 #5 — `source_ref` JSON 컨벤션
+
+코어 `WikiProvenance` 가 `source_kind / source_ref` 만 (payload 슬롯 없음). plugin 자유 형식이라 `source_ref` 에 담는 게 가장 보수적. 스키마 변경 X.
+
+```
+manual::{"metric_type":"freedom","wisdom":true,"location":"집"}
+auto::{"summary_date":"2026-04-30","persona":"hazel","period_type":"daily"}
+legacy_node_id_12345           # :: 없으면 ext 작성 skip (legacy provenance)
+```
+
+**plott / rootric 도 동일 패턴 권장** — `kiwoom::{"order_id":"...","fill_at":"..."}` / `dart::{"company_code":"...","report_no":"..."}`.
+
+### 0-pre.4 enroute 검증 결과 (precedent reference)
+
+| 항목 | 결과 |
+|---|---|
+| 빌드 | 0 error |
+| 사전 골격 smoke (link-free + DB 무관) | 52/52 |
+| 4요소 CRUD 실호출 smoke (Supabase round-trip) | 36/36 |
+| RPC 4종 실호출 smoke | 8/8 |
+| 마이그레이션 | 8건 (코어 0001~0002 + plugin 0010~0015b) |
+| 코어 인터페이스 변경 요청 | 0건 |
+
+**enroute 측 후속** (rootric/plott blocking 아님): anon-key 시뮬레이션 RLS smoke / ingestText 본 작성 (Phase 4-B) / 기존 `nodes`·`containers` backfill (Phase 4-C).
+
+자세한 내용은 `c:/Users/woori/Desktop/개인/develop/enroute/docs/phase4-mercury-report.md` 참조.
 
 ---
 
@@ -735,5 +880,68 @@ label 은 4요소 보조 슬롯 (TargetKind 에 'label' 없음). `WikiCore.delet
 
 ---
 
-**작성 완료 — 2026-04-28 (Mercury 7차)**
-**다음 액션**: 3 도메인 owner 검증 후 Phase 4 본격 plugin 합류 진입.
+## 부록 A-2 — enroute 1차 합류 트랩 5종 (Mercury 12차 박제)
+
+### A.6 NOT NULL DEFAULT 컬럼의 ON CONFLICT COALESCE 깨짐 ★ 명시 박제
+
+**증상**: ext_upsert RPC 함수에서 NOT NULL DEFAULT (예: `wisdom BOOLEAN NOT NULL DEFAULT false`) 컬럼을 `COALESCE(EXCLUDED.x, 기존.x)` 로 작성. INSERT 시 NULL 들어가면 DEFAULT 가 적용되어 EXCLUDED 에 false 가 들어가고 → 기존 true 를 false 로 덮음. 2차 호출 (다른 컬럼만 채움) 시 wisdom 이 false 로 떨어지는 정합 사고.
+
+```sql
+-- ❌ wisdom = false 로 덮힘
+INSERT INTO <domain>_object_ext (object_id, wisdom, metric_type)
+VALUES (p_object_id, p_wisdom, p_metric_type)
+ON CONFLICT (object_id) DO UPDATE SET
+  wisdom      = COALESCE(EXCLUDED.wisdom, <domain>_object_ext.wisdom),
+  metric_type = COALESCE(EXCLUDED.metric_type, <domain>_object_ext.metric_type);
+
+-- ✅ NOT NULL DEFAULT 컬럼은 CASE WHEN, NULL 허용 컬럼만 EXCLUDED COALESCE
+INSERT INTO <domain>_object_ext (object_id, wisdom, metric_type)
+VALUES (p_object_id, p_wisdom, p_metric_type)
+ON CONFLICT (object_id) DO UPDATE SET
+  wisdom      = CASE WHEN p_wisdom IS NULL THEN <domain>_object_ext.wisdom ELSE p_wisdom END,
+  metric_type = COALESCE(EXCLUDED.metric_type, <domain>_object_ext.metric_type);
+```
+
+**규칙**:
+- **NOT NULL DEFAULT 컬럼** (BOOLEAN/INTEGER 등) → `CASE WHEN p_x IS NULL THEN <table>.x ELSE p_x END`
+- **NULL 허용 컬럼** (TEXT/JSONB nullable 등) → `COALESCE(EXCLUDED.x, <table>.x)` 그대로 OK
+
+enroute `wisdom` 컬럼에서 실제 발생 (Phase 4-A 검증 중 발견, 수정 commit). plott / rootric 작성 시 처음부터 패턴 분리.
+
+### A.7 `created_origin TEXT vs JSONB` 가정 충돌 → 옵션 A 패턴 채택
+
+코어 `0001_core.sql` 은 `created_origin TEXT NOT NULL CHECK (...)`. plugin 사전 박스 (`docs/phase4-plan.md`) 에서 `created_origin->>'user_id'` (JSONB) 로 RLS 작성 시 syntax error.
+
+→ **옵션 A** (별도 `created_by UUID` 컬럼 ALTER TABLE) 채택. 가이드 §0-pre.3 결정 #1 그대로.
+
+plott / rootric 도 처음부터 `created_by` 패턴 채택 권장. `created_origin` 은 코어 출처 분류 컬럼 (TEXT) 그대로 둠.
+
+### A.8 hooks signature 가 client 인자 못 받음 → 팩토리 패턴
+
+`CoreHooks.onAttributeWrite?(attr)` signature 단일 인자. RPC 호출에 `SupabaseClient` 가 필요한데 hook 자체엔 들어갈 자리 없음.
+
+→ **팩토리 패턴** (가이드 §0-pre.3 결정 #3). `makeOnAttributeWrite(client)` 가 closure 로 client 캡처 후 hook signature 함수 반환.
+
+코어 hook signature 변경 X (모든 도메인 plugin 이 같은 패턴 채택).
+
+### A.9 smoke 모듈 resolution — `ERR_PACKAGE_PATH_NOT_EXPORTED`
+
+`npx tsx packages/wiki-plugin/scripts/smoke-crud.ts` 실행 시 `Cannot find module '@<domain>/wiki-plugin'` 또는 `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+
+→ smoke 파일을 plugin 폴더 안에 두고 `../src/...` 상대 import. plugin 내부에서:
+
+```bash
+cd packages/wiki-plugin
+npx tsx scripts/smoke-crud.ts
+```
+
+### A.10 코어 API 시그니처는 *코드를 읽고* 검증
+
+사전 박스가 `explainClassification → {layer, reasons: []}` 가정했으나 실제 구현은 `{layer, matchedRule: string}`. smoke test 작성 시 가정 기반이면 첫 실행 시 깨짐.
+
+→ smoke / 통합 테스트 작성 시 코어 패키지 dist (또는 src) 직접 확인 후 작성.
+
+---
+
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차)**
+**다음 액션**: rootric 합류 — 옵션 A + SupabaseAdapter + hooks 팩토리 + (a) git submodule + Vercel Settings → Git submodule fetch 활성화. plott 합류는 rootric 검증 통과 후 (5단계 가시성 + scope_id 확장).

@@ -409,10 +409,68 @@ enroute (b) 검증 → wiki-core dist build prep 박제 → rootric (a) submodul
 
 ---
 
+## Mercury 12차 — enroute Phase 4-A 1차 합류 종결 + 가이드 §0-pre 박제 — 2026-04-30
+
+### 입력
+
+루터 (enroute owner) Phase 4-A 본 작성 1차 합류 종결 신호 도착 (Ryu-story/enroute commit `8817d86` push). 검증 결과 박제:
+
+| 항목 | 결과 |
+|---|---|
+| pnpm workspace + sibling link | ✅ commit `de6e67a` |
+| `@enroute/wiki-plugin` 사전 골격 9 파일 (link-free) | ✅ commit `2ef429f` |
+| 통합 검증 smoke (manifest+sensitivity+Tier+hooks+routing+access) | ✅ 52/52 |
+| SheetsAdapter JWT/fetch 본 구현 (Service Account RS256 → OAuth) | ✅ commit `05778cd` |
+| 4요소 CRUD 실호출 smoke (Supabase round-trip) | ✅ 36/36 |
+| RPC 4종 실호출 smoke | ✅ 8/8 |
+| owner-isolation RLS (옵션 A: created_by 컬럼 + 위임 함수) | ✅ migration `enroute_plugin_0013_owner_isolation` |
+| 빌드 | 0 error |
+| **smoke 총합** | **96/96** |
+| 코어 인터페이스 변경 요청 | **0건** |
+
+루터 요청: Phase 4 가이드 §0 박스 갱신 (enroute precedent reference) + 트랩 1 (NOT NULL DEFAULT ON CONFLICT COALESCE 깨짐) 명시 박제 → 갱신 push 후 Edward 경유 rootric 합류 신호.
+
+자세한 내용은 `c:/Users/woori/Desktop/개인/develop/enroute/docs/phase4-mercury-report.md` 참조.
+
+### 머큐리 단독 결정 — Phase 4 가이드 §0-pre 박스 + 부록 A-2 트랩 5종 박제
+
+**핵심 결정 5건 (enroute precedent → rootric/plott 기본값)**:
+
+| # | 결정 | 박제 위치 |
+|---|---|---|
+| 1 | **`created_by` 컬럼: 옵션 A (코어 테이블 ALTER) ★** — RLS join 0 + 단일 패턴 + plott 5단계 가시성 확장 가능 (`circle_id` ALTER + `plott_target_visibility` 함수) | 가이드 §0-pre.3 #1 |
+| 2 | SupabaseAdapter 자체 빌드 (PostgresAdapter wrap 거부) + `defaultCreatedBy` 옵션 (multi-user 도메인은 actor-aware 인스턴스 풀) | 가이드 §0-pre.3 #2 |
+| 3 | hooks 팩토리 패턴 — `make<HookName>(client)` closure 로 client 주입, fire-and-forget (console.warn) | 가이드 §0-pre.3 #3 |
+| 4 | RPC `SECURITY DEFINER + SET search_path = public + GRANT TO authenticated, service_role` 패턴 | 가이드 §0-pre.3 #4 |
+| 5 | `source_ref` JSON 컨벤션 — `<source_kind>::<json_payload>`. 코어 schema 변경 X | 가이드 §0-pre.3 #5 |
+
+**트랩 5종 (부록 A-2)**:
+
+| # | 트랩 | 핵심 패턴 |
+|---|---|---|
+| A.6 ★ | NOT NULL DEFAULT 컬럼의 ON CONFLICT COALESCE 깨짐 (`wisdom` 사고) | NOT NULL DEFAULT 컬럼 → `CASE WHEN p_x IS NULL THEN <table>.x ELSE p_x END` / NULL 허용 컬럼만 EXCLUDED COALESCE |
+| A.7 | `created_origin TEXT vs JSONB` 가정 충돌 | 옵션 A (별도 `created_by` 컬럼) 패턴 — 처음부터 채택 |
+| A.8 | hooks signature 가 client 인자 못 받음 | 팩토리 패턴 (closure 주입) |
+| A.9 | smoke `ERR_PACKAGE_PATH_NOT_EXPORTED` | smoke 파일 plugin 폴더 안 + `../src/...` 상대 import |
+| A.10 | 코어 API 시그니처 가정 기반 작성 (`explainClassification` 사고) | smoke 작성 시 dist/src 직접 확인 |
+
+**박제 결과**:
+- `docs/phase4_plugin_guide.md` §0-pre 박스 신설 (link 매트릭스 + npm→pnpm trap 5종 + 결정 5건 + 검증 결과)
+- 부록 A-2 트랩 5종 추가 (A.6~A.10)
+- status: 1차 → 2차 (enroute precedent 박제)
+
+**합류 순서 재확정**: enroute (✅ 1차 종결) → rootric (다음, (a) git submodule + 옵션 A + SupabaseAdapter + hooks 팩토리) → plott (마지막, 5단계 가시성 + scope_id (pharmacy_id, circle_id) 확장 + 2단계 sibling).
+
+### 코어 측 보완 요청 0건 — backbone 검증 종결
+
+enroute 측 후속 작업 (rootric/plott blocking 아님): anon-key 시뮬레이션 RLS smoke / ingestText 본 작성 (Phase 4-B) / 기존 nodes·containers·activity_logs·journal_entries → wiki_objects backfill (Phase 4-C) / legacy 테이블 archive (Phase 4-D). 코어 4 패키지 (core/storage/router/renderer) 그대로 stable.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| enroute (1차) | Phase 3-A 검증 5일치 통과 (2026-05-04 이후) — 루터의 plugin 작성 시작 신호. (b) sibling link + npm→pnpm 마이그레이션 검증. wiki-core 측 작업 대기 모드. |
-| rootric (2차) | enroute 1차 합류 검증 통과 후. (a) submodule + postinstall pnpm build 검증. |
-| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). (b) 2단계 sibling link 검증. |
+| ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님) |
+| rootric (2차) | **다음**. enroute precedent 채택: (a) git submodule + 옵션 A `created_by` 컬럼 + SupabaseAdapter + hooks 팩토리 + Vercel Settings → Git submodule fetch 활성화. multi-user 라 `defaultCreatedBy` 대신 actor-aware 인스턴스 풀 검토. |
+| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 (scope_id) RLS 다단 join + `plott_target_visibility` 함수. |

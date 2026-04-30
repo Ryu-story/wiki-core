@@ -254,21 +254,38 @@
 - 행동 원칙 #1 정합 — 3 도메인 환경 평등 검토 + 단일 권장 → 환경 매트릭스 재박제로 도메인 편향 차단.
 - 다음 입력 대기: enroute (루터) plugin 작성 시작 신호 (Phase 3-A 검증 5일치 통과 후 = 2026-05-04 이후)
 
-### 다음 작업 후보 (Mercury 12차+)
+### Mercury 12차 (2026-04-30 — enroute Phase 4-A 1차 합류 종결 + 가이드 §0-pre 박제)
+
+- **상태: enroute 1차 합류 종결 (Ryu-story/enroute commit `8817d86`, smoke 96/96, 0 build error). Phase 4 가이드 §0-pre 박스 + 부록 A-2 트랩 5종 박제. 코어 인터페이스 변경 요청 0건. rootric 합류 신호 송출 가능.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull, CLAUDE.md / domain_feedback_log.md / phase4_plugin_guide.md 정독, enroute repo `docs/phase4-mercury-report.md` 정독
+  2. enroute Phase 4-A 검증 결과 수렴 — pnpm sibling link / 사전 골격 9 파일 / 통합 검증 52/52 / SheetsAdapter JWT/fetch / 4요소 CRUD round-trip 36/36 / RPC 4종 8/8 / owner-isolation RLS / 마이그레이션 8건 / 코어 보완 요청 0건
+  3. 머큐리 단독 결정 — enroute precedent 박스 박제 (rootric/plott reference). 핵심 결정 5건 + 트랩 5종 명시.
+  4. Phase 4 가이드 §0-pre 신설 — link 매트릭스 + npm→pnpm trap 5종 + 결정 5건 (created_by 옵션 A / SupabaseAdapter / hooks 팩토리 / RPC SECURITY DEFINER / source_ref JSON) + 검증 결과
+  5. 부록 A-2 추가 — 트랩 5종 (A.6 NOT NULL DEFAULT ON CONFLICT CASE WHEN ★ / A.7 created_origin TEXT vs JSONB / A.8 hooks signature / A.9 smoke ERR_PACKAGE_PATH_NOT_EXPORTED / A.10 API 시그니처 가정)
+  6. 박제 — `docs/phase4_plugin_guide.md` (§0-pre + 부록 A-2) / `docs/domain_feedback_log.md` Mercury 12차 섹션 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 12차 박제)
+- 핵심 박제: **Phase 4-A enroute precedent 박스** — 검증된 패턴만 박제 (행동 원칙 #5 YAGNI). rootric/plott 합류 시 옵션 A `created_by` ALTER + SupabaseAdapter 자체 빌드 + hooks 팩토리 + RPC SECURITY DEFINER + ON CONFLICT CASE WHEN 패턴 기본값으로 채택.
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — enroute precedent 만 reference, 도메인 어휘 plugin 측 그대로 (가이드는 `<domain>_target_owner` / `<domain>_object_ext` 등 placeholder)
+  - #3 공통점 검증 의무 — enroute precedent 가 plott/rootric 에서도 같은 의미인지 가이드에 plott 5단계 가시성 확장 패턴 + rootric multi-user 인스턴스 풀 명시
+  - #5 YAGNI — 트랩 5종 모두 enroute 에서 *실제 발생* 한 사례만. 가설 트랩 박제 X.
+- 다음 입력 대기: rootric (로고스) plugin 작성 시작 신호 (가이드 §0-pre + (a) git submodule + 옵션 A 채택 검증)
+
+### 다음 작업 후보 (Mercury 13차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **enroute plugin 합류 시작 신호 수렴** — 루터의 plugin 작성 진입 신호 도착 시 통합 협력 ((b) sibling link + npm→pnpm 마이그레이션 trap 5종 검증) | 도메인 owner trigger | 신규 |
-| 2 | **enroute 1차 검증 통과 후 Phase 4 가이드 §0 박스 박제** — link 패턴 환경 매트릭스 + npm→pnpm 마이그레이션 trap 5종 (검증된 precedent 만 박제) | 1-2h | 신규 |
-| 3 | **rootric plugin 합류** ((a) submodule + postinstall pnpm build 검증) | 도메인 owner | 신규 |
-| 4 | **plott plugin 합류** (가장 복잡 — 5단계 가시성 + scope_id + 2단계 sibling) | 도메인 owner | 신규 |
-| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 1 | **rootric plugin 합류** — (a) git submodule + 옵션 A `created_by` + SupabaseAdapter + hooks 팩토리 + Vercel Settings 검증 | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡) | 도메인 owner trigger | 신규 |
+| 3 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — enroute plugin 작성 시작 신호 도착 여부 확인
-3. 시작 신호 도착 → enroute plugin 작성 협력 진입 (코어 인터페이스 실제 사용 검증 + (b) sibling link 검증). 미도착 → 대기 유지.
+2. `docs/domain_feedback_log.md` 정독 — rootric plugin 작성 시작 신호 도착 여부 확인
+3. 시작 신호 도착 → rootric plugin 작성 협력 진입 (가이드 §0-pre 그대로 + (a) submodule 검증). 미도착 → 대기 유지.
 
 ---
 
