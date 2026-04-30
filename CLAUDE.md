@@ -288,6 +288,24 @@
   - #5 YAGNI — enroute (single-user) + rootric (multi-user 보완 의견) 양면 발생 → 패턴 일반화 가치 충분. plott 합류 전 박제로 같은 사고 차단
 - 다음 입력 대기: 로고스 rootric 첫 세션 (Phase 1+2) 종결 결과 보고 — 집 PC 전환 후 (오늘 저녁 또는 내일)
 
+### Mercury 15차 (2026-04-30 — rootric Phase 1+2 결과 수렴 + 트랩 A.12/A.13 응답)
+
+- **상태: 로고스 Phase 1+2 합류 통과 (rootric `7988da09`, type-check OK, 60min) + 트랩 2건 신규 보고. 머큐리 단독 결정 — 보완 2건 모두 완전 채택. 가이드 §0-pre.1 (a) submodule 박스 정정 (preinstall + npx pnpm) + 부록 A-2 A.12+A.13 신설. wiki-core 본체 변경 0건.**
+- 진행 흐름:
+  1. 시작 루틴 — git pull (Mercury 14차 trap A.11 patch + ed4a1b5 합쳐진 환경) + CLAUDE.md / domain_feedback_log.md 정독
+  2. 로고스 결과 수렴 — Phase 1+2 통과 (5 plugin source + manifest 11 obj/30+ attr/8 rel/7 event + access-control + supabase-adapter cron 분기 + migrations 0001 A.6 CASE WHEN). 트랩 A.12 (chicken-and-egg npm install vs postinstall) + A.13 (corepack EPERM Windows Program Files) 신규.
+  3. 머큐리 단독 결정 — 보완 2건 *완전 채택*:
+     - A.12 → preinstall 패턴 (postinstall 이전 의존성 해결 단계에서 .tgz 미리 생성). Vercel critical path 해소.
+     - A.13 → corepack 의존 제거. `npx -y pnpm@9 ...` 직접 호출. Windows 권한 / Vercel 환경 호환성 향상.
+  4. 박제 — `docs/phase4_plugin_guide.md` §0-pre.1 (a) submodule 박스 정정 + 부록 A-2 A.12+A.13 / `docs/domain_feedback_log.md` Mercury 15차 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 15차 박제 — 가이드 patch only)
+- 핵심 박제: **(a) submodule 환경 critical path 해소** — postinstall → preinstall + corepack 우회. wiki-core 본체 변경 0건 (가이드 patch only). semver 영향 0건.
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 인터페이스 변경 X. 가이드 patch 만.
+  - #3 공통점 검증 의무 — A.12·A.13 모두 (a) 환경 특화 트랩, (b) sibling 환경 영향 0건. 환경 발산 명시 박제.
+  - #5 YAGNI — 보완 2건 *완전 채택* (부분 채택 X). 트랩 본질이 명확 + 환경 critical path 차단 → 일반화 박제 가치 충분.
+- 다음 입력 대기: rootric Phase 3 결과 — preinstall + npx pnpm 정정 적용 후 IngestAdapter 마이그레이션 + smoke + Vercel 배포
+
 ### Mercury 14차 (2026-04-30 — 로고스 patch 최종 검증 + 트랩 A.11 응답 + `pack:dist` 패턴 박제)
 
 - **상태: 로고스 patch 최종 검증 OK + 합류 진입 후 첫 시도 트랩 A.11 발견 (`workspace:*` npm 비호환). 머큐리 단독 결정 — 옵션 C (`pack:dist` 패턴) 채택, 박제 완료. 로고스 재시도 검증 대기.**
@@ -306,7 +324,7 @@
   - #5 YAGNI — 옵션 B (한 줄 변경) 거부 = (b) 환경 회귀 위험 회피 우선
 - 다음 입력 대기: 로고스 (a) 환경 재시도 결과 — `pack:dist` 후 `file:.tgz` dep 정상 해석되는지
 
-### 다음 작업 후보 (Mercury 15차+)
+### 다음 작업 후보 (Mercury 16차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|

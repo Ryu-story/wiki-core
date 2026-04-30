@@ -614,6 +614,73 @@ npm error Unsupported URL Type "workspace:": workspace:*
 
 ---
 
+## Mercury 15차 — rootric Phase 1+2 결과 + 트랩 A.12/A.13 응답 — 2026-04-30
+
+### 입력
+
+로고스 (rootric owner) Phase 1+2 합류 결과 + 트랩 2건 보고:
+
+**Phase 1+2 통과** (rootric commit `7988da09`):
+- 5 plugin source: manifest (11 obj + 30+ attr + 8 rel + 7 event + label_set rootric_validation) / access-control / supabase-adapter (cron 분기 + Module Augmentation) / migrations 0001 (rootric_provenance_ext + RLS DROP+CREATE + A.6 CASE WHEN) / index
+- `npm run type-check` ✅
+- `import('@wiki-core/core')` → `createWikiCore`, `registerPlugin`, `validatePlugin` 정상 export
+- 작업 시간 60min (가이드 추정 30min × 2배 — 트랩 처리 포함)
+
+**트랩 2건 신규** (부록 A-2 후보):
+
+| # | 트랩 | 핵심 |
+|---|---|---|
+| A.12 | chicken-and-egg (npm install vs postinstall 순서) | npm 의존성 해결 시점에 .tgz 없음 (postinstall 이전). Vercel build 도 동일 → critical path 차단. |
+| A.13 | corepack EPERM (Windows + Program Files Node) | `corepack enable` 실패. 환경 의존성. |
+
+**머큐리 결정 요청**:
+- A.12: §1-2 본문에 "첫 수동 빌드 절차" 박스 또는 preinstall 패턴 검토
+- A.13: postinstall corepack 의존 X 권장 (npx pnpm)
+
+### 머큐리 단독 결정 — 보완 2건 모두 *완전 채택*
+
+**A.12 → preinstall 패턴 전환**: postinstall → preinstall. preinstall 은 의존성 해결 *전* 실행 → .tgz 미리 생성. Vercel + rootric 로컬 양쪽 자동 처리. *첫 수동 빌드 박스* 거부 — Vercel critical path 미해소.
+
+**A.13 → corepack 의존 제거**: `npx -y pnpm@9 ...` 직접 호출. Windows 권한 이슈 회피 + Vercel 환경 의존성 추가 회피.
+
+**박제 산출물** (가이드 patch only — wiki-core 본체 변경 0건):
+- `docs/phase4_plugin_guide.md` §0-pre.1 (a) submodule 박스 *정정* — postinstall → preinstall + npx pnpm + `scripts/build-wiki-core.mjs` 예시 코드
+- 부록 A-2 A.12 + A.13 신설 — 증상·원인·해결·대안 거부 박제
+
+**rootric 정정 셋업 형태**:
+```json
+{
+  "scripts": {
+    "preinstall": "node scripts/build-wiki-core.mjs"
+  },
+  "dependencies": {
+    "@wiki-core/core":     "file:./vendor/wiki-core/dist-tarballs/wiki-core-core-0.1.0.tgz",
+    ...
+  }
+}
+```
+
+`scripts/build-wiki-core.mjs` 안에서 `npx -y pnpm@9 install + build + pack:dist` 항상 실행 (cache hit 짧음, wiki-core 갱신 시 자동 반영).
+
+### 코어 측 작업
+
+| 항목 | 상태 |
+|---|---|
+| 가이드 §0-pre.1 (a) submodule 박스 정정 (preinstall + npx pnpm) | ✅ 본 commit |
+| 부록 A-2 A.12 + A.13 신설 | ✅ 본 commit |
+| 코어 인터페이스 변경 | 0건 |
+| wiki-core 본체 코드 변경 | 0건 (가이드 patch only) |
+| semver 영향 | 0건 |
+
+### 다음 입력 대기
+
+| 도메인 | trigger |
+|---|---|
+| **rootric (Phase 3)** | preinstall + npx pnpm 정정 적용 후 IngestAdapter 마이그레이션 + smoke + Vercel 배포 결과 |
+| plott | rootric 2차 검증 통과 후 |
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |

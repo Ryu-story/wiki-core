@@ -44,18 +44,51 @@ packages:
   - '../../wiki-core/packages/*'
 ```
 
-#### (a) git submodule + `pack:dist` 패턴 (Mercury 14차 박제 — 로고스 트랩 A.11 응답)
+#### (a) git submodule + `pack:dist` 패턴 (Mercury 14차 박제, Mercury 15차 정정 — 로고스 트랩 A.11/A.12/A.13 응답)
 
 (a) submodule 환경에서는 npm 이 `workspace:*` 를 인식 못 함 (트랩 A.11). 해결 — wiki-core build 후 `pnpm pack` 으로 `.tgz` 4종 출력 → `file:./dist-tarballs/*.tgz` dep.
 
-**wiki-core 측 자동 출력**: 루트 `pnpm pack:dist` script (Mercury 14차 신규) 가 `scripts/pack-dist.mjs` 실행 → `dist-tarballs/wiki-core-{core,storage,router,renderer}-0.1.0.tgz` 4종 생성. `workspace:*` 가 publish 시점 버전 (`0.1.0`) 으로 자동 변환됨 (npm 호환).
+**wiki-core 측 자동 출력**: 루트 `pnpm pack:dist` script 가 `scripts/pack-dist.mjs` 실행 → `dist-tarballs/wiki-core-{core,storage,router,renderer}-0.1.0.tgz` 4종 생성. `workspace:*` 가 publish 시점 버전 (`0.1.0`) 으로 자동 변환됨 (npm 호환).
 
-**rootric `package.json`** (가이드 §1-2 보강):
+##### preinstall 패턴 — chicken-and-egg 해소 (Mercury 15차 정정)
+
+**문제 (트랩 A.12)**: postinstall 에서 `pack:dist` 실행 시 — npm 이 의존성 해결 (file:.tgz 검색) → .tgz 없음 (postinstall 이전) → `ENOENT`. Vercel clean clone build 도 동일 문제 (critical path).
+
+**해결**: postinstall → **preinstall** 전환. preinstall 은 의존성 해결 *이전* 실행 → .tgz 미리 생성 → file:.tgz 정상 해석.
+
+##### corepack 의존 제거 (Mercury 15차 정정)
+
+**문제 (트랩 A.13)**: Windows + Program Files Node 환경에서 `corepack enable` → `EPERM: operation not permitted, open 'C:\Program Files\nodejs\pnpm'` (admin 권한 없이 pnpm shim write 실패). Vercel 환경에서도 corepack 의존성 제거가 안전.
+
+**해결**: `npx -y pnpm@9 ...` 직접 호출. corepack enable / corepack prepare 단계 제거.
+
+##### rootric 측 셋업 (정정된 형태)
+
+**1. preinstall script 작성** — `rootric/scripts/build-wiki-core.mjs`:
+
+```js
+import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+
+if (!existsSync('vendor/wiki-core')) {
+  console.log('[build-wiki-core] vendor/wiki-core not found — submodule init 먼저');
+  process.exit(0);   // submodule 없으면 skip (git submodule update --init 후 재실행)
+}
+
+// 항상 빌드 — wiki-core submodule 갱신 시 자동 반영. 첫 install 도 OK.
+console.log('[build-wiki-core] building vendor/wiki-core (install + build + pack:dist)...');
+execSync('npx -y pnpm@9 install --frozen-lockfile && npx -y pnpm@9 build && npx -y pnpm@9 pack:dist', {
+  cwd: 'vendor/wiki-core',
+  stdio: 'inherit',
+});
+```
+
+**2. `rootric/package.json`**:
 
 ```json
 {
   "scripts": {
-    "postinstall": "cd vendor/wiki-core && corepack enable && corepack prepare pnpm@9 --activate && pnpm install --frozen-lockfile && pnpm build && pnpm pack:dist"
+    "preinstall": "node scripts/build-wiki-core.mjs"
   },
   "dependencies": {
     "@wiki-core/core":     "file:./vendor/wiki-core/dist-tarballs/wiki-core-core-0.1.0.tgz",
@@ -66,24 +99,27 @@ packages:
 }
 ```
 
-**진행 순서** (rootric):
+##### 진행 순서 (rootric clean clone / Vercel build 모두 동일)
+
 ```bash
-# 1. submodule 추가
+# 1. submodule 추가 (clean clone 시 git clone --recurse-submodules 또는)
 git submodule add https://github.com/Ryu-story/wiki-core.git vendor/wiki-core
+git submodule update --init --recursive
 
-# 2. package.json 위 형식 적용
+# 2. package.json + scripts/build-wiki-core.mjs 적용
 
-# 3. npm install — postinstall 이 vendor/wiki-core 안에서 pnpm install + build + pack:dist 실행 후
-#    상위 npm 이 file:.tgz 4종 해석 (정상 호환)
+# 3. npm install — preinstall 이 vendor/wiki-core 안에서 pnpm install + build + pack:dist
+#    실행 후 .tgz 4종 disk 출현. 그 후 npm 의존성 해결이 file:.tgz 정상 해석.
 npm install
 ```
 
-**Vercel 배포**: `vendor/wiki-core/` 도 git submodule 로 함께 업로드됨. Vercel build 가 `npm install` → postinstall → `pnpm pack:dist` → `.tgz` 생성. install 정상.
+**Vercel 배포**: `vercel.json` 또는 Vercel Settings → Git submodule fetch 활성화. preinstall 자동 처리 — 별도 build command override 불필요.
 
 **보장 invariant**:
 - wiki-core 본체 변경 X — `workspace:*` 그대로. (b) sibling 회귀 0건.
 - 추가 build 출력 (`dist-tarballs/`) 만 (.gitignore — submodule 안에서 생성/소비).
 - semver 영향 0건.
+- `corepack` 의존성 0건 (Windows 권한 / Vercel 환경 호환성).
 
 ### 0-pre.2 npm → pnpm 마이그레이션 trap 5종 (enroute 05-04 검증)
 
@@ -1029,7 +1065,60 @@ npm error Unsupported URL Type "workspace:": workspace:*
 - `workspace:*` → `file:../core` 한 줄 변경 (옵션 B): pnpm sibling 환경에서 *workspace member 인식* 깨질 가능성 — workspace:* 는 magic 한 sibling 참조, file:../core 는 외부 디렉토리. 회귀 위험.
 - 코어 패키지 dependencies 직접 변경 (옵션 D): semver 영향 + (b) 환경 비효율. 거부.
 
+### A.12 chicken-and-egg — npm install 의존성 해결 vs postinstall 시점 (Mercury 15차 박제 — 로고스 발견)
+
+**증상**: rootric Phase 1+2 합류 첫 시도 (Mercury 14차 patch 적용 후), `npm install` 실행 시:
+```
+ENOENT: no such file or directory, open '...wiki-core-core-0.1.0.tgz'
+```
+
+**원인**: npm install 의 의존성 해결 단계 → postinstall 실행 단계. `file:./vendor/wiki-core/dist-tarballs/wiki-core-core-0.1.0.tgz` 해결이 의존성 해결 단계인데, .tgz 는 그 이후 postinstall 에서 생성. 의존성 해결 시점에 .tgz 부재 → fail.
+
+**Vercel 영향**: 매 build 가 clean clone — git submodule fetch 후 `npm install` 첫 실행. 동일 chicken-and-egg → Vercel critical path 차단.
+
+**해결 — preinstall 패턴**: postinstall → **preinstall** 전환. preinstall 은 의존성 해결 *전* 실행 → vendor/wiki-core 안에서 `pnpm install + build + pack:dist` → .tgz 4종 출현 → 그 후 npm 의존성 해결이 file:.tgz 정상 해석.
+
+**rootric `package.json`** (가이드 §0-pre.1 (a) submodule 박스 정정 형태):
+```json
+{
+  "scripts": {
+    "preinstall": "node scripts/build-wiki-core.mjs"
+  }
+}
+```
+
+`scripts/build-wiki-core.mjs` 코드는 가이드 §0-pre.1 참조.
+
+**검증** (Mercury 15차):
+- rootric Phase 1+2 첫 수동 빌드 우회 (preinstall 도입 전): `cd vendor/wiki-core && npx pnpm@9 install + build + pack:dist` → 그 후 `npm install` 정상 (rootric `7988da09`).
+- 정정 형태: preinstall 자동 처리 — Vercel + 로컬 양쪽 자동.
+
+**대안 거부**:
+- 첫 수동 빌드 박스만 (preinstall 없음): rootric 로컬 OK 단 Vercel 매 build 차단. critical path 미해소.
+- dist-tarballs/ git 추적: bin file commit + repo 비대. 거부.
+- pre-publish 별도 release 채널: complexity 과도. 가이드 단순성 위반.
+
+### A.13 corepack EPERM — Windows + Program Files Node 권한 이슈 (Mercury 15차 박제 — 로고스 발견)
+
+**증상**: rootric 첫 수동 빌드 시도:
+```
+$ corepack enable
+Internal Error: EPERM: operation not permitted, open 'C:\Program Files\nodejs\pnpm'
+```
+
+**원인**: Windows 에서 Program Files 경로 설치된 Node 는 admin 권한 없이 corepack 이 pnpm shim 을 write 못함. 사용자 경로 설치 또는 admin 권한 필요. Vercel 환경에서도 corepack 활성화 단계가 *환경 의존성* 추가 — 안 쓰는 게 안전.
+
+**해결**: `npx -y pnpm@9 ...` 직접 호출. corepack enable / prepare 단계 제거.
+
+**가이드 §0-pre.1 (a) submodule postinstall 명령 정정**:
+- 이전 (Mercury 14차): `corepack enable && corepack prepare pnpm@9 --activate && pnpm install ...`
+- 정정 (Mercury 15차): `npx -y pnpm@9 install --frozen-lockfile && npx -y pnpm@9 build && npx -y pnpm@9 pack:dist`
+
+**Trade-off**:
+- 장점: corepack 의존 제거 (Windows 권한 / CI / Vercel 호환성 향상)
+- 단점: npx 호출 매번 pnpm@9 캐시 hit 검사 (~수초 오버헤드) — 무시 가능
+
 ---
 
-**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차)**
-**다음 액션**: rootric 합류 — 옵션 A + SupabaseAdapter + hooks 팩토리 + (a) git submodule + `pack:dist` 패턴 + Vercel Settings → Git submodule fetch 활성화. plott 합류는 rootric 검증 통과 후 (5단계 가시성 + scope_id 확장).
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차)**
+**다음 액션**: rootric Phase 3 진입 — hooks 본체 5종 + storageRouter + router-tiers + ingest + smoke + Vercel 배포. plott 합류는 rootric 검증 통과 후.
