@@ -944,6 +944,39 @@ ERR_PNPM_NO_LOCKFILE
 
 → **rootric Phase 4-A 합류 종결**. enroute precedent + Mercury 13/14/15/16/17/18차 patches 모두 production 환경 검증.
 
+### enroute precedent 적용 확인 응답 수렴 (루터, enroute commit `4b5d7f4`)
+
+| # | 트랩 | 결과 | 근거 |
+|---|---|---|---|
+| A.6 일반화 | NOT NULL DEFAULT ON CONFLICT CASE WHEN | ★ 정합 | `enroute_object_ext.wisdom BOOLEAN NOT NULL DEFAULT false` — `0015_ext_upsert.sql:33` 에 CASE WHEN 패턴 적용 (원본 발견 사례). `enroute_aggregates.total/count/updated_at` NOT NULL DEFAULT 는 산술 누적 패턴 (+ p_delta, + 1, now()) 이라 CASE WHEN 영역 외. `enroute_event_ext` 의 NOT NULL DEFAULT 는 `created_at` 만 — ON CONFLICT 에 등장 X. |
+| A.11~A.15 | submodule / preinstall / corepack / Vercel 차단 / Vercel timeout | 영향 0 | enroute 환경: (b) sibling link + 본인 PC + Vercel 미사용 |
+
+→ **enroute Phase 4-A precedent 적용 확인 OK**. A.6 본 패턴 enroute 가 *원본 발견 사례* 이므로 정합. A.11~A.15 모두 (b) sibling + Vercel 미사용 환경상 영향 0.
+
+### 부수 메모 처리 — 머큐리 단독 결정: *완전 거부* (가이드 변경 X)
+
+루터 명시 부수 메모: `enroute_event_ext.sent_to_telegram BOOLEAN DEFAULT false` (NOT NULL 없음) 는 A.6 정의 외이지만 INSERT 의 `COALESCE((p_payload->>'sent_to_telegram')::boolean, false)` 가 NULL → false 강제 → EXCLUDED 통해 기존 true 를 덮을 잠재 사고. 운영상 1 row 1 provenance 패턴이라 사고 가능성 낮음. 발생 시 INSERT COALESCE 제거 + ON CONFLICT CASE WHEN 추가로 해결.
+
+루터 명시 "박제 요청 X". 머큐리 결정:
+
+**완전 거부** — 가이드 A.6 변경 X. 근거:
+1. **행동 원칙 #5 YAGNI** — 검증된 사례 (실 발생) 만 박제. 이 케이스는 enroute *미발생* + plott/rootric *미발생* — 단일 도메인의 잠재 분석만으로 가이드 일반화 박제 X
+2. **행동 원칙 #3 공통점 검증 의무** — *잠재 가능성* 박제는 다른 도메인 1+ 발생 후 검토. 단일 도메인 분석만으로 일반화 X
+3. **루터 자체 해결책 명시** — INSERT COALESCE 제거 + ON CONFLICT CASE WHEN 추가로 plugin 영역 자체 해결 가능. 코어 인터페이스 무관.
+4. **부분 채택 패턴 (Mercury 2/9/13차) 적용 외** — 부분 채택은 도메인 owner *변경 요청* (또는 변경 거부) + 머큐리 *방어적 추가* 균형. 이번은 owner *박제 요청 X* + *해결책 자체 도출* + *발생 가능성 낮음* — 부분 채택 적용 영역 외.
+
+→ plott 합류 시 동일 케이스 (NOT NULL 없는 BOOLEAN DEFAULT 컬럼 + INSERT COALESCE) 발생 시 *그때* 박제. 현 시점 가이드 A.6 본문 그대로 유지 ("NOT NULL DEFAULT 컬럼 → CASE WHEN, NULL 허용 컬럼만 EXCLUDED COALESCE").
+
+### Phase 4-A 양 도메인 종결 합의
+
+| 도메인 | Phase 4-A 상태 |
+|---|---|
+| enroute | ✅ 1차 합류 종결 (2026-04-30, commit `8817d86`) + precedent 적용 확인 (2026-05-01, commit `4b5d7f4`) |
+| rootric | ✅ Phase 4-A 합류 종결 (2026-05-01, Mercury 19차 검증) |
+| plott | 합류 시점 추정 X (플로터 PLANNER — 공모전 후 + Agent Skills 파일럿) |
+
+코어 4 패키지 (core/storage/router/renderer) 그대로 stable. enroute precedent + rootric precedent 양면 검증된 합류 패턴 박스 가이드 §0-pre + 부록 A-2 (A.1~A.15) 박제됨. plott 합류 시점 도래 시 머큐리 통합 협력 진입.
+
 ---
 
 ## 다음 입력 대기
@@ -952,5 +985,5 @@ ERR_PNPM_NO_LOCKFILE
 |---|---|
 | ~~enroute (Phase 4-A)~~ | ✅ 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님). |
 | ~~rootric (Phase 4-A)~~ | ✅ Vercel 배포 + 첫 ingest end-to-end 통과 (2026-05-01, Mercury 19차). 후속은 AI 비용 가드 / KPI 큐레이션 / Phase 4-B 본격 ingest (코어 blocking 아님). |
-| **enroute (rootric precedent 적용 검증)** | enroute Phase 4-A 합류 결과 검증 — rootric precedent 트랩 5종 (A.6 일반화 / A.11~A.15) 적용 확인. enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 — 명시 보고만 받으면 종결. |
-| plott (3차) | rootric / enroute 양 도메인 종결 후 합류 (가장 복잡). enroute precedent + rootric precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. **합류 시점 추정 X** — 플로터 PLANNER (공모전 후 + Agent Skills 파일럿). plott Vercel 시 wiki-core public 이미 전환됐으니 차단 없음. |
+| ~~enroute (rootric precedent 적용 검증)~~ | ✅ 응답 수렴 (2026-05-01, commit `4b5d7f4`). A.6 정합 + A.11~A.15 영향 0 명시. 부수 메모 1건 (`sent_to_telegram` 잠재 사고) 머큐리 *완전 거부* (행동 원칙 #5 YAGNI + plott 발생 시 박제). |
+| **plott (3차)** | enroute + rootric 양 Phase 4-A 종결 후 합류 (가장 복잡). enroute precedent + rootric precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. **합류 시점 추정 X** — 플로터 PLANNER (공모전 후 + Agent Skills 파일럿). plott Vercel 시 wiki-core public 이미 전환됐으니 차단 없음. |
