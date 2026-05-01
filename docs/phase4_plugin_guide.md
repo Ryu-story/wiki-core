@@ -1201,5 +1201,35 @@ ERR_PNPM_NO_LOCKFILE
 
 ---
 
-**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차) / A.14 + wiki-core public 전환 — 2026-05-01 (Mercury 18차)**
-**다음 액션**: rootric Vercel 자동 배포 재검증 (wiki-core public 전환 후) → 첫 ingest 실행 결과 보고. plott 합류는 rootric 검증 통과 후.
+### A.15 Vercel function 30s timeout vs AI 파싱 큰 본문 (Mercury 19차 박제 — 로고스 발견, plugin 영역 자체 처리)
+
+**증상**: rootric 첫 ingest 실 검증 (Vercel production + Supabase 실 환경, source=dart limit=2):
+- 첫 row `dart://20260402000610` — success
+- 두 번째 row 처리 중 **30s function timeout**
+- `processing_log` success 1건 INSERT 확인 (첫 row 만)
+
+**원인**: Vercel Pro plan default function `maxDuration: 30s`. DART 사업보고서 큰 본문 AI 파싱 (Gemini Flash Lite) multi-row 처리 시 단일 invocation 안에서 누적 timeout.
+
+**해결 옵션**:
+1. **임시 해결** — `vercel.json` `maxDuration: 60` (Pro plan 최대 300) 또는 `limit=1` 단일 row 처리
+2. **근본 해결** — background job (Inngest / Trigger.dev) 또는 Vercel Cron 분리 (단일 row 단위 invocation)
+3. **AI 모델 교체** — Gemini Flash Lite → Flash (속도 ↑ 단 비용 ↑)
+
+**plugin 영역 vs 코어 영역**:
+- 이 트랩은 **plugin 영역 자체 처리** — `<domain>/vercel.json` `maxDuration` 조정 / ingest pipeline 분리 / AI 모델 선택 모두 plugin 자유 영역
+- 코어 인터페이스 변경 X — `WikiPlugin.runIngest` signature / `WikiCore` API / hook signature 영향 0건
+- 단 *공통 트랩* 으로 박제 — 다른 도메인 (plott Vercel 시) 동일 케이스 발생 가능
+
+**적용 도메인**:
+- rootric (Vercel + DART 사업보고서) — 발생, vercel.json maxDuration 조정 또는 background job 검토 중
+- enroute (Vercel 미사용) — 영향 0
+- plott (Vercel 시 + AI 파싱 본문 대용량) — 잠재 영향
+
+**rootric 후속 마일스톤** (코어 blocking 아님):
+- AI 비용 가드 (`ai_cost_log` 테이블 + 일일 호출 limit) — 5월 ingest 본격화 전 안전망
+- ★★★ KPI 4종 본문 큐레이션 (5/14 빅토르 데드라인, 10h)
+
+---
+
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차) / A.14 + wiki-core public 전환 — 2026-05-01 (Mercury 18차) / A.15 Vercel function timeout (plugin 영역 자체 처리) — 2026-05-01 (Mercury 19차)**
+**다음 액션**: enroute Phase 4-A 합류 결과 검증 (rootric precedent 트랩 5종 적용 확인). plott 합류는 enroute precedent 후속 검증 통과 후 (또는 도메인 owner 합의).

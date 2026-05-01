@@ -381,19 +381,46 @@
   - #5 YAGNI — 검증된 패턴 박제 (Mercury 18차 본 결정 박제 시점에 사전 민감 정보 스캔 + Vercel 정책 출처 명시 모두 사실 기반). 가설 박제 X.
 - 다음 입력 대기: rootric Vercel 자동 배포 재시도 결과 (wiki-core public 전환 후) + 첫 ingest 실행 검증
 
-### 다음 작업 후보 (Mercury 19차+)
+### Mercury 19차 (2026-05-01 — Phase 4-A rootric 합류 종결: Vercel 배포 + 첫 ingest end-to-end 통과)
+
+- **상태: 로고스 36차 — wiki-core public 전환 후 Vercel 자동 배포 정상 (submodule fetch 0 warning) + 첫 ingest 실 검증 8 단계 production end-to-end 통과. Mercury 18차 결정 100% 적중. Mercury 13차 actor-aware cron 분기 production 검증. 신규 트랩 1건 (A.15, plugin 영역 자체 처리). 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. wiki-core public 전환 직후 로고스 보고 도착 — Vercel 자동 배포 Ready (~2분), submodule fetch warning 0건, 추가 트랩 0건
+  2. 첫 ingest 실 검증 8 단계 통과 — 인증 / dispatcher / processDocument / noise filter / AI 호출 (Gemini Flash Lite) / Supabase write / logProcessing / actor-aware cron 분기
+  3. 신규 트랩 1건 — A.15 Vercel function 30s timeout vs DART 큰 본문 AI 파싱. plugin 영역 자체 처리 (rootric vercel.json maxDuration / background job / AI 모델 교체 자유)
+  4. 머큐리 결정 — A.15 박제 (다른 도메인 Vercel 시 동일 케이스 가능, 코어 변경 X 명시). Mercury 18차/13차 결정 검증 박제.
+  5. 박제 — 가이드 부록 A-2 A.15 / domain_feedback_log Mercury 19차 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 19차 박제 — 가이드 patch + feedback log + CLAUDE.md)
+- 핵심 박제: **Phase 4-A rootric 합류 종결** — production end-to-end 작동 확정. Mercury 13~18차 patches 모두 실 환경 검증. enroute precedent + rootric precedent 양면 검증된 Phase 4 합류 패턴 stable.
+- 검증 결과 표:
+  - Mercury 18차 wiki-core public 전환 → submodule fetch warning 0건 ✅
+  - Mercury 13차 actor-aware cron 분기 → 8 단계 #8 production 작동 ✅
+  - Mercury 14차 pack:dist + Mercury 15차 preinstall → Vercel build container 첫 실행 통과 ✅
+  - Mercury 17차 A.6 NUMERIC 일반화 → migrations 0001 정상 적용 ✅
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — A.15 트랩이 plugin 영역 자체 처리라는 점 명시 (vercel.json / background job / AI 모델 모두 plugin 자유)
+  - #3 공통점 검증 의무 — A.15 가 다른 도메인 (plott Vercel 시) 발생 가능성 확인 후 박제. 단일 도메인 발생만으로 박제 X.
+  - #5 YAGNI — 검증된 patches 만 박제. rootric end-to-end 통과 후 박제 (가설 박제 X)
+- rootric 후속 마일스톤 (코어 blocking 아님):
+  - AI 비용 가드 (`ai_cost_log` 테이블 + 일일 호출 limit) — 5월 ingest 본격화 전 안전망
+  - ★★★ KPI 4종 본문 큐레이션 (5/14 빅토르 데드라인, 10h)
+  - Phase 4-B 본격 ingest (limit=1 또는 maxDuration 60-90s 또는 background job)
+- 다음 입력 대기: enroute Phase 4-A 합류 결과 검증 (rootric precedent 트랩 5종 적용 확인 — enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 명시 보고만 필요). plott 합류는 도메인 owner trigger.
+
+### 다음 작업 후보 (Mercury 20차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **rootric Vercel 재배포 검증 수렴** — wiki-core public 전환 후 submodule fetch 정상 동작 + 첫 ingest 실행 (cron / actor-aware 풀 / SupabaseAdapter 실 환경 검증) + 신규 트랩 모니터링 | 도메인 owner trigger | 신규 |
-| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). A.6 일반화 patch 사전 적용 권장. plott Vercel 사용 시 wiki-core public 이미 전환됐으니 차단 없음. | 도메인 owner trigger | 신규 |
-| 3 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 1 | **enroute Phase 4-A 합류 결과 검증** — rootric precedent 트랩 5종 (A.6 일반화 / A.11~A.15) 적용 확인. enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 명시 보고만 필요 | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 PLANNER 일정). A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
+| 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 4 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — rootric Vercel 재배포 / 첫 ingest 결과 보고 도착 여부 확인
+2. `docs/domain_feedback_log.md` 정독 — enroute Phase 4-A 검증 보고 / plott 합류 신호 도착 여부 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
 
 ---

@@ -866,10 +866,91 @@ ERR_PNPM_NO_LOCKFILE
 
 ---
 
+## Mercury 19차 — Phase 4-A rootric 합류 종결 (Vercel 배포 + 첫 ingest end-to-end 통과) — 2026-05-01
+
+### 입력
+
+로고스 (rootric owner) 36차 세션 — wiki-core public 전환 후 Vercel 자동 배포 + 첫 ingest 실 검증 통과 보고:
+
+**Vercel 자동 배포 검증 (Mercury 18차 결정 검증)**:
+- Build: Ready (~2분)
+- submodule fetch warning **0건** ★ Mercury 18차 결정 100% 적중
+- Trigger: 빈 commit `16ffcbb` push → webhook 정상 작동
+- 추가 트랩 0건 (preinstall + pack:dist + npm install file:.tgz 모두 Vercel build container 첫 실행 통과)
+
+**첫 ingest 실 검증 (Vercel production + Supabase 실 환경, source=dart limit=2)**:
+
+| # | 단계 | 결과 |
+|---|---|---|
+| 1 | Vercel API `route.ts` 인증 (`FACTSHEET_INGEST_KEY`) | ✅ |
+| 2 | `runIngest` plugin dispatcher (source 분기) | ✅ |
+| 3 | `ingestFactsheetDart` → `processDocument` | ✅ |
+| 4 | Tier 0 noise filter 통과 | ✅ |
+| 5 | AI 호출 (Vercel 환경 Gemini Flash Lite, `OLLAMA_ENABLED=false` 자동) | ✅ |
+| 6 | Supabase write (`factsheet_articles` + `ai_analysis` 갱신) | ✅ |
+| 7 | `logProcessing` UPSERT (`processing_log`) | ✅ |
+| 8 | actor-aware SupabaseAdapter cron 트리거 분기 (no actor → service-role 어댑터) ★ Mercury 13차 박제 검증 | ✅ |
+
+→ **Phase 4-A rootric 합류 production end-to-end 작동 확정**.
+
+**신규 트랩 1건 (rootric 영역 자체 처리, 코어 변경 X)**:
+- `dart://20260402000610` 첫 row success → 두 번째 row 처리 중 30s function timeout
+- 원인: Vercel Pro plan default `maxDuration: 30s` vs DART 큰 본문 AI 파싱 multi-row 처리
+- plugin 영역 자체 처리 가능 (`vercel.json maxDuration` / background job / AI 모델 교체)
+- → 부록 A-2 A.15 박제 (다른 도메인 Vercel 시 동일 케이스 가능)
+
+**rootric 후속 마일스톤** (코어 blocking 아님):
+- AI 비용 가드 (`ai_cost_log` 테이블 + 일일 호출 limit) — 5월 ingest 본격화 전 안전망
+- ★★★ KPI 4종 본문 큐레이션 (5/14 빅토르 데드라인, 10h)
+
+### Mercury 18차 결정 검증 — 100% 적중
+
+| 결정 | 검증 결과 |
+|---|---|
+| wiki-core public 전환 → Vercel submodule fetch 정상화 | ✅ submodule fetch warning 0건 |
+| 사전 민감 정보 스캔 (0건 확인) | ✅ public 전환 후 노출 사고 0건 |
+| 가이드 §0-pre.1 (a) submodule 박스 정정 (Vercel 배포 — wiki-core public 전제) | ✅ rootric 그대로 적용 → 정상 동작 |
+| 4 옵션 비교 + A 채택 (PAT/publish/vendor 거부) | ✅ A 채택 정합 — 도메인 owner 부담 0건 + patch 사이클 보존 |
+
+**행동 원칙 정합 검증**:
+- #1 도메인 작업 거부 — wiki-core public 전환 후 도메인 비밀 노출 0건 (행동 원칙 #1 강제 결과)
+- #3 공통점 검증 의무 — Vercel 차단 (rootric) + Vercel 미사용 (enroute) + Vercel 가능성 (plott) 양면 모두 반영, 단일 결정 (public 전환) 으로 양면 해소
+- #5 YAGNI — 검증된 결정만 박제 (rootric 실 검증 통과 후 박제) — 가설 박제 X
+
+### Mercury 13차 결정 검증 — 100% 적중
+
+| 결정 | 검증 결과 |
+|---|---|
+| 가이드 §0-pre.3 #2 actor-aware 인스턴스 풀 — cron / service-role 분기 패턴 (보완 의견 부분 채택) | ✅ rootric `runIngest` (no actor → service-role 어댑터) 그대로 작동 — 8 단계 검증 #8 통과 |
+
+→ Mercury 13차 시점 보완 의견 부분 채택 결정이 정확. plott 합류 시 admin 영역 같은 패턴 재사용 권장 (가이드 그대로).
+
+### 박제
+
+- `docs/phase4_plugin_guide.md` 부록 A-2 A.15 신설 (Vercel function timeout vs AI 파싱 큰 본문 — plugin 영역 자체 처리, 코어 변경 X)
+- `docs/domain_feedback_log.md` Mercury 19차 섹션 (이 박스)
+- `CLAUDE.md` Mercury 19차 신규 섹션 — Phase 4-A rootric 합류 종결
+
+### Phase 4-A rootric 합류 종결
+
+| 항목 | 결과 |
+|---|---|
+| pnpm sibling link → (a) submodule + pack:dist + preinstall | ✅ |
+| plugin 패키지 5 source + manifest 11 obj/30+ attr/8 rel/7 event + access-control + supabase-adapter cron 분기 + migrations 0001 A.6 CASE WHEN | ✅ Phase 1+2 (Mercury 15차 검증) |
+| hooks 본체 5종 + storageRouter + router-tiers + ingest + smoke-crud 10/10 | ✅ Phase 3-A/B (Mercury 16/17차 검증) |
+| Vercel 자동 배포 (wiki-core public) + 첫 ingest end-to-end (8 단계) | ✅ Phase 4-A 본 검증 (Mercury 19차 검증) |
+| 코어 인터페이스 변경 요청 | **0건** |
+| 신규 트랩 (rootric 영역) | A.15 (Vercel function timeout, plugin 영역 자체 처리) |
+
+→ **rootric Phase 4-A 합류 종결**. enroute precedent + Mercury 13/14/15/16/17/18차 patches 모두 production 환경 검증.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님). Vercel 사용 X 라 A.14 영향 0. |
-| **rootric (Vercel 재배포 검증)** | **wiki-core public 전환 후 자동 배포 재시도 결과** — submodule fetch 정상 동작 + rootric 첫 ingest 실행 검증. 코어 인터페이스 사용 + (a) submodule + pack:dist + preinstall 실 환경 검증 + 신규 트랩 모니터링. |
-| plott (3차) | rootric Vercel 검증 통과 후 합류 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. plott 배포 환경 미정 — Vercel 사용 시 wiki-core public 이미 전환됐으니 차단 없음. |
+| ~~enroute (Phase 4-A)~~ | ✅ 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님). |
+| ~~rootric (Phase 4-A)~~ | ✅ Vercel 배포 + 첫 ingest end-to-end 통과 (2026-05-01, Mercury 19차). 후속은 AI 비용 가드 / KPI 큐레이션 / Phase 4-B 본격 ingest (코어 blocking 아님). |
+| **enroute (rootric precedent 적용 검증)** | enroute Phase 4-A 합류 결과 검증 — rootric precedent 트랩 5종 (A.6 일반화 / A.11~A.15) 적용 확인. enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 — 명시 보고만 받으면 종결. |
+| plott (3차) | rootric / enroute 양 도메인 종결 후 합류 (가장 복잡). enroute precedent + rootric precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. **합류 시점 추정 X** — 플로터 PLANNER (공모전 후 + Agent Skills 파일럿). plott Vercel 시 wiki-core public 이미 전환됐으니 차단 없음. |
