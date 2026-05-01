@@ -412,7 +412,7 @@
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
 | 1 | **enroute Phase 4-A 합류 결과 검증** — rootric precedent 트랩 5종 (A.6 일반화 / A.11~A.15) 적용 확인. enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 명시 보고만 필요 | 도메인 owner trigger | 신규 |
-| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 PLANNER 일정). A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. 기존 "공모전 후" → 더 늦어짐 (pharmacy W4 + stock Phase 4 + label/finance → 통합앱 Phase 2). A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
