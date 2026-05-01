@@ -358,19 +358,42 @@
   - #5 YAGNI — 옵션 B (한 줄 변경) 거부 = (b) 환경 회귀 위험 회피 우선
 - 다음 입력 대기: 로고스 (a) 환경 재시도 결과 — `pack:dist` 후 `file:.tgz` dep 정상 해석되는지
 
-### 다음 작업 후보 (Mercury 18차+)
+### Mercury 18차 (2026-05-01 — Vercel private submodule 차단 발견 + wiki-core public 전환 결정)
+
+- **상태: 로고스 Mercury 17차 후속 보고 (rootric Vercel 자동 배포 차단) → 트랩 A.14 박제 + wiki-core public 전환 결정 (에드워드 동의). 사전 민감 정보 스캔 통과 (0건). 가이드 §0-pre.1 (a) submodule 박스 정정. 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. 로고스 보고 — Vercel 공식 정책 (private submodule fetch 차단) 분석 + wiki-core public 전환 권장
+  2. 머큐리 4 옵션 비교 — A (public 전환) ★ / B (PAT preinstall) / C (GitHub Packages publish, Phase 5 조기) / D (vendor 복사). A 권장 + 에드워드 결정 권한 명시
+  3. 에드워드 A 채택 동의
+  4. 사전 민감 정보 스캔 — API key / secret / password / PAT / AWS key / email 모두 0건. service_role 언급은 SQL GRANT / actor.role 비교 (실제 토큰 X). public 전환 안전 확인.
+  5. 박제 — 가이드 §0-pre.1 (a) submodule 박스 "Vercel 배포" 부분 정정 (wiki-core public 전제 + 차단 회피 + plugin private 유지 자유) + 부록 A-2 A.14 트랩 신설 (4 옵션 비교 + Mercury 18차 결정 + 사전 스캔 결과)
+  6. 머큐리 외부 액션 — 에드워드가 직접 https://github.com/Ryu-story/wiki-core/settings → Danger Zone → Make public
+- 산출물 commit: 다음 commit (Mercury 18차 박제 — 가이드 patch + domain_feedback_log + CLAUDE.md)
+- 핵심 박제: **wiki-core repo public 전환 결정** — Vercel multi-domain 합류 차단 해소. 코드 자체 도메인 비밀 0건 (행동 원칙 #1 정합). plugin repo 는 도메인 비밀 가능성 → private 유지 자유.
+- 영향 범위:
+  - rootric (Vercel SaaS) — public 전환 후 자동 배포 정상화
+  - enroute ((b) sibling, Vercel 사용 X) — 영향 0
+  - plott (배포 환경 미정) — Vercel 사용 시 차단 없음
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — wiki-core 코어 자체에 도메인 비밀 0건이 행동 원칙 #1 강제 결과 (도메인 어휘 코어 반영 X 가 깊이 박힘)
+  - #2 인터페이스 합의 → 구현 — 코어 인터페이스 변경 X. repo visibility 변경만.
+  - #3 공통점 검증 의무 — Vercel 차단은 (a) submodule 환경 보편 — rootric (현재) + plott (Vercel 시) 양면 적용. wiki-core public 단일 결정으로 양면 해소.
+  - #5 YAGNI — 검증된 패턴 박제 (Mercury 18차 본 결정 박제 시점에 사전 민감 정보 스캔 + Vercel 정책 출처 명시 모두 사실 기반). 가설 박제 X.
+- 다음 입력 대기: rootric Vercel 자동 배포 재시도 결과 (wiki-core public 전환 후) + 첫 ingest 실행 검증
+
+### 다음 작업 후보 (Mercury 19차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **rootric Vercel deploy + 첫 ingest 검증 수렴** — actor-aware 풀 / cron 분기 / SupabaseAdapter 실 환경 동작. 코어 인터페이스 사용 검증 + (a) submodule + pack:dist + preinstall 실 환경 검증 + 신규 트랩 모니터링 | 도메인 owner trigger | 신규 |
-| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). A.6 일반화 patch 사전 적용 권장. | 도메인 owner trigger | 신규 |
+| 1 | **rootric Vercel 재배포 검증 수렴** — wiki-core public 전환 후 submodule fetch 정상 동작 + 첫 ingest 실행 (cron / actor-aware 풀 / SupabaseAdapter 실 환경 검증) + 신규 트랩 모니터링 | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). 합류 시점 추정 X (플로터 작업 일정에 의존). A.6 일반화 patch 사전 적용 권장. plott Vercel 사용 시 wiki-core public 이미 전환됐으니 차단 없음. | 도메인 owner trigger | 신규 |
 | 3 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — rootric Vercel deploy / 첫 ingest 결과 보고 도착 여부 확인
+2. `docs/domain_feedback_log.md` 정독 — rootric Vercel 재배포 / 첫 ingest 결과 보고 도착 여부 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
 
 ---

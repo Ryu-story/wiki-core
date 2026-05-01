@@ -113,13 +113,25 @@ git submodule update --init --recursive
 npm install
 ```
 
-**Vercel 배포**: `vercel.json` 또는 Vercel Settings → Git submodule fetch 활성화. preinstall 자동 처리 — 별도 build command override 불필요.
+**Vercel 배포 — wiki-core public repo 전제** ★ Mercury 18차 박제:
+
+Vercel 공식 정책상 **private submodule 은 자동 fetch 차단** (PAT 또는 SSH 인증 X). 출처: https://vercel.com/docs/builds/build-features#git-submodules — *"Git submodules that are private or requested over SSH will fail during the Build step."*
+
+→ **wiki-core repo 는 public 유지 필수** (Mercury 18차 결정 — 트랩 A.14 응답).
+- public 전환 후 Vercel Settings → Git → "Include source files outside of the Root Directory" 활성화 + submodule fetch 자동
+- preinstall 자동 처리 — 별도 build command override 불필요
+- *plugin* repo 는 도메인 비밀 포함 가능 → private 유지 자유. wiki-core 만 public.
+
+**대안 (private 유지 필수 시 — 비권장)**:
+- PAT 환경변수 + Vercel Build Command 에서 `git config + git submodule update --init` 수동 실행 — 도메인 별 PAT 발급/회전 운영 부담
+- GitHub Packages private publish (Phase 5 evolution) — 머큐리 patch 사이클 끊김
 
 **보장 invariant**:
 - wiki-core 본체 변경 X — `workspace:*` 그대로. (b) sibling 회귀 0건.
 - 추가 build 출력 (`dist-tarballs/`) 만 (.gitignore — submodule 안에서 생성/소비).
 - semver 영향 0건.
 - `corepack` 의존성 0건 (Windows 권한 / Vercel 환경 호환성).
+- wiki-core public — 도메인 비밀 0건 (행동 원칙 #1 정합).
 
 ### 0-pre.2 npm → pnpm 마이그레이션 trap 5종 (enroute 05-04 검증)
 
@@ -1150,5 +1162,44 @@ Internal Error: EPERM: operation not permitted, open 'C:\Program Files\nodejs\pn
 
 ---
 
-**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차)**
-**다음 액션**: rootric Phase 3 진입 — hooks 본체 5종 + storageRouter + router-tiers + ingest + smoke + Vercel 배포. plott 합류는 rootric 검증 통과 후.
+### A.14 Vercel private submodule 자동 fetch 차단 — wiki-core public 전환 (Mercury 18차 박제 — 로고스 발견)
+
+**증상**: rootric Vercel 자동 배포 (commit `1a47ab8`) 실패 로그:
+
+```
+Warning: Failed to fetch one or more git submodules
+ERR_PNPM_NO_LOCKFILE
+```
+
+**원인**: Vercel 공식 정책 — *"Git submodules that are private or requested over SSH will fail during the Build step."* (출처: https://vercel.com/docs/builds/build-features#git-submodules). GitHub App "All repositories" 권한과 무관 — Vercel build 환경에서 `git clone --recurse-submodules` 가 PAT 또는 SSH key 인증 X.
+
+**영향**:
+- rootric (Vercel SaaS) — 직접 차단
+- enroute ((b) sibling link, Vercel 사용 X) — 영향 0
+- plott (배포 환경 미정) — Vercel 사용 시 동일 차단
+
+**해결 — wiki-core repo public 전환** (Mercury 18차 결정):
+1. wiki-core 코드 자체 도메인 비밀 0건 — 4요소 ontology + adapters + hooks 모두 추상 (행동 원칙 #1 정합)
+2. multi-domain 합류 가치 우위 — rootric (현재 차단) + plott (Vercel 가능성) + Phase 5 npm public registry publish 자연 진입
+3. PAT 운영 부담 회피 — 도메인 owner 별 PAT 발급/회전 책임 X
+4. 머큐리 patch 사이클 보존 — public + submodule patch 즉시 반영
+
+**대안 비교** (모두 거부):
+
+| 옵션 | 거부 사유 |
+|---|---|
+| B. PAT 환경변수 + Vercel Build Command 수동 git clone | 각 도메인 PAT 운영 부담 + 토큰 노출 위험 + 회전 운영 |
+| C. GitHub Packages private publish (Phase 5 조기 진입) | 머큐리 patch 사이클 끊김 — publish 사이클 셋업 비용 |
+| D. vendor 복사 | 도메인 owner 수동 sync — patch 사이클 완전 끊김 |
+
+**plugin repo 는 private 유지 자유** — 도메인 비밀 (rootric stock 가설 / plott 약국 데이터 / enroute personal observation) 포함. wiki-core 만 public.
+
+**검증 (Mercury 18차)**:
+- 사전 민감 정보 스캔 — API key / secret / password / PAT / AWS key / email 모두 0건
+- `service_role` 언급은 SQL GRANT 문 / actor.role 비교 (실제 토큰 X)
+- GitHub username `Ryu-story` / 로컬 path `c:/Users/woori/...` — 노출되지만 *민감 정보 X*
+
+---
+
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차) / A.14 + wiki-core public 전환 — 2026-05-01 (Mercury 18차)**
+**다음 액션**: rootric Vercel 자동 배포 재검증 (wiki-core public 전환 후) → 첫 ingest 실행 결과 보고. plott 합류는 rootric 검증 통과 후.

@@ -792,10 +792,84 @@ expires_at = COALESCE(EXCLUDED.expires_at, existing)   -- nullable 라 OK
 
 ---
 
+## Mercury 18차 — Vercel private submodule 차단 발견 + wiki-core public 전환 결정 — 2026-05-01
+
+### 입력
+
+로고스 (rootric owner) Mercury 17차 후속 보고 도착. rootric Vercel 자동 배포 (commit `1a47ab8`) 실패 로그:
+
+```
+Warning: Failed to fetch one or more git submodules
+ERR_PNPM_NO_LOCKFILE
+```
+
+**원인**: Vercel 공식 정책 — *"Git submodules that are private or requested over SSH will fail during the Build step."* (https://vercel.com/docs/builds/build-features#git-submodules). GitHub App "All repositories" 권한과 무관 — Vercel build 환경에서 `git clone --recurse-submodules` 가 PAT 또는 SSH key 인증 X.
+
+**영향 범위**:
+- rootric (Vercel SaaS) — **직접 차단** (commit `1a47ab8` 로그 명시)
+- enroute ((b) sibling link, Vercel 사용 X) — 영향 0
+- plott (배포 환경 미정) — Vercel 사용 시 동일 차단
+
+**로고스 권장**: wiki-core repo public 전환 (코드 자체에 도메인 비밀 0건, multi-domain 합류 가치 우위, 보안 가치 < 합류 가치).
+
+### 머큐리 단독 결정 — wiki-core public 전환 채택 (에드워드 동의 후)
+
+**4 옵션 비교**:
+
+| 옵션 | 작업 | 보안 / 운영 부담 | 머큐리 patch 사이클 |
+|---|---|---|---|
+| **A. wiki-core public 전환** ★ | repo settings 변경 (1분) | wiki-core 코드 공개 (도메인 비밀 0) | 그대로 |
+| B. PAT 환경변수 + Vercel Build Command 수동 git clone | 각 도메인 PAT 발급/회전 | PAT 노출 위험 + 운영 부담 | 그대로 |
+| C. GitHub Packages private publish | publish 사이클 + GH Packages auth | 도메인별 npm auth | **끊김** (Phase 5 evolution) |
+| D. vendor 복사 | 도메인 owner 수동 sync | 도메인마다 동기화 책임 | **완전 끊김** (거부) |
+
+**A 채택 근거**:
+1. **코드 자체 도메인 비밀 0건** — 4요소 ontology + adapters + hooks 모두 추상. 행동 원칙 #1 (도메인 어휘 코어 반영 X) 깊이 박혀있어 public 전환 시 노출되는 도메인 비밀 0건
+2. **multi-domain 합류 가치 우위** — rootric (현재 차단) + plott (Vercel 가능성) + Phase 5 npm public registry publish 자연 진입
+3. **PAT 운영 부담 회피** — 도메인 owner 별 PAT 책임 X
+4. **머큐리 patch 사이클 보존** — A 는 patch 즉시 반영 그대로
+
+**단점 (인정)**:
+- wiki-core commit history / docs 공개 — Mercury 1~18차 작업 흐름 / `domain_feedback_log.md` 도메인 owner 응답 / 작업 패턴 노출
+- *도메인 비밀* 0건이지만, 작업 흐름 노출 가치 판단은 에드워드 영역 → 동의 후 진행
+
+### 사전 민감 정보 스캔 (Mercury 18차)
+
+| 항목 | 결과 |
+|---|---|
+| API key / secret / password / bearer token / PAT | **0건** |
+| AWS / GitHub PAT (`ghp_*` / `github_pat_*`) | **0건** |
+| `service_role` 언급 | 모두 SQL GRANT 문 / `actor.role === 'service_role'` 비교 (실제 토큰 X) |
+| Email | **0건** (wiki-core repo 내부) |
+| GitHub username `Ryu-story` | repo URL 자체 포함 (이미 GitHub 공개 식별자) — 문제 없음 |
+| 로컬 path `c:/Users/woori/...` | docs 본문 노출 — Windows username 중립 — *민감 X* |
+
+→ **public 전환 안전**.
+
+### 박제
+
+- `docs/phase4_plugin_guide.md` §0-pre.1 (a) submodule 박스 정정 — "wiki-core public 전제" 명시 + Vercel 차단 회피 + plugin private 유지 자유 명시
+- `docs/phase4_plugin_guide.md` 부록 A-2 A.14 트랩 신설 — Vercel private submodule 자동 fetch 차단 + 4 옵션 비교 + Mercury 18차 결정 + 사전 민감 정보 스캔 결과
+- `docs/domain_feedback_log.md` Mercury 18차 섹션 (이 박스)
+- `CLAUDE.md` Mercury 18차 신규 섹션
+
+### 에드워드 액션 (머큐리 외부)
+
+| 단계 | 작업 |
+|---|---|
+| 1 | https://github.com/Ryu-story/wiki-core/settings 진입 |
+| 2 | 페이지 하단 "Danger Zone" → "Change repository visibility" → "Make public" |
+| 3 | 확인 prompt 에서 repo 이름 입력 + Make public 클릭 |
+| 4 | rootric Vercel 자동 배포 재시도 — submodule fetch 정상 동작 확인 |
+
+**plugin repo (rootric / plott / enroute) 는 private 유지** — 도메인 비밀 포함 가능성. wiki-core 만 public.
+
+---
+
 ## 다음 입력 대기
 
 | 도메인 | 다음 응답 trigger |
 |---|---|
-| ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님) |
-| **rootric (2차)** | **합류 진입 동의 확정 (Mercury 14차)**. 집 PC 전환 후 Phase 1+2 (~2-3h) 진입. 첫 세션 종결 후 결과 보고 도착 시 머큐리 15차 진입. 트랩 5종 모니터링 동시 진입. |
-| plott (3차) | rootric 2차 합류 검증 통과 후 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 (scope_id) RLS 다단 join + `plott_target_visibility` 함수. **합류 시점 추정 X (플로터 작업 일정에 의존)** — PLANNER 일정대로 공모전 후 + Agent Skills 파일럿. |
+| ~~enroute (1차)~~ | ✅ Phase 4-A 1차 합류 종결 (2026-04-30, commit `8817d86`, smoke 96/96). 후속은 enroute 자체 Phase 4-B/C/D (코어 blocking 아님). Vercel 사용 X 라 A.14 영향 0. |
+| **rootric (Vercel 재배포 검증)** | **wiki-core public 전환 후 자동 배포 재시도 결과** — submodule fetch 정상 동작 + rootric 첫 ingest 실행 검증. 코어 인터페이스 사용 + (a) submodule + pack:dist + preinstall 실 환경 검증 + 신규 트랩 모니터링. |
+| plott (3차) | rootric Vercel 검증 통과 후 합류 (가장 복잡). enroute precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. plott 배포 환경 미정 — Vercel 사용 시 wiki-core public 이미 전환됐으니 차단 없음. |
