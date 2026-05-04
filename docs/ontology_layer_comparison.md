@@ -220,8 +220,60 @@
 
 ---
 
-## 7. 갱신 이력
+## 7. 도메인 owner 사전 신호 — 정식 트랙 5/14 후 (Mercury 21차, 2026-05-04)
+
+Mercury 20차 종결 직후 **3 도메인 owner 모두** 외부 자료 정합성 자기 명세서 박제 + 사전 신호 도착. 정식 결정은 5/14 PoC 후 — *지금 코어 변경 X*.
+
+### 7.1 도메인 owner 박제 위치
+
+| 도메인 | 박제 | 사전 신호 영역 |
+|---|---|---|
+| rootric (로고스 38차) | `docs/factsheet_wiki_requirements.md` Section 11 | 4 영역 (Rule entity / W3C 표준 / 다이내믹 시나리오 / Neuro-Symbolic) |
+| enroute (루터 38차) | `docs/wiki_requirements.md` Section 11 (commit `9857d3c`) | 4 영역 + **차별 강점 2건 명시** ★ |
+| plott (플로터) | 통합앱 Phase 2 진입 시점 박제 예정 (대기) | TBD |
+
+### 7.2 enroute 차별 강점 2건 — Tier 분류 영향
+
+#### (a) `area_tagging_rules` 이미 운영 중 = "데이터로서의 Rule" 패턴 정합 데이터
+
+→ Tier A "Rule 엔진" 박제 가치 **상승**:
+- enroute 가 *이미 SWRL 정신 정합 데이터* 운영 중 (룰 자체가 entity, rule_order INSERT/UPDATE)
+- rootric 4영역 #1 "Rule entity" 와 직접 매핑 — rootric 은 룰 코드/프롬프트 박힘 / enroute 는 entity 화
+- → wiki-core 표준 Rule entity 인터페이스 정의 시 **enroute schema 가 reference 후보**
+
+#### (b) Container / Activity / Observation 3층 시간 측정 = enroute 고유
+
+→ Tier 추가 검토 영역:
+- 외부 베스트 프랙티스 (글 3편) 에 없음. 동일 시간 3 계층 병치 측정 — "선언 vs 실측 간극" 자체가 인사이트
+- rootric (외부 데이터) / plott (약국 운영) 명세서엔 부재 가능성
+- 결정 영역: **코어 표준 vs 옵트인 plugin** (3 도메인 비교 시 검토)
+  - 옵트인이면 코어 변경 X (현재 patterns 그대로 OK)
+  - 코어 표준 채택 시 Tier S 후보 추가 가능성
+
+### 7.3 정식 트랙 진입 시점 — 5/14 PoC 후
+
+머큐리 측 액션 시퀀스:
+1. plott 합류 시점 (통합앱 Phase 2) 또는 5/14 PoC 후 — 둘 중 먼저 도착하는 시점. 단 plott 시점이 더 늦을 가능성 → 5/14 후 *rootric + enroute* 2 명세서로 1차 비교 + plott 도착 시 통합
+2. 3 (또는 2) 명세서 Section 11 통합 비교 — Tier S/A/B 분류 cross-validate
+3. 4 신호 영역 결정 (각각 코어 변경 / plugin 영역 / 보류)
+4. enroute 차별 강점 2건 처리 — 코어 표준 vs 옵트인 plugin
+5. 머큐리 단독 결정 → 5단계 protocol (`edward_collaboration.md` §7.1) 으로 도메인 owner 검증
+
+### 7.4 머큐리 사전 자료 보유
+
+- `docs/ontology_layer_comparison.md` (이 문서) — Mercury 20차 박제
+- `C:\Users\woori\AppData\Local\Temp\datastrate_extracted.txt` (28KB) — 글 3편 본문 추출 (curl 우회 fetch + Python 파서)
+- 글 fetch 우회 명령 (재현 가능):
+  ```bash
+  curl -sL "https://m.blog.naver.com/datastrate/{ID}" -A "Mozilla/5.0 (...)" \
+    -o /tmp/datastrate_{N}.html
+  ```
+
+---
+
+## 8. 갱신 이력
 
 | 일자 | 세션 | 변경 |
 |---|---|---|
 | 2026-05-04 | Mercury 20차 | 최초 작성 — datastrate 3편 vs wiki-core 비교 분석 + Tier S/A/B 분류 + Phase 5+ evolution reference 박제 |
+| 2026-05-04 | Mercury 21차 | §7 추가 — 3 도메인 owner 사전 신호 동시 수신 박제. enroute 차별 강점 2건 명시 (Rule entity 운영 데이터 + Container/Activity/Observation 3층). Tier A "Rule 엔진" 박제 가치 상승. 정식 트랙 5/14 후 진입 |

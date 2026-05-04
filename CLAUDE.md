@@ -432,7 +432,31 @@
   - #5 YAGNI — 코어 변경 보류. 도메인 owner 실제 신호 대기. 분석 박제만.
 - 다음 입력 대기: plott 통합앱 Phase 2 진입 시점 합류 신호 (도메인 owner trigger). 또는 Tier S/A 진입 신호.
 
-### 다음 작업 후보 (Mercury 21차+)
+### Mercury 21차 (2026-05-04 — 외부 온톨로지 정합성 검증 사전 신호 동시 수신, 3 도메인)
+
+- **상태: Mercury 20차 박제 직후 3 도메인 owner 모두 자기 명세서 Section 11 박제 + 사전 신호 동시 도착. 머큐리 결정 *지금 X* — 5/14 PoC 후 정식 트랙 진입 합의. 사전 영역 박제만.**
+- 진행 흐름:
+  1. 에드워드 경유 — 3 도메인 owner 가 동일 외부 자료 (datastrate 3편) 정합성 자기 명세서 Section 11 박제 + 사전 신호 통보
+  2. 도메인 owner 박제 위치 수렴:
+     - rootric (로고스 38차) — `docs/factsheet_wiki_requirements.md` Section 11 (✅ 8 / 🟡 5 / ❌ 3)
+     - enroute (루터 38차) — `docs/wiki_requirements.md` Section 11 (commit `9857d3c`, +119 줄, ✅ 11 / 🟡 6 / ❌ 4) **+ 차별 강점 2건 명시** ★
+     - plott (플로터) — 통합앱 Phase 2 진입 시점 박제 예정 (대기)
+  3. 머큐리 사전 의견 1건 — enroute "Rule entity 이미 운영 중" 사실은 Tier A "Rule 엔진" 박제 가치 *상승* 신호 (정식 결정 X)
+  4. 박제 — `docs/domain_feedback_log.md` Mercury 21차 + `docs/ontology_layer_comparison.md` §7 추가 + 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 21차 박제)
+- 핵심 박제: **3 도메인 사전 신호 수신 + Tier A 박제 가치 상승** — 정식 결정은 5/14 PoC 후 통합 비교. 머큐리 단독 결정 시 1 명세서 만 보면 *plott 영향 누락 위험* 있어 도메인 owner 합의대로 통합 진행.
+- enroute 차별 강점 2건 (★ — 머큐리 *사전 인지*):
+  - (a) `area_tagging_rules` 이미 entity 운영 — *데이터로서의 Rule* 정합 데이터 보유. wiki-core Tier A "Rule 엔진" 표준화 시 **enroute schema 가 reference 후보**
+  - (b) Container / Activity / Observation 3층 시간 측정 — 외부 모범 패턴에 없는 enroute 고유. *코어 표준 vs 옵트인 plugin* 결정 영역
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — 도메인 명세서 Section 11 본문은 머큐리 직접 편집 X. 박제 위치 + 사전 신호 영역만 수렴
+  - #3 공통점 검증 의무 — 1 명세서만 보고 코어 결정 X. 3 (또는 2+1) 명세서 통합 비교 후 결정
+  - #5 YAGNI — 도메인 owner 명시 "5/14 후 정식 트랙" 일정 그대로 채택. 지금 박제는 사전 영역 식별만
+- 다음 입력 대기:
+  - **5/14 PoC 후** — rootric + enroute 2 명세서 Section 11 통합 비교 트랙 진입 (plott 통합앱 Phase 2 시점이 더 늦으면 plott 도착 후 재통합)
+  - **Tier S/A 진입 신호** — 4 영역 (Rule entity / 다이내믹 시나리오 / W3C 표준 / Neuro-Symbolic) 중 도메인 owner 명시 결정 신호
+
+### 다음 작업 후보 (Mercury 22차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
@@ -447,6 +471,7 @@
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
 2. `docs/domain_feedback_log.md` 정독 — enroute Phase 4-A 검증 보고 / plott 합류 신호 도착 여부 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
+4. 5/14 PoC 후 — rootric + enroute Section 11 통합 비교 트랙 진입. `docs/ontology_layer_comparison.md` §7 + `docs/domain_feedback_log.md` Mercury 21차 박스 정독.
 
 ---
 

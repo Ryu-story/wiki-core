@@ -987,3 +987,58 @@ ERR_PNPM_NO_LOCKFILE
 | ~~rootric (Phase 4-A)~~ | ✅ Vercel 배포 + 첫 ingest end-to-end 통과 (2026-05-01, Mercury 19차). 후속은 AI 비용 가드 / KPI 큐레이션 / Phase 4-B 본격 ingest (코어 blocking 아님). |
 | ~~enroute (rootric precedent 적용 검증)~~ | ✅ 응답 수렴 (2026-05-01, commit `4b5d7f4`). A.6 정합 + A.11~A.15 영향 0 명시. 부수 메모 1건 (`sent_to_telegram` 잠재 사고) 머큐리 *완전 거부* (행동 원칙 #5 YAGNI + plott 발생 시 박제). |
 | **plott (3차)** | enroute + rootric 양 Phase 4-A 종결 후 합류 (가장 복잡). enroute precedent + rootric precedent + (b) 2단계 sibling link + 5단계 가시성 + `plott_target_visibility` 함수. **합류 시점 갱신** (2026-05-01) — 플로터 통보: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 결정. circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. 기존 "공모전 후" → 더 늦어짐 (pharmacy W4 + stock Phase 4 + label/finance → 통합앱 Phase 2 진입). 머큐리 영역 이의 0건 — 코어 인터페이스 영향 X, 합류 순서 (enroute → rootric → plott 마지막) 그대로. plott Vercel 시 wiki-core public 이미 전환됐으니 차단 없음. |
+
+---
+
+## Mercury 21차 — 외부 온톨로지 정합성 검증 사전 신호 동시 수신 (3 도메인) — 2026-05-04
+
+### 입력
+
+에드워드 경유 외부 온톨로지 자료 3건 (datastrate 블로그) 정합성 검증 → **3 도메인 owner 모두** 자기 명세서 Section 11 신설 + 사전 신호 동시 도착. 5/14 PoC 후 정식 트랙 진입 예정 (지금은 *결정 요청 X, 사전 영역 식별만*).
+
+| 도메인 | 박제 위치 | 정합 / 부분 / 부재 | 사전 신호 영역 |
+|---|---|---|---|
+| rootric (로고스 38차) | `docs/factsheet_wiki_requirements.md` Section 11 | ✅ 8 / 🟡 5 / ❌ 3 | 4 영역 (Rule entity / W3C 표준 / 다이내믹 시나리오 / Neuro-Symbolic) |
+| enroute (루터 38차) | `docs/wiki_requirements.md` Section 11 (commit `9857d3c`, +119 줄) | ✅ 11 / 🟡 6 / ❌ 4 | 4 영역 + **차별 강점 2건 사전 명시** (★) |
+| plott (플로터) | 합류 시점 자체 변경 (2026-05-01 commit `3a1b574`) — 통합앱 Phase 2 진입 시점에 박제 예정. 별도 Section 11 박제 보고 *대기*. | TBD | TBD |
+
+### enroute 차별 강점 2건 ★ — 머큐리 측 *사전 인지*
+
+#### (a) `area_tagging_rules` 이미 운영 중 = "데이터로서의 Rule" 패턴 정합
+
+- 글 3편 §3 (Article 3 SWRL) "규칙은 데이터로 저장 — 코드 배포 X" 정합 *데이터* 보유
+- rootric 신호 4영역 #1 "Rule entity" 와 직접 매핑 — **rootric 은 룰이 코드/프롬프트 박힘 / enroute 는 이미 entity 화 운영 중**
+- → wiki-core Tier A "Rule 엔진" 박제 가치 검토 시 *정합 기준 데이터 제공 가능*. enroute 가 *이미 검증된 패턴* 운영 중이므로 표준화 시 enroute schema 가 reference
+
+#### (b) Container / Activity / Observation 3층 시간 측정
+
+- 동일 시간을 3 계층으로 병치 측정 — "선언 vs 실측 간극" 자체가 인사이트 핵심
+- rootric (외부 데이터) / plott (약국 운영) 명세서엔 부재 가능성
+- → wiki-core 가 *옵트인 plugin* 으로 받을지 = 핵심 결정 영역 (3 도메인 비교 시 검토). 옵트인이면 코어 변경 X, 코어 표준 채택 시 Tier S 후보 추가
+
+### 머큐리 단독 결정 — *지금 결정 X*, 사전 영역 박제만
+
+**행동 원칙 #5 YAGNI 적용** — 도메인 owner 명시 "5/14 PoC 후 정식 트랙" 일정 그대로 채택. 1 명세서 (rootric 또는 enroute 만) 보고 코어 결정 시 *plott 영향 누락 위험* — 3 명세서 모두 도착 후 통합 비교.
+
+**현 시점 박제**:
+- `docs/domain_feedback_log.md` Mercury 21차 진입 박스 (이 박스)
+- `docs/ontology_layer_comparison.md` 갱신 — 도메인 신호 도착 + enroute 차별 강점 2건 + Tier A "Rule 엔진" 박제 가치 *상승* 명시 (정식 결정은 5/14 후)
+- `CLAUDE.md` Mercury 21차 신규 섹션
+
+**머큐리 사전 의견 1건** (로고스 §7 권장 — "사전 의견 있으면 회신, 선택"):
+- enroute "Rule entity 이미 운영 중" 사실은 Tier A "Rule 엔진" 박제 가치 *상승* 신호. 단 정식 결정은 5/14 후 plott 합류 + 3 명세서 통합 비교 시점.
+- 머큐리는 *사전 자료 익히기* — `docs/ontology_layer_comparison.md` 본문 + 글 3편 추출 (`C:\Users\woori\AppData\Local\Temp\datastrate_extracted.txt` 28KB) 보유
+
+### 정식 트랙 진입 시점 (5/14 PoC 후)
+
+머큐리 측 액션:
+1. 3 명세서 Section 11 통합 비교 — `docs/ontology_layer_comparison.md` 의 Tier S/A/B 분류와 cross-validate
+2. 4 신호 영역 결정 (각각 코어 변경 / plugin 영역 / 보류 분류):
+   - Rule entity 표준화 (★ enroute 정합 데이터)
+   - 다이내믹 레이어 (시나리오 객체화 + Apply)
+   - W3C 표준 스택 (RDF/OWL/SWRL/SPARQL)
+   - Neuro-Symbolic AI 추론 엔진
+3. enroute 차별 강점 2건 (Rule entity / 시간 3층) 처리 — 코어 표준 vs 옵트인 plugin 결정
+4. 머큐리 단독 결정 박제 → 3 도메인 owner 검증 5단계 protocol (`edward_collaboration.md` §7.1)
+
+**5/14 PoC 일정 보호**: 코어 변경은 PoC 데이터 정확도와 무관. 5/14 후 진입이 안전 (3 도메인 모두 동의).
