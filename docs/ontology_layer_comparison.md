@@ -230,7 +230,28 @@ Mercury 20차 종결 직후 **3 도메인 owner 모두** 외부 자료 정합성
 |---|---|---|
 | rootric (로고스 38차) | `docs/factsheet_wiki_requirements.md` Section 11 | 4 영역 (Rule entity / W3C 표준 / 다이내믹 시나리오 / Neuro-Symbolic) |
 | enroute (루터 38차) | `docs/wiki_requirements.md` Section 11 (commit `9857d3c`) | 4 영역 + **차별 강점 2건 명시** ★ |
-| plott (플로터) | 통합앱 Phase 2 진입 시점 박제 예정 (대기) | TBD |
+| **plott (플로터, 2026-05-04)** | `docs/wiki_requirements.md` Section 11 (commit `828169a`, 11.1~11.6 동일 양식) | 4 영역 + **차별 강점 4건 + 신호 강도 분포** ★★ (가장 강한 신호 도메인) |
+
+→ **3 명세서 모두 도착** (2026-05-04). 진입 시점 5/14 PoC 후 (도메인 owner 합의).
+
+### 7.2.0 plott 차별 강점 4건 + 신호 강도 분포 — Tier 분류 영향 (2026-05-04 추가)
+
+plott 차별 강점 4개:
+1. **WARNING 거짓음성 0%** — MVP 안전 본질 (5단계 가시성 + safety RLS 정합)
+2. **5단계 가시성 + scope_id** — Mercury 7/12차 박제된 `plott_target_visibility` 함수 정합
+3. **drug_master 외부 마스터 강결합** — 외부 entity reference 패턴 (rootric DART 강결합 유사)
+4. **앱 연동 API 키네틱 writeback** ★ — Tier A "키네틱 라이트백 hook" 박제 가치 *상승* 신호
+
+머큐리 신호 6건 중 plott 강도 분포:
+- ★★ 다단 RLS (`plott_target_visibility`)
+- ★★ Rule entity (drug_master 강결합 + classification rule)
+- ★ Neuro-Symbolic
+- → **plott 이 가장 강한 신호 도메인** (★★ 2건 + ★ 1건)
+
+**MVP 안전 본질 보강 1건** ★★ — OWA "Unknown" 라벨:
+- eGFR 누락 시 메트포르민 잘못 안전 추론 함정 차단
+- 플로터 측 통합앱 Phase 2 진입 시 즉시 반영 (머큐리 영역 X)
+- 단 정식 트랙 진입 시 Article 3 "OWA (Open World Assumption)" 가정 명시 박제 가치 검토 입력 (현재 §2.1 #9 "부분" 분류)
 
 ### 7.2 enroute 차별 강점 2건 — Tier 분류 영향
 
@@ -277,3 +298,4 @@ Mercury 20차 종결 직후 **3 도메인 owner 모두** 외부 자료 정합성
 |---|---|---|
 | 2026-05-04 | Mercury 20차 | 최초 작성 — datastrate 3편 vs wiki-core 비교 분석 + Tier S/A/B 분류 + Phase 5+ evolution reference 박제 |
 | 2026-05-04 | Mercury 21차 | §7 추가 — 3 도메인 owner 사전 신호 동시 수신 박제. enroute 차별 강점 2건 명시 (Rule entity 운영 데이터 + Container/Activity/Observation 3층). Tier A "Rule 엔진" 박제 가치 상승. 정식 트랙 5/14 후 진입 |
+| 2026-05-04 | Mercury 21차 (plott §11 도착) | §7.1 plott 라인 박제 완료 갱신 (commit `828169a`) + §7.2.0 plott 차별 강점 4건 + 신호 강도 분포 박제. **3 명세서 모두 도착으로 정식 트랙 진입 조건 완료**. Tier A "키네틱 라이트백" 박제 가치 상승 (plott 앱 연동 API writeback ★). plott = 가장 강한 신호 도메인 (★★ 2건 + ★ 1건). MVP 안전 본질 1건 (OWA "Unknown") 사전 인지. |

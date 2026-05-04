@@ -1000,7 +1000,28 @@ ERR_PNPM_NO_LOCKFILE
 |---|---|---|---|
 | rootric (로고스 38차) | `docs/factsheet_wiki_requirements.md` Section 11 | ✅ 8 / 🟡 5 / ❌ 3 | 4 영역 (Rule entity / W3C 표준 / 다이내믹 시나리오 / Neuro-Symbolic) |
 | enroute (루터 38차) | `docs/wiki_requirements.md` Section 11 (commit `9857d3c`, +119 줄) | ✅ 11 / 🟡 6 / ❌ 4 | 4 영역 + **차별 강점 2건 사전 명시** (★) |
-| plott (플로터) | 합류 시점 자체 변경 (2026-05-01 commit `3a1b574`) — 통합앱 Phase 2 진입 시점에 박제 예정. 별도 Section 11 박제 보고 *대기*. | TBD | TBD |
+| **plott (플로터, 2026-05-04)** | `docs/wiki_requirements.md` Section 11 (commit `828169a`) — 양식 enroute/rootric 동일 (11.1~11.6) | TBD (동일 양식) | 4 영역 + **차별 강점 4건 + 신호 강도 분포 명시** (★★) |
+
+→ **3 명세서 모두 도착** (Mercury 21차 정식 트랙 진입 조건 완료). 진입 시점은 도메인 owner 합의대로 5/14 PoC 후.
+
+### plott 차별 강점 4건 + 신호 강도 분포 ★★ — 머큐리 측 *사전 인지* (2026-05-04 추가)
+
+**plott 차별 강점 4개**:
+1. **WARNING 거짓음성 0%** — plott 5단계 가시성 + safety RLS 정합. MVP 안전 본질
+2. **5단계 가시성 + scope_id** — Mercury 7/12차 박제된 `plott_target_visibility` 함수 정합
+3. **drug_master 외부 마스터 강결합** — 외부 entity reference 패턴 (rootric DART 강결합과 유사)
+4. **앱 연동 API 키네틱 writeback** ★ — Tier A "키네틱 라이트백 hook" 박제 가치 *상승* 신호
+
+**머큐리 신호 6건 중 plott 강도 분포**:
+- ★★ 다단 RLS (`plott_target_visibility` 5단계 가시성)
+- ★★ Rule entity (drug_master 강결합 + classification rule)
+- ★ Neuro-Symbolic
+- → **plott 이 가장 강한 신호 도메인** (★★ 2건 + ★ 1건)
+
+**MVP 안전 본질 보강 1건** (★★):
+- OWA "Unknown" 라벨 — eGFR 누락 시 메트포르민 잘못 안전 추론 함정 차단
+- 플로터 측 *통합앱 Phase 2 진입 시 즉시 반영* 명시 — 머큐리 영역 X (plott 자체 처리, 가이드 §0-pre 박제 영향 X)
+- 단 정식 트랙 진입 시 *OWA 가정 명시* (현재 "부분 정합" 분류) 의 코어 박제 가치 검토 입력
 
 ### enroute 차별 강점 2건 ★ — 머큐리 측 *사전 인지*
 
@@ -1018,7 +1039,7 @@ ERR_PNPM_NO_LOCKFILE
 
 ### 머큐리 단독 결정 — *지금 결정 X*, 사전 영역 박제만
 
-**행동 원칙 #5 YAGNI 적용** — 도메인 owner 명시 "5/14 PoC 후 정식 트랙" 일정 그대로 채택. 1 명세서 (rootric 또는 enroute 만) 보고 코어 결정 시 *plott 영향 누락 위험* — 3 명세서 모두 도착 후 통합 비교.
+**행동 원칙 #5 YAGNI 적용** — 도메인 owner 명시 "5/14 PoC 후 정식 트랙" 일정 그대로 채택. **3 명세서 모두 도착 (2026-05-04)** 으로 진입 *조건* 충족 — 진입 *시점* 은 합의대로 5/14 후 (PoC 데이터 정확도 우선).
 
 **현 시점 박제**:
 - `docs/domain_feedback_log.md` Mercury 21차 진입 박스 (이 박스)

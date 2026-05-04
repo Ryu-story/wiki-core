@@ -453,8 +453,14 @@
   - #3 공통점 검증 의무 — 1 명세서만 보고 코어 결정 X. 3 (또는 2+1) 명세서 통합 비교 후 결정
   - #5 YAGNI — 도메인 owner 명시 "5/14 후 정식 트랙" 일정 그대로 채택. 지금 박제는 사전 영역 식별만
 - 다음 입력 대기:
-  - **5/14 PoC 후** — rootric + enroute 2 명세서 Section 11 통합 비교 트랙 진입 (plott 통합앱 Phase 2 시점이 더 늦으면 plott 도착 후 재통합)
+  - **5/14 PoC 후** — 3 명세서 (rootric + enroute + plott) Section 11 통합 비교 트랙 진입. plott §11 박제 도착 (2026-05-04, commit `828169a`) 으로 진입 *조건* 완료, *시점* 은 합의대로 5/14 후
   - **Tier S/A 진입 신호** — 4 영역 (Rule entity / 다이내믹 시나리오 / W3C 표준 / Neuro-Symbolic) 중 도메인 owner 명시 결정 신호
+
+**plott §11 도착 후 갱신 (2026-05-04)**:
+- plott 차별 강점 4건 + 신호 강도 분포 사전 인지 박제
+- Tier A "키네틱 라이트백 hook" 박제 가치 *상승* 신호 (plott 앱 연동 API writeback ★)
+- plott = **가장 강한 신호 도메인** (★★ 2건 + ★ 1건)
+- MVP 안전 본질 1건 (OWA "Unknown" 라벨) — plott 자체 처리, 머큐리 영역 X. 단 정식 트랙 진입 시 OWA 가정 명시 박제 가치 검토 입력
 
 ### 다음 작업 후보 (Mercury 22차+)
 
