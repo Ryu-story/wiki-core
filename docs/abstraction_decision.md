@@ -210,6 +210,25 @@ StorageRouter { adapters[], resolve(target) }     // ★ 매트릭스 신규
 
 자세한 내용은 `docs/domain_feedback_log.md` "Mercury 11차 — link 패턴 환경 매트릭스" 참조.
 
+### Phase 5+ evolution 후보 (Mercury 20차, 2026-05-04 — 외부 모범 패턴 검토)
+
+datastrate 블로그 3편 (Palantir 3 레이어 + Semantic Layer + 온톨로지 개념) 검토 결과 wiki-core 미반영 4 항목 식별. **현 시점 코어 변경 X** (행동 원칙 #5 YAGNI — 도메인 owner 실제 신호 대기). Phase 5+ evolution reference 박제.
+
+| Tier | 항목 | 적용 시점 |
+|---|---|---|
+| **S** | 다이내믹 레이어 (What-if 시나리오 시뮬레이션) — *"기록 시스템 → 결정 시스템"* 진화 핵심 단절. 신규 패키지 후보 (`@wiki-core/scenario`) | 도메인 owner 1+ 가 시나리오 분기 명시 (rootric KPI What-if / plott circle 정책 What-if / enroute freedom What-if) 시 |
+| **A** | Rule 엔진 (IF-THEN 자동 추론) — 도메인 측 자체 구현 *3 도메인 모두 발생* (rootric 가설 코드 / plott 약사 인사말 / enroute freedom 점수). 신규 패키지 후보 (`@wiki-core/inference`) | 도메인 owner 1+ 가 *공통 추론 엔진 필요* 명시 시 |
+| **A** | 키네틱 라이트백 hook — 외부 운영 시스템 (ERP/주문/알림) 으로 결정 라이트백. 현재 plugin 자체 처리 (rootric Vercel write / enroute Sheets write) | 통일 hook 필요 신호 도착 시 (semver minor additive — `onWriteback` hook 추가) |
+| **A** | Concept 계층 (subClassOf) — `kind` 단일 평면 → 상하위 관계 (당뇨병성 신증 ⊂ 당뇨 환자 ⊂ 만성질환자). 코어 type 정의에 optional `parent_kind` (semver minor additive) | rootric factsheet 가설 코드 / plott 5단계 가시성 객체 분류 hierarchy 명시 시 |
+| **B** | LLM + Semantic Layer 하이브리드 (Neuro-Symbolic 워크플로우) — 자연어→LLM 파싱→의미 검색→추론→자연어 정리 | rootric KPI 큐레이션 / plott 약사 인사말 / enroute 자연어 검색 진입 시 |
+| **B** | RDF/OWL/SWRL/SPARQL 표준 어댑터 — relational ↔ 트리플 양방향 | 외부 SPARQL endpoint 연동 필요 시 (현재 0건) |
+
+**의도된 결정 (현재 정합 OK, 변경 X)**:
+- 액션 vs 이벤트 의미 차이 — Mercury 1차 의도된 선택 (위키 = 기록 시스템 우선, Action 영역은 router + plugin 으로 일부 대응)
+- Postgres relational schema (RDF 미채택) — 도메인 owner 친숙도 + Supabase RLS / Vercel ecosystem 정합
+
+자세한 내용은 `docs/ontology_layer_comparison.md` 참조.
+
 ---
 
 ## 6. 머큐리 행동 원칙과의 정합 검토

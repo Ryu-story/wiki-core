@@ -407,7 +407,32 @@
   - Phase 4-B 본격 ingest (limit=1 또는 maxDuration 60-90s 또는 background job)
 - 다음 입력 대기: enroute Phase 4-A 합류 결과 검증 (rootric precedent 트랩 5종 적용 확인 — enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 명시 보고만 필요). plott 합류는 도메인 owner trigger.
 
-### 다음 작업 후보 (Mercury 20차+)
+### Mercury 20차 (2026-05-04 — 외부 온톨로지 모범 패턴 검토 + Phase 5+ evolution 후보 박제)
+
+- **상태: datastrate 블로그 3편 (Palantir 3 레이어 + Semantic Layer + 온톨로지 개념) 정독 후 wiki-core 정합성 검토 박제. 코어 인터페이스 변경 0건 — 행동 원칙 #5 YAGNI 적용 (도메인 owner 실제 신호 대기). Phase 5+ evolution reference 박제.**
+- 진행 흐름:
+  1. 에드워드 — datastrate 3편 URL 전달 + 정합성 + 보강 가치 검토 요청
+  2. WebFetch (naver) 차단 → curl 우회 fetch + Python HTML 파서 추출 (3편 본문 ~28KB)
+  3. 글 3편 핵심 추출 — 객체/관계/액션 + Concept/Relation/Rule + 시맨틱/키네틱/다이내믹 3 레이어 + 폐쇄 루프 + LLM 하이브리드
+  4. wiki-core 와 line-by-line 비교 (15 항목) — 정합 5 / 부분 정합 3 / 미반영 7
+  5. 보강 가치 Tier S/A/B 분류 + 행동 원칙 정합 검토
+  6. 머큐리 결정 — 코어 변경 *보류* (YAGNI), 분석 자체 박제
+- 산출물 commit: 다음 commit (Mercury 20차 박제)
+- 핵심 박제: **외부 모범 패턴 reference 박제** — `docs/ontology_layer_comparison.md` 신설 + `docs/abstraction_decision.md` §5 Phase 5+ evolution 후보 박스. 향후 도메인 owner 신호 도착 시 진입 결정 근거.
+- 미반영 4 항목 (Tier 분류):
+  - **Tier S**: 다이내믹 레이어 (What-if 시나리오 시뮬레이션) — *"기록 시스템 → 결정 시스템"* 진화 핵심
+  - **Tier A**: Rule 엔진 / 라이트백 hook / Concept 계층
+  - **Tier B**: LLM + Semantic Layer 하이브리드 / RDF/OWL 표준 어댑터
+- 의도된 결정 (변경 X):
+  - 액션 vs 이벤트 (Mercury 1차) — 위키 = 기록 시스템 우선
+  - Postgres relational (RDF 미채택) — 도메인 친숙도 + Supabase ecosystem 정합
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — 코어 추상화 영역 분석. 도메인 어휘 0건 (의료/약국/주식 예시는 *원문 인용*)
+  - #3 공통점 검증 의무 — Tier A "Rule 엔진" 박제 가치 검토 시 *3 도메인 모두 자체 구현 발생* 확인 후 박제 가치 명시
+  - #5 YAGNI — 코어 변경 보류. 도메인 owner 실제 신호 대기. 분석 박제만.
+- 다음 입력 대기: plott 통합앱 Phase 2 진입 시점 합류 신호 (도메인 owner trigger). 또는 Tier S/A 진입 신호.
+
+### 다음 작업 후보 (Mercury 21차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
