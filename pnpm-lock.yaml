@@ -18,6 +18,19 @@ importers:
         specifier: ^5.5.0
         version: 5.9.3
 
+  packages/extractor:
+    dependencies:
+      '@wiki-core/core':
+        specifier: workspace:*
+        version: link:../core
+      '@wiki-core/router':
+        specifier: workspace:*
+        version: link:../router
+    devDependencies:
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+
   packages/renderer:
     dependencies:
       '@wiki-core/core':

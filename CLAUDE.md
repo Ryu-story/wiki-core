@@ -462,22 +462,51 @@
 - plott = **가장 강한 신호 도메인** (★★ 2건 + ★ 1건)
 - MVP 안전 본질 1건 (OWA "Unknown" 라벨) — plott 자체 처리, 머큐리 영역 X. 단 정식 트랙 진입 시 OWA 가정 명시 박제 가치 검토 입력
 
-### 다음 작업 후보 (Mercury 22차+)
+### Mercury 22차 (2026-05-19 — `@wiki-core/extractor` 신규 패키지 박제)
+
+- **상태: `@wiki-core/extractor` 1차 SPEC + 코드 박제 완료. tsc -b 통과 (5 workspace projects). 4자 검증 통과 후 박제. 코어 4 패키지 변경 0건.**
+- 진행 흐름:
+  1. 로고스·루터·플로터·CroNode 4자 공동 요청 수렴 — DocumentTree / navigate_tree 설계 3 질문
+  2. PageIndex 기사 정독 (fornewchallenge.tistory.com) — Reasoning-based RAG, tree 구조, 4-step tool calling 루프
+  3. 머큐리 설계 결정 3건:
+     - Q1: DocumentTree는 4요소 X → `@wiki-core/extractor` 신규 패키지 (추출 레이어 / 지식 레이어 분리)
+     - Q2: navigate_tree는 WikiEvent X → extractor의 ingest-time function, ModelHandle(@wiki-core/router) 재사용
+     - Q3: 혼용 → plugin 책임, `ExtractStrategy` 유니온(tree/vector/hybrid) 표준화
+  4. 4자 검증 응답 수렴 — 설계 방향 채택 권고. ContentRange 유니온 수정 (루터 제안, 4자 동의). HWP 해소.
+  5. ContentRange 유니온 *완전 채택* (4도메인 포맷 동시 발생 → 일반화 가치 충분)
+  6. `packages/extractor/` 박제 — SPEC + types + navigate + hybrid + index + package.json + tsconfig.json
+  7. 루트 tsconfig.json + scripts/pack-dist.mjs 갱신 (5 패키지)
+  8. tsc -b 통과 검증
+- 산출물 commit: 다음 commit (Mercury 22차 박제)
+- **핵심 박제**:
+  - `ContentRange` 유니온 (`page`/`section`/`offset`) — PDF × 3 + Markdown × 1 공존
+  - `navigateTree(tree, query, model, pageReader)` — structured prompt LLM 탐색 루프
+  - `hybridExtract(strategy, query, rootNode?)` — tree + vector 혼용
+  - `source_ref` 연결 패턴 — `start_page`/`end_page` 필드명 ContentRange.page 타입과 통일
+- 행동 원칙 정합:
+  - #1 도메인 작업 거부 — extractor 타입/코드 일체 도메인 어휘 0건 (doc_id / node_id / pageReader 등 중립 이름)
+  - #2 인터페이스 합의 → 구현 — 4자 검증 통과 후 코드 박제 (순서 준수)
+  - #3 공통점 검증 의무 — 4 도메인 공동 유스케이스 확인 후 패키지화 결정
+  - #5 YAGNI — 코드는 검증된 패턴만 (navigateTree structured prompt / hybridExtract 라우팅). 가설 박제 X
+- 다음 입력 대기: 4 도메인 `@wiki-core/extractor` SPEC 검증 결과 (Phase 3-A 형태)
+
+### 다음 작업 후보 (Mercury 23차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **enroute Phase 4-A 합류 결과 검증** — rootric precedent 트랩 5종 (A.6 일반화 / A.11~A.15) 적용 확인. enroute Vercel 미사용이라 A.11~A.15 영향 0 가능성 명시 보고만 필요 | 도메인 owner trigger | 신규 |
-| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. 기존 "공모전 후" → 더 늦어짐 (pharmacy W4 + stock Phase 4 + label/finance → 통합앱 Phase 2). A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
+| 1 | **extractor SPEC 4자 검증** — ContentRange/navigateTree/hybridExtract 인터페이스가 각 도메인 pageReader 환경과 실제 정합하는지 확인 | 도메인 owner trigger | 신규 |
+| 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 4 | enroute Phase 4-B/C/D 후속 (anon-key RLS smoke / ingestText / backfill / legacy archive) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 5 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive, 별도 sub-package 가능 | 4-6h | 신규 (보류) |
+| 4 | enroute Phase 4-B/C/D 후속 — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
+| 5 | 5/14 PoC 후 온톨로지 정식 트랙 진입 — 3 명세서 §11 통합 비교 + 4 신호 영역 결정 (Rule entity / 다이내믹 / W3C / Neuro-Symbolic) | 5/14 PoC 후 trigger | 신규 |
+| 6 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — enroute Phase 4-A 검증 보고 / plott 합류 신호 도착 여부 확인
+2. `docs/domain_feedback_log.md` 정독 — extractor SPEC 4자 검증 결과 / plott 합류 신호 도착 여부 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
-4. 5/14 PoC 후 — rootric + enroute Section 11 통합 비교 트랙 진입. `docs/ontology_layer_comparison.md` §7 + `docs/domain_feedback_log.md` Mercury 21차 박스 정독.
+4. 온톨로지 정식 트랙 — `docs/ontology_layer_comparison.md` §7 + Mercury 21차 박스 정독 후 3 명세서 §11 통합 비교.
 
 ---
 

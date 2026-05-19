@@ -1063,3 +1063,66 @@ ERR_PNPM_NO_LOCKFILE
 4. 머큐리 단독 결정 박제 → 3 도메인 owner 검증 5단계 protocol (`edward_collaboration.md` §7.1)
 
 **5/14 PoC 일정 보호**: 코어 변경은 PoC 데이터 정확도와 무관. 5/14 후 진입이 안전 (3 도메인 모두 동의).
+
+---
+
+## Mercury 22차 — DocumentTree / navigate_tree 설계 결정 + `@wiki-core/extractor` 박제 — 2026-05-19
+
+### 입력
+
+로고스(rootric) · 루터(enroute) · 플로터(plott) · CroNode **4자 공동 요청** (에드워드 경유):
+PDF·공시·고시·아카이브 등 계층 구조 문서에서 정보를 추출하는 유스케이스 3가지 질문.
+
+| 질문 | 내용 |
+|---|---|
+| Q1 | 트리 노드를 기존 4요소로 표현 가능한지? |
+| Q2 | navigate_tree Action이 기존 Action 패턴에 맞는지? |
+| Q3 | 벡터 RAG + DocumentTree 혼용 수용 가능한지? |
+
+### 머큐리 설계 결정
+
+| 결정 | 내용 |
+|---|---|
+| Q1 | 불가. `@wiki-core/extractor` 신규 패키지. 4요소는 지식 그래프, DocumentTree는 추출 과정 중간 구조물 — 레이어 분리 |
+| Q2 | 불가. WikiEvent X. extractor 패키지의 ingest-time function. ModelHandle(@wiki-core/router 재사용) 기반 structured prompt 루프 |
+| Q3 | 가능. plugin 책임. extractor가 `ExtractStrategy` 유니온(tree/vector/hybrid) 표준화 |
+
+### 4자 검증 응답 수렴
+
+| 항목 | 상태 | 내용 |
+|---|---|---|
+| extractor 분리 레이어 | ✅ 4자 동의 | 설계 방향 채택 권고 |
+| ContentRange 유니온 수정 | ✅ 4자 동의 | PageRange → ContentRange (page/section/offset 3종) — 루터 제안 |
+| HWP 포맷 — extractor 변경 여부 | ✅ 해소 | pageReader plugin 완전 책임 → extractor 인터페이스 변경 0건. plott FastAPI + python-hwp 래핑 |
+| source_ref 필드명 통일 | ✅ 제안 전달 | start_page/end_page — ContentRange.page 타입과 일치 |
+
+### 머큐리 단독 결정 — ContentRange 유니온 채택
+
+루터 수정 제안 (4자 동의) **완전 채택** (Mercury 17차 A.6 일반화 패턴 동일):
+- 근거: 4개 도메인 포맷 동시 발생 (PDF × 3 + Markdown × 1) → 유니온 표준화 가치 충분
+- 코어 인터페이스 변경 0건 (신규 패키지 additive)
+
+### 박제 산출물
+
+| 파일 | 내용 |
+|---|---|
+| `packages/extractor/SPEC.md` | 추출 레이어 설계 — ContentRange 유니온 + DocumentNode/Tree + navigateTree + ExtractStrategy + source_ref 연결 + 4도메인 예시 |
+| `packages/extractor/src/types.ts` | ContentRange / DocumentNode / DocumentTree / NavigateResult / ExtractStrategy 타입 |
+| `packages/extractor/src/navigate.ts` | `navigateTree()` — structured prompt LLM 계층 탐색 |
+| `packages/extractor/src/hybrid.ts` | `hybridExtract()` — tree + vector 혼용 라우터 |
+| `packages/extractor/src/index.ts` | public API |
+| `packages/extractor/package.json` | `@wiki-core/extractor` 0.1.0 |
+| `packages/extractor/tsconfig.json` | composite + core + router 참조 |
+| `tsconfig.json` (루트) | extractor references 추가 |
+| `scripts/pack-dist.mjs` | 5 패키지로 갱신 (core/storage/router/renderer/**extractor**) |
+
+tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/renderer) 변경 0건.
+
+### 다음 입력 대기
+
+| 도메인 | 다음 trigger |
+|---|---|
+| rootric (로고스) | `@wiki-core/extractor` 합류 검증 (Phase 3-A 형태 — SPEC + pageReader 인터페이스 정합 확인) |
+| enroute (루터) | 동일. hybrid 전략 `selector` 패턴 실 환경 적용 확인 |
+| plott (플로터) | 통합앱 Phase 2 합류 시점 함께 진입 (기존 스케줄 그대로) |
+| CroNode | rootric precedent 참조 (PDF page 타입 동일) |

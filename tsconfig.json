@@ -4,6 +4,7 @@
     { "path": "./packages/core" },
     { "path": "./packages/storage" },
     { "path": "./packages/router" },
-    { "path": "./packages/renderer" }
+    { "path": "./packages/renderer" },
+    { "path": "./packages/extractor" }
   ]
 }
