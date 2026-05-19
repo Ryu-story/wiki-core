@@ -490,11 +490,29 @@
   - #5 YAGNI — 코드는 검증된 패턴만 (navigateTree structured prompt / hybridExtract 라우팅). 가설 박제 X
 - 다음 입력 대기: 4 도메인 `@wiki-core/extractor` SPEC 검증 결과 (Phase 3-A 형태)
 
-### 다음 작업 후보 (Mercury 23차+)
+### Mercury 23차 (2026-05-19 — extractor Phase 3-A 검증 완료 + GitNexus 판단)
+
+- **상태: `@wiki-core/extractor` Phase 3-A 4자 검증 완료. GitNexus wiki-core 인덱싱 불필요 결정. 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. 로고스 45차 결과 에드워드 경유 인계 — pageReader ContentRange 연결 / hybridExtract selector 패턴 / rootric plugin 위치 (`lib/wiki/extractor-plugin.ts`) 4자 검증 통과
+  2. GitNexus 설치 현황 공유 (plott / rootric / rootric-crawler 인덱싱 완료) + wiki-core 설치 필요 여부 질문
+  3. 머큐리 단독 결정 — wiki-core 인덱싱 현재 불필요:
+     - src 파일 ~23개 소규모 → Glob/Grep/Read 충분
+     - 주 작업이 docs/ 마크다운 (GitNexus = 코드 그래프 전용)
+     - 재검토 시점: 패키지 6+ 이상 또는 Phase 5+ 코드 복잡도 상승 시
+  4. 박제 — `docs/domain_feedback_log.md` Mercury 22차 후속 섹션 + 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 23차 박제)
+- 핵심 박제: **extractor Phase 3-A stable** — 코어 인터페이스 변경 요청 0건. rootric `lib/wiki/extractor-plugin.ts` Phase 3-B 구현 대기.
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — SPEC 4자 검증 통과 후 Phase 3-B 진입 (순서 준수)
+  - #5 YAGNI — GitNexus 인덱싱 보류. 현재 규모에서 추가 도구 도입 불필요.
+- 다음 입력 대기: rootric `lib/wiki/extractor-plugin.ts` Phase 3-B 구현 결과 / enroute hybrid 전략 실 환경 구현 결과 / plott 통합앱 Phase 2 합류 신호
+
+### 다음 작업 후보 (Mercury 24차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **extractor SPEC 4자 검증** — ContentRange/navigateTree/hybridExtract 인터페이스가 각 도메인 pageReader 환경과 실제 정합하는지 확인 | 도메인 owner trigger | 신규 |
+| 1 | **extractor Phase 3-B** — rootric `lib/wiki/extractor-plugin.ts` 구현 결과 수렴 + enroute hybrid 전략 실 환경 검증 | 도메인 owner trigger | 신규 |
 | 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | enroute Phase 4-B/C/D 후속 — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
@@ -504,9 +522,9 @@
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — extractor SPEC 4자 검증 결과 / plott 합류 신호 도착 여부 확인
+2. `docs/domain_feedback_log.md` 정독 — rootric extractor-plugin Phase 3-B 결과 / enroute hybrid 실 환경 결과 / plott 합류 신호 도착 여부 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
-4. 온톨로지 정식 트랙 — `docs/ontology_layer_comparison.md` §7 + Mercury 21차 박스 정독 후 3 명세서 §11 통합 비교.
+4. 온톨로지 정식 트랙 — `docs/ontology_layer_comparison.md` §7 + Mercury 21차 박스 정독 후 3 명세서 §11 통합 비교 (5/14 PoC 이미 경과, 에드워드 신호 대기).
 
 ---
 

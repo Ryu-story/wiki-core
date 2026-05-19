@@ -1126,3 +1126,39 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 | enroute (루터) | 동일. hybrid 전략 `selector` 패턴 실 환경 적용 확인 |
 | plott (플로터) | 통합앱 Phase 2 합류 시점 함께 진입 (기존 스케줄 그대로) |
 | CroNode | rootric precedent 참조 (PDF page 타입 동일) |
+
+---
+
+## Mercury 22차 후속 — Phase 3-A 검증 완료 (4자) — 2026-05-19
+
+### 입력
+
+로고스 45차 결과 에드워드 경유 인계.
+
+| 항목 | 상태 | 내용 |
+|---|---|---|
+| pageReader ContentRange 연결 | ✅ 4자 | 각 도메인 환경(PyMuPDF / FastAPI / python-hwp / Markdown) 연결 정합 |
+| hybridExtract selector 패턴 | ✅ 4자 | 각 도메인 유스케이스 커버 |
+| rootric plugin 구현 위치 | ✅ 로고스 | `lib/wiki/extractor-plugin.ts` 확정. `factsheet_ingest_pipeline.md` PageIndex 섹션 박제 (commit `8c466e5`) |
+
+### 머큐리 단독 결정 — Phase 3-A 완료 합의
+
+`@wiki-core/extractor` SPEC + 코드 stable. 코어 인터페이스 변경 요청 0건. 검증 결과 박제.
+
+### GitNexus wiki-core 설치 여부 — 불필요 (현재)
+
+로고스 경유 GitNexus 설치 현황 공유 수신 (plott/rootric/rootric-crawler 인덱싱 완료).
+머큐리 단독 결정 — **wiki-core 인덱싱 현재 불필요**:
+- wiki-core src 파일 ~23개 (소규모) — Glob/Grep/Read 충분
+- Mercury 주 작업이 docs/ 마크다운 (GitNexus = 코드 그래프 전용)
+- 도메인 의존 추적은 이미 인덱싱된 3 도메인 repo에서 가능
+- **재검토 시점**: 패키지 6+ 이상 또는 Phase 5+ 코드 복잡도 상승 시
+
+### 다음 입력 대기
+
+| 도메인 | 다음 trigger |
+|---|---|
+| rootric (로고스) | `lib/wiki/extractor-plugin.ts` 1차 구현 결과 (Phase 3-B) |
+| enroute (루터) | hybrid 전략 실 환경 구현 결과 |
+| plott (플로터) | 통합앱 Phase 2 합류 시점 (기존 스케줄 그대로) |
+| CroNode | rootric precedent 참조 후 진입 신호 |
