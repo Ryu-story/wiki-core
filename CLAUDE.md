@@ -557,15 +557,17 @@
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | enroute Phase 4-B/C/D 후속 — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 5 | 온톨로지 정식 트랙 진입 — **4 도메인** (rootric/plott/enroute/finmix) §11 통합 비교 + 신호 영역 결정 (Rule entity / 다이내믹 / W3C / Neuro-Symbolic / M2 도구노출 / M5 feedback 로그) | 에드워드 trigger (5/14 PoC 경과) | 신규 |
-| 7 | finmix M1 벡터 plugin ext 실 구현 결과 수렴 — `searchSimilar?` 코어 승격 검토 1차 trigger | 도메인 owner trigger | 신규 |
-| 6 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive | 4-6h | 신규 (보류) |
+| 6 | **M1 `searchSimilar?` 승격 협의** — plott 합류 (= 2번째 실 구현) 도착 시 진입. 계약 설계 제약 3건 사전 박제 완료 (`abstraction_decision.md` §5 M1 행) | plott 합류 trigger | Mercury 25차 박제 |
+| 7 | finmix M2 pull 도구 구현 결과 수렴 — 온톨로지 트랙 입력 보강 | 도메인 owner trigger | 신규 |
+| 8 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
 
 1. `git pull` → `git log --oneline -10` → 이 CLAUDE.md 정독
-2. `docs/domain_feedback_log.md` 정독 — rootric extractor-plugin Phase 3-B 결과 / enroute hybrid 실 환경 결과 / plott 합류 신호 도착 여부 확인
+2. `docs/domain_feedback_log.md` 정독 (Mercury 25차 "다음 입력 대기" 표가 최신) — plott 합류 신호 (★ M1 승격 협의 trigger) / enroute hybrid 실 환경 결과 / finmix M2 결과 / rootric 재개 신호 확인
 3. 결과 보고 도착 → 검증 응답 박제 + 신규 트랩 발생 시 부록 A-2 박제. 미도착 → 대기 유지.
-4. 온톨로지 정식 트랙 — `docs/ontology_layer_comparison.md` §7 + Mercury 21차 박스 정독 후 3 명세서 §11 통합 비교 (5/14 PoC 이미 경과, 에드워드 신호 대기).
+4. 온톨로지 정식 트랙 — `docs/ontology_layer_comparison.md` §7 (§7.5 finmix 포함) 정독 후 4 도메인 §11 통합 비교 (에드워드 신호 대기).
+5. rootric stop 유의 — 본문 결정 동결, ext 운영 당사자만 피닉스 대행 (Mercury 24차 후속 박제 참조).
 
 ---
 
