@@ -529,12 +529,13 @@
   - #3 공통점 검증 의무 — M2 "모든 도메인 공통" 주장 cross-check 미완 → 단독 선행 결정 X, 트랙 등재
   - #5 YAGNI — 실 구현 0건 + 제안 도메인 스스로 "후속/충분" 평가 → 보류. 가설 박제 X
 - 다음 입력 대기: finmix M1 plugin ext 실 구현 결과 (승격 검토 1차 trigger) / 기존 4 대기 신호 유지
+- **후속 (같은 날)**: 에드워드 통보 — **rootric 당분간 stop**. 피닉스가 `rootric_provenance_ext` *운영 당사자* 역할 대행 (M4 협의 상대). 단 rootric 도메인 *본문* 결정 권한은 대행 X — extractor-plugin Phase 3-B 동결, 로고스 재개 시 stop 기간 결정 retroactive 검증 가능 (충돌 방지 안전선). `docs/domain_feedback_log.md` Mercury 24차 후속 참조.
 
 ### 다음 작업 후보 (Mercury 24차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
 |---|---|---|---|
-| 1 | **extractor Phase 3-B** — rootric `lib/wiki/extractor-plugin.ts` 구현 결과 수렴 + enroute hybrid 전략 실 환경 검증 | 도메인 owner trigger | 신규 |
+| 1 | **extractor Phase 3-B** — rootric `lib/wiki/extractor-plugin.ts` 구현 결과 수렴 (**rootric stop 으로 동결, 로고스 재개 시**) + enroute hybrid 전략 실 환경 검증 | 도메인 owner trigger | 신규 |
 | 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | enroute Phase 4-B/C/D 후속 — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
@@ -555,7 +556,7 @@
 
 | 도메인 | 페르소나 | 위치 |
 |---|---|---|
-| rootric | 로고스 | `c:/Users/woori/rootric/CLAUDE.md` (팩트시트 마지막 세션) |
+| rootric | 로고스 | `c:/Users/woori/rootric/CLAUDE.md` — **당분간 stop (2026-06-11~)**. `rootric_provenance_ext` 운영 당사자 역할만 피닉스 대행, 본문 결정 권한 동결 |
 | plott | 플로터 | `c:/Users/woori/Desktop/개인/develop/plott/plott-wiki/CLAUDE.md` |
 | enroute | 루터 | `c:/Users/woori/Desktop/개인/develop/enroute/CLAUDE.md` |
 | finmix | 피닉스 | `c:/Users/woori/Desktop/개인/develop/finmix/` (Mercury 24차 합류 — 머큐리 수신 doc은 `docs/wiki_core_notices/`) |

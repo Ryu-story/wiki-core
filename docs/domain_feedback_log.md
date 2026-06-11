@@ -1212,3 +1212,23 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 | finmix (피닉스) | M1 벡터 plugin ext 실 구현 결과 (§3.2 패턴) — 승격 검토 1차 trigger / M3-M5 plugin 자체 구현 시 결과 공유 |
 | CroNode | rootric precedent 참조 후 진입 신호 |
 | 온톨로지 정식 트랙 | 에드워드 진입 신호 — 이제 **4 도메인** §11 통합 비교 (M2/M5 입력 추가) |
+
+### Mercury 24차 후속 — rootric stop + 피닉스 당사자 대행 (2026-06-11)
+
+에드워드 통보: **rootric 당분간 stop**. M4 (confidence 승격) 등 `rootric_provenance_ext` 관련 당사자 역할은 **피닉스가 대행**.
+
+머큐리 박제 — 대행 범위 경계 명시:
+- **피닉스 대행 O**: 공유 ext 테이블 (`rootric_provenance_ext.strength`) 의 *운영 당사자* 역할 — M4 승격 협의 시 협의 상대, 해당 ext 스키마 실사용 검증 응답
+- **피닉스 대행 X**: rootric 도메인 *본문* 결정 권한 (명세서 / rootric plugin / extractor-plugin Phase 3-B) — 로고스 재개 시까지 동결. 재개 시 stop 기간 결정 사항을 로고스가 retroactive 검증 가능 (충돌 방지 안전선)
+- 대기 신호 변경: rootric `lib/wiki/extractor-plugin.ts` Phase 3-B → **동결 (로고스 재개 시 재개)**. M4 신호의 2 도메인 실사용 사실은 유효 (운영 주체가 피닉스로 단일화되어도 *두 도메인 데이터*가 같은 필드 사용하는 사실 불변)
+
+### 다음 입력 대기 (갱신)
+
+| 도메인 | 다음 trigger |
+|---|---|
+| rootric (로고스) | **stop — Phase 3-B 동결. 재개 신호 대기** |
+| finmix (피닉스) | M1 벡터 plugin ext 실 구현 결과 (승격 검토 1차 trigger) + M4 협의 당사자 대행 |
+| enroute (루터) | hybrid 전략 실 환경 구현 결과 |
+| plott (플로터) | 통합앱 Phase 2 합류 시점 (기존 스케줄 그대로) |
+| CroNode | rootric precedent 참조 후 진입 신호 |
+| 온톨로지 정식 트랙 | 에드워드 진입 신호 — 4 도메인 §11 통합 비교 (rootric §11 은 기 박제 자료로 참여, owner 응답은 피닉스 경유 불가 — 코어 영향 결정만 진행, rootric 본문 영향 결정은 로고스 재개 후) |
