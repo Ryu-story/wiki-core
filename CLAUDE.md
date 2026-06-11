@@ -531,6 +531,23 @@
 - 다음 입력 대기: finmix M1 plugin ext 실 구현 결과 (승격 검토 1차 trigger) / 기존 4 대기 신호 유지
 - **후속 (같은 날)**: 에드워드 통보 — **rootric 당분간 stop**. 피닉스가 `rootric_provenance_ext` *운영 당사자* 역할 대행 (M4 협의 상대). 단 rootric 도메인 *본문* 결정 권한은 대행 X — extractor-plugin Phase 3-B 동결, 로고스 재개 시 stop 기간 결정 retroactive 검증 가능 (충돌 방지 안전선). `docs/domain_feedback_log.md` Mercury 24차 후속 참조.
 
+### Mercury 25차 (2026-06-11 — finmix M1 실 구현 수렴 + 카운트 판정 + searchSimilar? 계약 제약 사전 박제)
+
+- **상태: 피닉스 M1 벡터 plugin ext 실 구현 보고 수렴 (실 데이터 end-to-end 검증 통과). 카운트 판정 — finmix = 1번째 (2번째 등재 요청 정정). 승격 협의 미진입. 계약 설계 제약 3건 + 가이드 patch 2건 박제. 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. 피닉스 보고 정독 — claim-target ext / HNSW / gemini-embedding-001@1536 + L2 정규화 / 검색 RPC / 실 데이터 검증
+  2. 머큐리 단독 결정 ① — 카운트 판정: plott `wiki_embeddings` 는 pre-wiki-core legacy = 계약 검증 구현 X → finmix 가 **1번째**. 2+ 조건 미충족, 승격 협의 진입 X (2번째 = plott 합류 시 예상)
+  3. 머큐리 단독 결정 ② — 신호 3건 `searchSimilar?` 계약 설계 제약으로 사전 박제 (초안 작성은 X): target_kind 추상화 (plott/finmix 실제 발산 = 양면 신호, WikiProvenance 패턴 동형) / model 차원 확정 / taskType 은 provider 종속 → hint 강등
+  4. 머큐리 단독 결정 ③ — 가이드 patch 2건: §3.2.1 finmix 변형 precedent (claim-target/HNSW/model 컬럼) + 부록 A-2 A.16 (MRL 절단 L2 정규화 트랩)
+  5. 박제 — `phase4_plugin_guide.md` §3.2.1 + A.16 / `abstraction_decision.md` §5 M1 행 갱신 / `domain_feedback_log.md` Mercury 25차 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 25차 박제)
+- 핵심 박제: **finmix 구현이 §3.2 패턴과의 발산 (attribute vs claim) 을 실제로 드러냄 = 2+ 룰의 가치 증명**. 지금 계약을 얼리면 같은 실수 반복 — 제약만 박제하고 형태 결정은 2번째 실 구현 후.
+- 행동 원칙 정합:
+  - #2 — 승격 초안 보류, 제약 사전 박제만. 계약 협의는 2번째 실 구현 후
+  - #3 — "2번째" 등재 요청 정정 (legacy ≠ 계약 검증 구현). 발산 신호는 양면 인정
+  - #5 — 가이드 patch 는 실 구현 검증 통과분만. taskType 은 provider 종속 확인 후 hint 강등
+- 다음 입력 대기: plott 합류 (= M1 2번째 실 구현, 승격 협의 진입 trigger) / finmix M2 pull 도구 구현 결과 / 기존 신호 유지
+
 ### 다음 작업 후보 (Mercury 24차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |

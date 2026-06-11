@@ -722,6 +722,18 @@ CREATE TABLE plott_attribute_ext (
 CREATE INDEX plott_attribute_ext_embedding_idx ON plott_attribute_ext USING ivfflat (embedding vector_cosine_ops);
 ```
 
+#### 3.2.1 finmix 변형 precedent — claim-target 임베딩 + HNSW (Mercury 25차 박제, 실 구현 검증 통과)
+
+finmix 가 이 §3.2 패턴 기반으로 **첫 wiki-core plugin ext 벡터 실 구현** 완료 (2026-06-11, 실 데이터 의미검색 end-to-end 검증). plott 패턴과의 의도된 발산 3건 — 후속 도메인 선택 기준:
+
+| 항목 | plott 패턴 (위) | finmix 변형 | 선택 기준 |
+|---|---|---|---|
+| 임베딩 대상 | `wiki_attributes` row | 도메인 claim 테이블 row (`finmix_claim_ext`) | **임베딩 대상 노드는 도메인 자유** — 의미검색 단위가 도메인마다 다름 (숫자 속성 vs 텍스트 claim). 코어 강제 X |
+| 인덱스 | ivfflat | **HNSW** (`vector_cosine_ops`) | 빈 테이블 → 증분 적재 환경이면 HNSW 권장 (ivfflat lists 재튜닝 불필요, pgvector 0.8+). 대량 일괄 적재 후 고정이면 ivfflat 도 OK |
+| 모델 메타 | (없음) | `model` 컬럼 (`gemini-embedding-001@1536`) 고정 검증 | **권장 기본값** — 벡터 모델 간 비호환이라 mixing 차단 필수. 모델 교체 = 전체 재임베딩 |
+
+검색 RPC 패턴: `<domain>_search_*(query_embedding, match_count, filter?)` — cosine + 노드 JOIN 반환 (finmix `finmix_search_claims` 참조).
+
 ### 3.3 마이그레이션 어댑터 패턴
 
 기존 row → 코어 row + extension row 동시 작성. plugin `provenanceExtension` / `onAttributeWrite` hook 에서 처리:
@@ -1229,7 +1241,21 @@ ERR_PNPM_NO_LOCKFILE
 - AI 비용 가드 (`ai_cost_log` 테이블 + 일일 호출 limit) — 5월 ingest 본격화 전 안전망
 - ★★★ KPI 4종 본문 큐레이션 (5/14 빅토르 데드라인, 10h)
 
+### A.16 MRL 절단 임베딩 비정규화 트랩 — L2 정규화 필수 (Mercury 25차 박제 — 피닉스 발견, plugin 영역 자체 처리)
+
+**증상**: `gemini-embedding-001` 에 `outputDimensionality` 로 차원 절단 (예: 3072 → 1536) 시 반환 벡터가 **비정규화** 상태 — cosine 유사도 검색 품질이 조용히 저하 (에러 없음).
+
+**원인**: MRL (Matryoshka Representation Learning) 절단분은 norm 이 1이 아님. full-dimension 출력만 정규화 보장.
+
+**해결**: 절단 차원 사용 시 적재·질의 양쪽 모두 **L2 정규화 후 저장/비교**. finmix `lib/wiki/embedding.mjs` provider 에서 처리.
+
+**부수 권장 (같은 구현에서 검증)**:
+- `model` 태그 컬럼 (`<model>@<dim>`) 으로 mixing 차단 — 벡터 모델 간 비호환
+- 적재 `RETRIEVAL_DOCUMENT` vs 질의 `RETRIEVAL_QUERY` taskType 구분 (Gemini/Cohere 계열) — 품질 기여. OpenAI 계열은 해당 개념 없음 (provider 종속)
+
+**적용 도메인**: Gemini embedding + 차원 절단 조합을 쓰는 모든 도메인 재발 확실. plott (1536 사용 예정) 합류 시 사전 적용 권장. 코어 인터페이스 변경 X — plugin provider 영역.
+
 ---
 
-**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차) / A.14 + wiki-core public 전환 — 2026-05-01 (Mercury 18차) / A.15 Vercel function timeout (plugin 영역 자체 처리) — 2026-05-01 (Mercury 19차)**
+**작성 — 2026-04-28 (Mercury 7차) / enroute precedent 박스 + 트랩 5종 추가 — 2026-04-30 (Mercury 12차) / A.11 + §0-pre.1 (a) submodule 박스 추가 — 2026-04-30 (Mercury 14차) / A.12·A.13 + (a) submodule 박스 정정 (preinstall + npx pnpm) — 2026-04-30 (Mercury 15차) / A.14 + wiki-core public 전환 — 2026-05-01 (Mercury 18차) / A.15 Vercel function timeout (plugin 영역 자체 처리) — 2026-05-01 (Mercury 19차) / §3.2.1 finmix 변형 precedent + A.16 MRL L2 정규화 — 2026-06-11 (Mercury 25차)**
 **다음 액션**: enroute Phase 4-A 합류 결과 검증 (rootric precedent 트랩 5종 적용 확인). plott 합류는 enroute precedent 후속 검증 통과 후 (또는 도메인 owner 합의).

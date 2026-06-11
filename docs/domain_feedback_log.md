@@ -1232,3 +1232,56 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 | plott (플로터) | 통합앱 Phase 2 합류 시점 (기존 스케줄 그대로) |
 | CroNode | rootric precedent 참조 후 진입 신호 |
 | 온톨로지 정식 트랙 | 에드워드 진입 신호 — 4 도메인 §11 통합 비교 (rootric §11 은 기 박제 자료로 참여, owner 응답은 피닉스 경유 불가 — 코어 영향 결정만 진행, rootric 본문 영향 결정은 로고스 재개 후) |
+
+---
+
+## Mercury 25차 — finmix M1 벡터 plugin ext 실 구현 보고 수렴 — 2026-06-11
+
+### 입력
+
+피닉스 M1 구현 완료 보고 (`finmix/docs/wiki_core_notices/2026-06-11_finmix_to_mercury_M1_implemented.md`). Mercury 24차 회신 당일 구현.
+
+| 항목 | 내용 |
+|---|---|
+| ext 테이블 | `study.finmix_claim_ext.embedding VECTOR(1536)` — **claim 대상** (plott attribute 패턴과 의도된 발산) |
+| write | `upsertClaimEmbedding()` + ON CONFLICT UPDATE (§3.2 패턴 동일, 호출 지점만 상이) |
+| 인덱스 | **HNSW** (ivfflat 대신 — 증분 적재 시 lists 재튜닝 불필요, 의도적 개선) |
+| 모델 | `gemini-embedding-001@1536` + **L2 정규화** (MRL 절단분 비정규화 트랩 발견) + `model` 컬럼 고정 검증 |
+| 검색 | `finmix_search_claims(query_embedding, match_count, p_ticker)` RPC — cosine + JOIN |
+| 검증 | 실 데이터 claim 3건 의미검색 — 질의 의도별 랭킹 역전 확인, end-to-end 통과 |
+
+승격 협의 신호 3건 동봉: ① 임베딩 대상 도메인별 상이 → target_kind 추상화 ② model 태그 필수 ③ taskType 비대칭. + "2번째 도메인 실 구현 등재" 요청.
+
+### 머큐리 단독 결정 3건
+
+**① 실 구현 카운트 판정 — finmix = 1번째 (2번째 X, 등재 요청 정정)**
+- plott `wiki_embeddings` 는 pre-wiki-core legacy 자산 + §3.2 는 매핑 *계획* (plott 미합류) — 코어 계약을 검증하는 구현이 아님
+- 2+ 조건의 목적 = 한 계약 형태가 복수 도메인에 맞는지 cross-check (행동 원칙 #3). 1 실 구현 + 1 계획으로는 미충족
+- **승격 협의 진입 X.** 2번째 실 구현 (plott 합류 시 예상) 도착 시 진입. finmix 구현이 이미 §3.2와 발산 (attribute vs claim) 을 드러냈다는 점이 바로 2+ 룰의 가치 증명 — 지금 초안을 얼리면 같은 실수 반복
+
+**② 신호 3건 — `searchSimilar?` 계약 설계 제약으로 사전 박제 (완전 채택, 단 초안 작성 X)**
+- ① target_kind 추상화 — plott(attribute) vs finmix(claim) *실제 발산* = 양면 신호. `WikiProvenance` 의 `(target_kind, target_id)` 기존 패턴과 동형 설계 자연. 단 코어 `TargetKind` 는 4요소 union (`types.ts:23`) — 도메인 테이블 대상 포함 여부는 초안 시점 결정 사항으로 명시
+- ② model 차원 — 도메인 무관 본질 (벡터 모델 비호환). 계약 포함 확정
+- ③ taskType — provider 종속 (Gemini/Cohere O, OpenAI X) → optional hint 수준으로 강등 박제
+- 박제 위치: `abstraction_decision.md` §5 Phase 5+ M1 행
+
+**③ 가이드 patch 2건 (검증된 precedent — 완전 채택)**
+- §3.2.1 신설 — finmix 변형 precedent (claim-target / HNSW / model 컬럼) + 후속 도메인 선택 기준 표
+- 부록 A-2 **A.16** 신설 — MRL 절단 임베딩 L2 정규화 트랩 (Gemini + 차원 절단 조합 재발 확실, plott 합류 시 사전 적용 권장)
+
+### 행동 원칙 정합
+
+- #2 인터페이스 합의 → 구현 — 승격 초안 작성 보류. 제약 조건만 사전 박제, 계약 형태 결정은 2번째 실 구현 후 협의
+- #3 공통점 검증 의무 — "2번째" 등재 요청 정정이 핵심: legacy 자산 ≠ 계약 검증 구현. 단 발산 신호 자체는 양면 인정
+- #5 YAGNI — 가이드 patch 는 실 구현 검증 통과분만. taskType 은 provider 종속 확인 후 hint 강등
+
+### 다음 입력 대기 (갱신)
+
+| 도메인 | 다음 trigger |
+|---|---|
+| finmix (피닉스) | M2 pull 도구 구현 시 결과 공유 (M2 트랙 입력 보강) / M4 협의 당사자 대행 유지 |
+| plott (플로터) | 통합앱 Phase 2 합류 — **M1 2번째 실 구현 = 승격 협의 진입 trigger** (§3.2.1 + A.16 사전 적용 권장) |
+| enroute (루터) | hybrid 전략 실 환경 구현 결과 |
+| rootric (로고스) | stop — 재개 신호 대기 |
+| CroNode | rootric precedent 참조 후 진입 신호 |
+| 온톨로지 정식 트랙 | 에드워드 진입 신호 — 4 도메인 §11 통합 비교 |

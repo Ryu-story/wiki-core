@@ -227,7 +227,7 @@ datastrate 블로그 3편 (Palantir 3 레이어 + Semantic Layer + 온톨로지 
 
 | Tier | 항목 | 적용 시점 |
 |---|---|---|
-| **A** | 벡터 retrieval 코어 승격 (M1) — `StorageAdapter.searchSimilar?` optional 메서드 + `capabilities().vector` 활용. plugin 경로는 가이드 §3.2 박제 완료 (plott precedent) | **2+ 도메인 plugin ext 실 구현 검증 후** (현재 0건 — plott 미합류 / finmix 후속) |
+| **A** | 벡터 retrieval 코어 승격 (M1) — `StorageAdapter.searchSimilar?` optional 메서드 + `capabilities().vector` 활용. plugin 경로는 가이드 §3.2 + §3.2.1 박제 완료. **계약 설계 제약 3건 사전 박제 (Mercury 25차 — finmix 실 구현 발)**: ① 임베딩 대상 노드 도메인별 상이 (plott=attribute / finmix=claim) → `(target_kind, target_id)` 추상화 필수, `WikiProvenance` 기존 패턴과 동형. 단 코어 `TargetKind` 는 4요소 union — 도메인 테이블 대상은 확장 또는 plugin 매핑, 초안 시점 결정 ② `model` 차원 계약 포함 (`<model>@<dim>` — 벡터 모델 비호환) ③ taskType (DOCUMENT/QUERY) 은 provider 종속 → optional hint 수준 | **2+ 도메인 실 구현 검증 후** (현재 **1건 — finmix ✅** 2026-06-11 실 데이터 검증 통과. plott legacy `wiki_embeddings` 는 pre-wiki-core 자산이라 카운트 X — 2번째는 plott 합류 시 예상) |
 | **A** | confidence/strength 코어 provenance 승격 (M4) — ★ rootric + finmix 양면 *실사용* 발생 (`rootric_provenance_ext.strength` 공유) = 승격 가치 상승 신호 | 3번째 도메인 수요 또는 owner 명시 요청 시 (현재 양 도메인 모두 변경 요청 X) |
 | **B** | TTL/freshness capability (M3) — `capabilities().ttl` 예약 유지. 자동만료 *집행* 정책 도메인별 상이 → 의도된 분산 (`valid_at/valid_until` 코어 + `expires_at` ext) | 2+ 도메인 신호 시 (현재 finmix 1건) |
 
