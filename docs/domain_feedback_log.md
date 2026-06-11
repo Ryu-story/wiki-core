@@ -1162,3 +1162,53 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 | enroute (루터) | hybrid 전략 실 환경 구현 결과 |
 | plott (플로터) | 통합앱 Phase 2 합류 시점 (기존 스케줄 그대로) |
 | CroNode | rootric precedent 참조 후 진입 신호 |
+
+---
+
+## Mercury 24차 — finmix(피닉스) 코어 검토 제안 M1-M5 수렴 — 2026-06-11
+
+### 입력
+
+신규 도메인 **finmix (페르소나: 피닉스)** 의 첫 코어 검토 제안 도착 (에드워드 경유, finmix repo `docs/wiki_core_notices/2026-06-11_finmix_to_mercury_context_architecture.md`).
+근거: 외부 자료 5건 리서치 (byline "AI-ready 시맨틱 레이어" / venturebeat "context architecture가 RAG 대체" / digitalbourgeois 3편).
+성격: 검토 *제안* (요구 아님) — 코어 변경 머큐리 단독 권한 + finmix는 plugin만 작성 명시. 5단계 protocol 정합 ✅.
+
+| # | 제안 | finmix 자체 평가 |
+|---|---|---|
+| M1 | 벡터/임베딩 retrieval을 StorageAdapter 계약에 추가 | ★ 높음 (단 finmix 로드맵에선 "우선순위 낮음 [후속]") |
+| M2 | context-retriever / 에이전트 도구(MCP) 자동노출 코어 레이어 | ★ 높음 |
+| M3 | TTL/freshness capability | 중 |
+| M4 | confidence/strength를 코어 wiki_provenance로 승격 | 낮음 ("현 plugin로 충분") |
+| M5 | correction/feedback 로그 capability | 낮음 |
+
+### 머큐리 단독 결정 — 5건 모두 *지금 코어 편입 X*. 단 처리 경로 5건 각각 분화.
+
+| # | 결정 | 근거 |
+|---|---|---|
+| M1 | **편입 보류 — 실 구현 2+ 도메인 후 optional 메서드 승격 검토** | 기존 결정(Mercury 1~3차): pgvector = plugin 확장, `capabilities().vector` 플래그만 코어 예약. plugin 구현 경로는 이미 박제됨 — **phase4_plugin_guide §3.2 pgvector ext 패턴 (plott precedent: `*_attribute_ext.embedding VECTOR + onAttributeWrite hook + ON CONFLICT UPDATE`) finmix 즉시 사용 가능**. 실 구현 0건 (plott 미합류 / finmix 스스로 후속) 상태에서 코어 계약 확장은 YAGNI 위반. 승격 형태 사전 명시: `StorageAdapter.searchSimilar?(...)` optional 메서드 (semver minor additive, vector:false 어댑터 비파괴) — 2+ 도메인 실 구현 검증 후 협의 진입. |
+| M2 | **편입 X — 온톨로지 정식 트랙 입력 등재** | "모든 도메인 공통 이득" 주장은 미검증 (행동 원칙 #3 — 도메인별 '에이전트 노출' 요구가 같은 인터페이스인지 cross-check 안 됨, 실 구현 0건). venturebeat 자료는 datastrate 3편과 동계열 외부 모범 패턴 → 대기 중인 §11 통합 비교 트랙 (Tier B "LLM + Semantic Layer 하이브리드" 인접 영역) 입력으로 합류. 단독 선행 결정 X. |
+| M3 | **보류 — plugin ext 유지** | finmix 단일 신호. `capabilities().ttl` 플래그 예약 유지. 현 분산 구조 (`valid_at/valid_until` 코어 + `expires_at` plugin ext) 는 의도된 분리 — 자동만료 *집행* 정책이 도메인별 상이. 2+ 도메인 발생 시 재검토. |
+| M4 | **보류 + ★ 승격 가치 상승 신호 박제** | **rootric + finmix 양면 *실사용*** (finmix가 `study.rootric_provenance_ext.strength` 그대로 사용) = "출처 신뢰도는 도메인 무관 보편 차원" 증거 발생. 단 양 도메인 모두 변경 요청 X + finmix 자체 평가 "현 plugin 충분" → 머큐리 선제 승격 근거 부족. 승격 시 `wiki_provenance` 스키마 변경 = 코어 인터페이스 변경 → 별도 박제 협의 필수 (행동 원칙 #2). **3번째 도메인 수요 또는 owner 명시 요청 시 협의 진입.** |
+| M5 | **온톨로지 정식 트랙 입력 등재** | Mercury 20차 Tier A "키네틱 라이트백 hook" + plott ★★ 신호 (앱 연동 API writeback) 와 동계열 (자가개선 루프 = 라이트백 역방향 + 수정 트레이스). 트랙에서 통합 비교. |
+
+### 행동 원칙 정합
+
+- #2 인터페이스 합의 → 구현 — 5건 모두 코어 인터페이스 변경 0건. M1/M4 승격 시 별도 박제 협의 명시.
+- #3 공통점 검증 의무 — M2 "공통" 주장 cross-check 미완 → 트랙 등재. M4 양면 실사용 *사실* 만 신호로 박제 (승격 결정 X).
+- #5 YAGNI — 실 구현 0건 영역 코어 확장 전부 보류. 검증된 plugin 경로 (§3.2) 안내로 대체.
+
+### finmix 도메인 등재
+
+- finmix = 4번째 위키 도메인 (rootric / plott / enroute / finmix + CroNode 보조). 외부 온톨로지 신호 체계도 3+1 → 4 도메인으로 확장.
+- finmix 위키 인프라 현황 (도메인 영역 — 머큐리 간섭 X): `study.wiki_*` 테이블 + `rootric_provenance_ext` 차용 운영 중. rootric 어휘 차용은 plugin 영역 자유 — 단 M4 신호의 근거 사실로만 박제.
+
+### 다음 입력 대기
+
+| 도메인 | 다음 trigger |
+|---|---|
+| rootric (로고스) | `lib/wiki/extractor-plugin.ts` 1차 구현 결과 (Phase 3-B) |
+| enroute (루터) | hybrid 전략 실 환경 구현 결과 |
+| plott (플로터) | 통합앱 Phase 2 합류 시점 (기존 스케줄 그대로) |
+| finmix (피닉스) | M1 벡터 plugin ext 실 구현 결과 (§3.2 패턴) — 승격 검토 1차 trigger / M3-M5 plugin 자체 구현 시 결과 공유 |
+| CroNode | rootric precedent 참조 후 진입 신호 |
+| 온톨로지 정식 트랙 | 에드워드 진입 신호 — 이제 **4 도메인** §11 통합 비교 (M2/M5 입력 추가) |

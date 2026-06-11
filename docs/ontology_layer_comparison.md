@@ -290,6 +290,15 @@ plott 차별 강점 4개:
     -o /tmp/datastrate_{N}.html
   ```
 
+### 7.5 finmix(피닉스) 신호 — 4번째 도메인 합류 (2026-06-11 추가)
+
+신규 도메인 finmix 의 외부 자료 5건 리서치 기반 M1-M5 코어 검토 제안 도착 (Mercury 24차 — `docs/domain_feedback_log.md` 참조). 정식 트랙 영향:
+
+- **트랙 범위 확장**: 3 명세서 → **4 도메인** §11 통합 비교 (finmix 는 §11 형식 명세서 대신 `finmix/docs/wiki_knowledge_research_2026-06-11.md` 가 신호 원천)
+- **M2 (context-retriever / 에이전트 도구 자동노출)** → Tier B "LLM + Semantic Layer 하이브리드" 인접 영역 입력 등재. venturebeat "RAG push → 런타임 pull" 역전 프레임 추가.
+- **M5 (correction/feedback 로그)** → Tier A "키네틱 라이트백 hook" 동계열 입력 등재. plott ★★ writeback 신호와 합산 — **라이트백 영역이 plott + finmix 2 도메인 신호로 상승**.
+- **M4 (confidence 승격)** — 트랙 외 별도: rootric + finmix 양면 실사용 신호. abstraction_decision §5 Phase 5+ 박스 참조.
+
 ---
 
 ## 8. 갱신 이력
@@ -299,3 +308,4 @@ plott 차별 강점 4개:
 | 2026-05-04 | Mercury 20차 | 최초 작성 — datastrate 3편 vs wiki-core 비교 분석 + Tier S/A/B 분류 + Phase 5+ evolution reference 박제 |
 | 2026-05-04 | Mercury 21차 | §7 추가 — 3 도메인 owner 사전 신호 동시 수신 박제. enroute 차별 강점 2건 명시 (Rule entity 운영 데이터 + Container/Activity/Observation 3층). Tier A "Rule 엔진" 박제 가치 상승. 정식 트랙 5/14 후 진입 |
 | 2026-05-04 | Mercury 21차 (plott §11 도착) | §7.1 plott 라인 박제 완료 갱신 (commit `828169a`) + §7.2.0 plott 차별 강점 4건 + 신호 강도 분포 박제. **3 명세서 모두 도착으로 정식 트랙 진입 조건 완료**. Tier A "키네틱 라이트백" 박제 가치 상승 (plott 앱 연동 API writeback ★). plott = 가장 강한 신호 도메인 (★★ 2건 + ★ 1건). MVP 안전 본질 1건 (OWA "Unknown") 사전 인지. |
+| 2026-06-11 | Mercury 24차 | §7.5 추가 — finmix(피닉스) 4번째 도메인 신호 박제. 정식 트랙 4 도메인 확장 + M2/M5 트랙 입력 등재 + 라이트백 영역 2 도메인 신호 상승. |

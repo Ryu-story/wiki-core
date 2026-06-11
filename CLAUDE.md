@@ -508,6 +508,28 @@
   - #5 YAGNI — GitNexus 인덱싱 보류. 현재 규모에서 추가 도구 도입 불필요.
 - 다음 입력 대기: rootric `lib/wiki/extractor-plugin.ts` Phase 3-B 구현 결과 / enroute hybrid 전략 실 환경 구현 결과 / plott 통합앱 Phase 2 합류 신호
 
+### Mercury 24차 (2026-06-11 — finmix(피닉스) 코어 검토 제안 M1-M5 수렴)
+
+- **상태: 신규 도메인 finmix 첫 코어 제안 5건 수렴. 머큐리 단독 결정 — 5건 모두 지금 코어 편입 X, 처리 경로 각각 분화. 코어 인터페이스 변경 0건.**
+- 진행 흐름:
+  1. finmix(피닉스) 제안 doc 정독 (`finmix/docs/wiki_core_notices/2026-06-11_finmix_to_mercury_context_architecture.md` + 근거 리서치 doc) — byline/venturebeat 등 외부 자료 5건 기반 M1-M5
+  2. 기존 결정 cross-check — pgvector = plugin (Mercury 1~3차), `capabilities().vector/ttl` 플래그 예약 상태, 가이드 §3.2 plott pgvector ext 패턴 박제 확인
+  3. 머큐리 단독 결정 5건:
+     - M1 (벡터 retrieval) — 편입 보류. plugin 경로 기존 박제 (§3.2) finmix 즉시 사용 가능. 2+ 도메인 실 구현 후 `StorageAdapter.searchSimilar?` optional 승격 검토
+     - M2 (도구 자동노출) — 편입 X. 온톨로지 정식 트랙 입력 등재 (Tier B 인접). "공통" 주장 미검증 (#3)
+     - M3 (TTL) — 보류. finmix 단일 신호. 2+ 도메인 시 재검토
+     - M4 (confidence 승격) — 보류 + ★ 신호 상승 박제. rootric+finmix 양면 *실사용* (`rootric_provenance_ext.strength` 공유). 단 양쪽 변경 요청 X → 선제 승격 X. 3번째 수요 시 협의
+     - M5 (feedback 로그) — 온톨로지 정식 트랙 입력 등재 (Tier A 라이트백 동계열 — plott+finmix 2 도메인 신호 상승)
+  4. finmix = 4번째 위키 도메인 등재. 온톨로지 정식 트랙 4 도메인 §11 통합 비교로 확장.
+  5. 박제 — `docs/domain_feedback_log.md` Mercury 24차 / `docs/abstraction_decision.md` §5 Phase 5+ 박스 갱신 / `docs/ontology_layer_comparison.md` §7.5 / 이 CLAUDE.md
+- 산출물 commit: 다음 commit (Mercury 24차 박제)
+- 핵심 박제: **5건 보류·트랙 등재 분화 + M1/M4 승격 조건 사전 명시** — 실 구현 0건 영역 코어 확장 전부 거부 (YAGNI), 검증된 plugin 경로 안내로 대체. M4 양면 실사용 = 첫 *plugin ext 공유* 사례 (승격 가치 신호).
+- 행동 원칙 정합:
+  - #2 인터페이스 합의 → 구현 — 코어 변경 0건. M1/M4 승격 시 별도 박제 협의 명시
+  - #3 공통점 검증 의무 — M2 "모든 도메인 공통" 주장 cross-check 미완 → 단독 선행 결정 X, 트랙 등재
+  - #5 YAGNI — 실 구현 0건 + 제안 도메인 스스로 "후속/충분" 평가 → 보류. 가설 박제 X
+- 다음 입력 대기: finmix M1 plugin ext 실 구현 결과 (승격 검토 1차 trigger) / 기존 4 대기 신호 유지
+
 ### 다음 작업 후보 (Mercury 24차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |
@@ -516,7 +538,8 @@
 | 2 | **plott plugin 합류** — (b) 2단계 sibling + 5단계 가시성 + scope_id + `plott_target_visibility` 함수 (가장 복잡). **합류 시점 갱신 (2026-05-01)**: plott 통합앱 Phase 2 (`theplott.com/wiki` path + circles + label/finance path 이전) 와 함께 진행 — circles 테이블 dependency 가 wiki 가시성에 있어 분리 진행 불가. A.6 일반화 + A.14 (public 전환 완료) + A.15 (Vercel 시 사전 인지) 패치 사전 적용 권장. | 도메인 owner trigger | 신규 |
 | 3 | rootric Phase 4-B/C/D 후속 (AI 비용 가드 / KPI 큐레이션 / 본격 ingest pipeline) — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
 | 4 | enroute Phase 4-B/C/D 후속 — 코어 측 작업 0건, 모니터링만 | 도메인 owner | 신규 |
-| 5 | 5/14 PoC 후 온톨로지 정식 트랙 진입 — 3 명세서 §11 통합 비교 + 4 신호 영역 결정 (Rule entity / 다이내믹 / W3C / Neuro-Symbolic) | 5/14 PoC 후 trigger | 신규 |
+| 5 | 온톨로지 정식 트랙 진입 — **4 도메인** (rootric/plott/enroute/finmix) §11 통합 비교 + 신호 영역 결정 (Rule entity / 다이내믹 / W3C / Neuro-Symbolic / M2 도구노출 / M5 feedback 로그) | 에드워드 trigger (5/14 PoC 경과) | 신규 |
+| 7 | finmix M1 벡터 plugin ext 실 구현 결과 수렴 — `searchSimilar?` 코어 승격 검토 1차 trigger | 도메인 owner trigger | 신규 |
 | 6 | (선택) renderer JSX reference 컴포넌트 추가 (도메인 owner 요청 시) — semver minor additive | 4-6h | 신규 (보류) |
 
 ### 다음 세션 시작 액션
@@ -535,5 +558,6 @@
 | rootric | 로고스 | `c:/Users/woori/rootric/CLAUDE.md` (팩트시트 마지막 세션) |
 | plott | 플로터 | `c:/Users/woori/Desktop/개인/develop/plott/plott-wiki/CLAUDE.md` |
 | enroute | 루터 | `c:/Users/woori/Desktop/개인/develop/enroute/CLAUDE.md` |
+| finmix | 피닉스 | `c:/Users/woori/Desktop/개인/develop/finmix/` (Mercury 24차 합류 — 머큐리 수신 doc은 `docs/wiki_core_notices/`) |
 
 **직접 대화는 하지 말고 에드워드를 거쳐 의사소통.**

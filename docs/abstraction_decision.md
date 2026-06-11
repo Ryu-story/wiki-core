@@ -223,6 +223,16 @@ datastrate 블로그 3편 (Palantir 3 레이어 + Semantic Layer + 온톨로지 
 | **B** | LLM + Semantic Layer 하이브리드 (Neuro-Symbolic 워크플로우) — 자연어→LLM 파싱→의미 검색→추론→자연어 정리 | rootric KPI 큐레이션 / plott 약사 인사말 / enroute 자연어 검색 진입 시 |
 | **B** | RDF/OWL/SWRL/SPARQL 표준 어댑터 — relational ↔ 트리플 양방향 | 외부 SPARQL endpoint 연동 필요 시 (현재 0건) |
 
+**finmix(피닉스) M1-M5 제안 반영 (Mercury 24차, 2026-06-11)** — 신규 후보 2건 추가 + 기존 후보 신호 갱신:
+
+| Tier | 항목 | 적용 시점 |
+|---|---|---|
+| **A** | 벡터 retrieval 코어 승격 (M1) — `StorageAdapter.searchSimilar?` optional 메서드 + `capabilities().vector` 활용. plugin 경로는 가이드 §3.2 박제 완료 (plott precedent) | **2+ 도메인 plugin ext 실 구현 검증 후** (현재 0건 — plott 미합류 / finmix 후속) |
+| **A** | confidence/strength 코어 provenance 승격 (M4) — ★ rootric + finmix 양면 *실사용* 발생 (`rootric_provenance_ext.strength` 공유) = 승격 가치 상승 신호 | 3번째 도메인 수요 또는 owner 명시 요청 시 (현재 양 도메인 모두 변경 요청 X) |
+| **B** | TTL/freshness capability (M3) — `capabilities().ttl` 예약 유지. 자동만료 *집행* 정책 도메인별 상이 → 의도된 분산 (`valid_at/valid_until` 코어 + `expires_at` ext) | 2+ 도메인 신호 시 (현재 finmix 1건) |
+
+M2 (context-retriever / 도구 자동노출) 와 M5 (correction/feedback 로그) 는 온톨로지 정식 트랙 입력으로 등재 — 위 Tier B "LLM + Semantic Layer 하이브리드" / Tier A "키네틱 라이트백 hook" 과 각각 동계열. 트랙은 **4 도메인** (rootric/plott/enroute/finmix) §11 통합 비교로 확장.
+
 **의도된 결정 (현재 정합 OK, 변경 X)**:
 - 액션 vs 이벤트 의미 차이 — Mercury 1차 의도된 선택 (위키 = 기록 시스템 우선, Action 영역은 router + plugin 으로 일부 대응)
 - Postgres relational schema (RDF 미채택) — 도메인 owner 친숙도 + Supabase RLS / Vercel ecosystem 정합
