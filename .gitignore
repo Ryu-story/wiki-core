@@ -9,3 +9,4 @@ dist-tarballs/
 .idea/
 coverage/
 *.log
+.claude/
