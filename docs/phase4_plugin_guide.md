@@ -625,6 +625,11 @@ wiki-core 를 호출 도메인과 **다른 언어/프로세스**에서 쓰는 �
 - wiki-core + `@<domain>/wiki-plugin` 을 **작은 Node 서비스**(DB 같은 호스트, 외부 비공개)로 띄우고 FastAPI 가 `localhost` HTTP 로 `ingest`/`query` 호출. `WikiCore` 는 순수 TS 라이브러리라 노출 방식 무관(transport-agnostic).
 - **주의**: ① `ActorContext`(tenant 키 등)를 HTTP 경계로 직렬화 전달 — 신뢰 백엔드가 인증 후 주입(클라 값 신뢰 X) ② DB 자격증명은 Node 서비스에만.
 - ★ **Vercel 트랩 분리**: 호출 도메인이 Vercel 배포여도 wiki-core 가 별도 호스트(Vultr) Node 서비스에 있으면 Vercel private-submodule 차단(A.14)이 **비해당** — submodule 이 Vercel 앱 repo 가 아니라 Node 서비스 repo 에 들어감. (plott-home Vercel + 위키 Vultr 분리.) A.11~A.13 은 Node 서비스 install 에 동일 적용.
+- **빌드**: esbuild 단일 파일 번들 → 서버에 node_modules 불요(plott). systemd DynamicUser + MemoryMax 로 운영.
+
+#### 2.2.3 트랜잭션 단위 registerPlugin (Mercury 26차 — plott precedent, 선택 패턴)
+
+`WikiAccessControl` 이 **같은 트랜잭션의 미커밋 ext 행**을 봐야 하는 경우(예: create 직후 provenance/label 권한 확인이 방금 INSERT 한 `*_object_ext.pharmacy_id` 를 조회) — 요청마다 **트랜잭션 연결에 묶어 `registerPlugin`** 하면 CRUD 와 accessControl 조회가 **동일 연결**을 써 미커밋 행이 보인다. `StorageAdapter.transaction?` + accessControl 이 같은 연결을 공유하는 패턴. 비용 무시 수준(요청당 등록). RLS 미사용(서비스 계층 단일 게이트) 도메인에서 특히 유효 — 권한 조회가 application layer 라 트랜잭션 가시성이 정확해야 함.
 
 ### 2.3 Postgres function 으로 트랜잭션 (선택)
 

@@ -559,7 +559,8 @@
 - 핵심 결정(4건): ① link (b)→(a) OK(Vultr Node 서비스라 Vercel 트랩 비해당, 더 단순) ② 테넌트 격리 = ext + ActorContext(코어 scope 컬럼 없음, §5 결정) ③ 0002_rls 미적용 + 서비스 계층 단일 게이트 OK ④ provenance dangling 허용이 기본(tombstone 없음)
 - 박제: `phase4_plugin_guide.md` §2.2.1(RLS 미사용 배포 클래스) + §2.2.2(Node 서비스 토폴로지) / `abstraction_decision.md` §5 plott (b)→(a) / `domain_feedback_log.md` Mercury 26차
 - **별건 진행 중(chat-core 트랙)**: 직전 세션 chat-core 추상화 트랙 개시 + Phase 2 결정(v3) 완료 — `develop/chat-core` repo(GitHub private). plott/vote 검증 통과, finmix/CroNode 대기. **별도 repo·charter** (이 CLAUDE.md 는 wiki-core 전용).
-- 다음 입력 대기: plott 위키 저장 계층 구현 결과(Phase 4-A, 코어 blocking 예상 0건)
+- **후속(같은 날) — plott Phase 4-A 합류 종결**: plott 보고(`...phase4a_result.md`, commit 74c92b72) — 회신 4건 그대로 구현, **smoke 11/11 PASS, 코어 변경 0·막힌 곳 0·신규 트랩 0**. production 운영 시작. Mercury 26차 회신 4건(§2.2.1·§2.2.2 배포 클래스 포함) 전부 production 검증. 참고 신호 3건 처리: ① query 코어 노출 = 2+ 도메인 목록 수요 시 검토(future-input) ② 트랜잭션 단위 registerPlugin = 가이드 §2.2.3 박제 ③ M1 임베딩 없음 = finmix 1번째 유지. 상세 `domain_feedback_log.md` Mercury 26차 후속.
+- 다음 입력 대기: plott Phase 4-B(코어 모니터링만) / query 코어 노출(2번째 목록 수요 시)
 
 ### 다음 작업 후보 (Mercury 24차+)
 

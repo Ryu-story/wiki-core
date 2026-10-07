@@ -1322,3 +1322,27 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 |---|---|
 | plott (플로터) | 위키 저장 계층 구현 결과(Phase 4-A) — (a) submodule + Node 서비스 + 서비스 계층 게이트 + 첫 ingest. 코어 blocking 예상 0건 |
 | (기존 유지) | finmix M1 승격(plott 2번째 벡터 시) / enroute hybrid / 온톨로지 트랙 / rootric 재개 |
+
+### Mercury 26차 후속 — plott Phase 4-A 합류 종결 (production 운영 시작) — 2026-10-07
+
+보고: `plott/docs/wiki_core_notices/2026-10-07_plott_to_mercury_phase4a_result.md` (plott commit 74c92b72). 회신 4건 그대로 구현, **코어 변경 0 · 막힌 곳 0 · 신규 트랩 0**.
+
+- 구성(검증): (a) submodule(7675e32) + preinstall `npx -y pnpm@9` + `file:` tarball / Vultr Node 20 서비스 127.0.0.1:8790(esbuild 단일 번들, systemd DynamicUser) / 0001 적용·**0002_rls 미적용** / plugin ext(`plott_object_ext`·`plott_event_ext`: pharmacy_id·visibility·created_by) + ActorContext.pharmacy_id + WikiAccessControl(pharmacy·private 2단계) / 위키 전용 DB 계정(8테이블 DML) / provenance `pharmacy_post::{"post_id":N}`.
+- **smoke 11/11 PASS** — 포함: 다른 약국 getEvent **access denied** / 멱등 재ingest / 보험코드 속성 약품 조회 / retract / FastAPI→Node end-to-end.
+- **Mercury 26차 회신 4건 전부 production 검증**: (a) submodule+Node 토폴로지 / ext+ActorContext 테넌트 격리 / RLS 미사용 서비스 계층 단일 게이트 / provenance dangling. → §2.2.1·§2.2.2 배포 클래스 precedent **확정**.
+
+**참고 신호 3건 (변경 요청 아님 — 머큐리 처리)**:
+| # | 신호 | 처리 |
+|---|---|---|
+| ① query/deleteEvent 코어 밖 → plugin SQL | **future-input 등재**(YAGNI). WikiCore 는 CRUD+hook, 목록/query 는 plugin(+renderer transform) 의도. **2+ 도메인 목록 수요 시** `query(filter, actor)` 코어 노출 검토. 현재 코어 변경 X |
+| ② 트랜잭션 단위 registerPlugin(미커밋 ext 가시성) | **가이드 §2.2.3 박제**(검증 precedent). accessControl 이 같은 연결로 미커밋 ext 조회. RLS 미사용 도메인에 특히 유효. 코어 변경 X |
+| ③ M1 2번째 카운트 | 이번 임베딩 없음 → **M1 count 불변(finmix=1번째 유지)**. 승격 trigger 미도달 |
+
+**행동 원칙**: #3 — 신호 ①②는 plott 단독이라 코어 승격 X(①=2+ 임계 대기, ②=가이드 예시만). #5 — ② 는 실 발생 패턴만 박제(가설 X). #2 — 코어 인터페이스 변경 0, 신호 ① 승격 시 별도 협의.
+
+### 다음 입력 대기 (갱신)
+| 대상 | trigger |
+|---|---|
+| plott (플로터) | Phase 4-B(LLM labelRouter 보조 / circle 가시성 단계 / 목록 화면 확장). 코어 측 모니터링만 |
+| query 코어 노출 | **2번째 도메인 목록 수요** 도착 시 검토(신호 ①) |
+| (기존 유지) | finmix M1 승격(2번째 벡터) / enroute hybrid / 온톨로지 트랙 / rootric 재개 / chat-core finmix·CroNode 검증 |
