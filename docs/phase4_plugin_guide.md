@@ -607,6 +607,25 @@ const userAdapter = new SupabaseAdapter({ client: supabase });
 
 → application 1차 게이트 통과 + RLS 2차 게이트 통과 모두 필요. service-role 사용 시 2차 게이트 우회되므로 **server-only 환경에서만**.
 
+#### 2.2.1 RLS 미사용 배포 클래스 — 서비스 계층 단일 게이트 (Mercury 26차 — plott precedent)
+
+비-Supabase Postgres(예: Vultr 자체 Postgres) + 신뢰 서버 토폴로지 도메인은 `0002_rls.sql` 을 **적용하지 않고** 1차 게이트(WikiAccessControl + 서비스 계층 필터)만으로 운영 가능.
+
+| 배포 클래스 | 게이트 | 도메인 |
+|---|---|---|
+| **Supabase RLS 2중 게이트** | WikiAccessControl(1차) + RLS(2차, anon-key defense-in-depth) | enroute · rootric · finmix |
+| **서비스 계층 단일 게이트** (신규) | WikiAccessControl(1차) + 서비스 계층 tenant 필터 — RLS 없음 | **plott** (Vultr Node 서비스, 비-Supabase) |
+
+- **전제(필수 — 1차 게이트가 유일 방어선)**: ① 비신뢰 코드의 DB 직접 접근 0 (화면/타 백엔드는 위키 Node 서비스 경유만) ② DB 계정은 위키 서비스 **전용** ③ 모든 read/write 가 WikiAccessControl + tenant(`pharmacy_id` 등) 필터를 반드시 통과(우회 경로 0).
+- RLS 는 anon-key 로 비신뢰 클라가 DB 를 **직접** 칠 때의 defense-in-depth. 그런 경로가 없으면(service-role server-only 와 동치) RLS 생략이 안전성 저하가 아님.
+
+#### 2.2.2 Node 서비스 토폴로지 (Mercury 26차 — plott precedent)
+
+wiki-core 를 호출 도메인과 **다른 언어/프로세스**에서 쓰는 경우(plott = Python FastAPI 백엔드):
+- wiki-core + `@<domain>/wiki-plugin` 을 **작은 Node 서비스**(DB 같은 호스트, 외부 비공개)로 띄우고 FastAPI 가 `localhost` HTTP 로 `ingest`/`query` 호출. `WikiCore` 는 순수 TS 라이브러리라 노출 방식 무관(transport-agnostic).
+- **주의**: ① `ActorContext`(tenant 키 등)를 HTTP 경계로 직렬화 전달 — 신뢰 백엔드가 인증 후 주입(클라 값 신뢰 X) ② DB 자격증명은 Node 서비스에만.
+- ★ **Vercel 트랩 분리**: 호출 도메인이 Vercel 배포여도 wiki-core 가 별도 호스트(Vultr) Node 서비스에 있으면 Vercel private-submodule 차단(A.14)이 **비해당** — submodule 이 Vercel 앱 repo 가 아니라 Node 서비스 repo 에 들어감. (plott-home Vercel + 위키 Vultr 분리.) A.11~A.13 은 Node 서비스 install 에 동일 적용.
+
 ### 2.3 Postgres function 으로 트랜잭션 (선택)
 
 `SupabaseAdapter.capabilities().transactional = false` — 단일 supabase-js 호출은 자동 커밋. 트랜잭션 필요 시 (예: Object + Provenance + Label 동시 생성):

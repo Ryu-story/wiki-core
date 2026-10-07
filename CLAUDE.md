@@ -548,6 +548,19 @@
   - #5 — 가이드 patch 는 실 구현 검증 통과분만. taskType 은 provider 종속 확인 후 hint 강등
 - 다음 입력 대기: plott 합류 (= M1 2번째 실 구현, 승격 협의 진입 trigger) / finmix M2 pull 도구 구현 결과 / 기존 신호 유지
 
+### Mercury 26차 (2026-10-07 — plott wiki-core 합류 착수 + 확인 4건 회신)
+
+- **상태: plott Phase 4 합류 착수(약국 기록 ingest). 확인 요청 4건 전부 OK 회신 + 코어 변경 0건. 신규 배포 클래스 2종 박제. plott 위키 저장 계층 구현 대기.**
+- 진행 흐름:
+  1. 시작 루틴(wiki-core + chat-core 양쪽 pull — 직전 세션 chat-core Phase 2 작업). plott-3b 가 notice doc(§7.2)으로 wiki-core 합류 제안, 에드워드가 세션 개설
+  2. 제안 정독(`plott/docs/wiki_core_notices/2026-10-07_plott_to_mercury_join_pharmacy_records.md`) — 카드 완료 → wiki_events ingest, 환경 2건 변경(Vultr Postgres / Vercel)
+  3. 가이드·결정·SPEC 대조 → 확인 4건 전부 기존 결정 근거 + 코어 변경 0건 확인
+  4. 회신 박제(notice 폴더 `2026-10-07_mercury_to_plott_pharmacy_records_reply.md`) + wiki-core 박제 3종
+- 핵심 결정(4건): ① link (b)→(a) OK(Vultr Node 서비스라 Vercel 트랩 비해당, 더 단순) ② 테넌트 격리 = ext + ActorContext(코어 scope 컬럼 없음, §5 결정) ③ 0002_rls 미적용 + 서비스 계층 단일 게이트 OK ④ provenance dangling 허용이 기본(tombstone 없음)
+- 박제: `phase4_plugin_guide.md` §2.2.1(RLS 미사용 배포 클래스) + §2.2.2(Node 서비스 토폴로지) / `abstraction_decision.md` §5 plott (b)→(a) / `domain_feedback_log.md` Mercury 26차
+- **별건 진행 중(chat-core 트랙)**: 직전 세션 chat-core 추상화 트랙 개시 + Phase 2 결정(v3) 완료 — `develop/chat-core` repo(GitHub private). plott/vote 검증 통과, finmix/CroNode 대기. **별도 repo·charter** (이 CLAUDE.md 는 wiki-core 전용).
+- 다음 입력 대기: plott 위키 저장 계층 구현 결과(Phase 4-A, 코어 blocking 예상 0건)
+
 ### 다음 작업 후보 (Mercury 24차+)
 
 | 우선 | 작업 | 작업량 | 진입점 |

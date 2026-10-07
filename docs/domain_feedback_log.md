@@ -1285,3 +1285,40 @@ tsc -b 통과 (5 workspace projects). 코어 4 패키지 (core/storage/router/re
 | rootric (로고스) | stop — 재개 신호 대기 |
 | CroNode | rootric precedent 참조 후 진입 신호 |
 | 온톨로지 정식 트랙 | 에드워드 진입 신호 — 4 도메인 §11 통합 비교 |
+
+---
+
+## Mercury 26차 — plott wiki-core 합류 착수 (약국 기록 ingest) + 확인 4건 회신 — 2026-10-07
+
+### 입력 — plott-3b (플로터), notice doc 채널 (§7.2) + 에드워드가 세션 개설
+
+경로: `plott/docs/wiki_core_notices/2026-10-07_plott_to_mercury_join_pharmacy_records.md`. 첫 실사용 ingest = 약국 홈 카드 완료 → "기록으로 남기기" → `wiki_events` 자동 분류 적재. 4요소 매핑 plugin 측 정확(Patient object type 신규 포함 전부 plugin). **코어 인터페이스 변경 요청 0건.**
+
+환경 변경 2건(11차 매트릭스 이후): ① 약국 데이터 Supabase → **Vultr 자체 Postgres + FastAPI(Python)**, 테넌트 키 = `pharmacy_data_user_id` ② plott-home Vercel 배포 → (b) sibling 불가. 제안: (a) submodule + pack:dist + wiki-core 를 Vultr Node 서비스로 분리(FastAPI localhost 호출).
+
+### 머큐리 단독 결정 — 확인 4건 전부 OK, 코어 변경 0건
+
+회신 박제: `plott/docs/wiki_core_notices/2026-10-07_mercury_to_plott_pharmacy_records_reply.md`.
+
+| Q | 결론 | 근거 |
+|---|---|---|
+| ① link (b)→(a) + Node 서비스 | OK, 더 단순 | §0-pre.1 (a) 경로(rootric/finmix 선례). wiki 서비스가 Vultr 라 Vercel 트랩 A.14 비해당 + wiki-core public(18차). Node 토폴로지 = transport-agnostic |
+| ② 테넌트 격리 ext vs 코어 scope | **ext + ActorContext**(코어 scope 컬럼 없음) | §5 "scope_id plott만 → cross-cutting hook" 결정. 가이드 §1.2(ActorContext.pharmacy_id)·§1.4(visibility==='pharmacy') 이미 plott 명시 |
+| ③ 0002_rls 미적용 + 서비스 계층 | OK | §2.2 1차 게이트(WikiAccessControl, 항상)만 필수. RLS 는 anon-key defense-in-depth. plott Vultr 서버 = service-role server-only 동치 |
+| ④ provenance dangling | 허용이 기본, tombstone 없음 | WikiProvenance.source_ref = 이력 레코드(live FK 아님). 원본 삭제돼도 event 유지. UI 표시는 plugin ext 자유 |
+
+### 박제 (wiki-core)
+- `phase4_plugin_guide.md` §2.2.1 **RLS 미사용 배포 클래스**(서비스 계층 단일 게이트 — plott precedent) + §2.2.2 **Node 서비스 토폴로지**(FastAPI↔Node localhost, Vercel 트랩 분리).
+- `abstraction_decision.md` §5 Phase 4-pre: plott **(b)→(a) 재배정** + Vultr Postgres 환경 변경 반영.
+
+### 행동 원칙 정합
+- #1 — 회신에 약국 어휘(pharmacy_id 등)는 plugin 영역 placeholder 로만. 코어 결정은 중립(ActorContext 확장·WikiAccessControl hook·writeRegion 개념).
+- #2 — 코어 인터페이스 변경 0건. 변경 필요 시 별도 협의 명시.
+- #3 — 신규 패턴(RLS 미사용 배포 클래스)은 plott 실 precedent 로만 박제. 가설 박제 X(#5).
+- §7.2 — notice doc 채널(에드워드 경로 relay + 세션 개설 = 경유 간주). 회신도 같은 폴더.
+
+### 다음 입력 대기
+| 대상 | trigger |
+|---|---|
+| plott (플로터) | 위키 저장 계층 구현 결과(Phase 4-A) — (a) submodule + Node 서비스 + 서비스 계층 게이트 + 첫 ingest. 코어 blocking 예상 0건 |
+| (기존 유지) | finmix M1 승격(plott 2번째 벡터 시) / enroute hybrid / 온톨로지 트랙 / rootric 재개 |

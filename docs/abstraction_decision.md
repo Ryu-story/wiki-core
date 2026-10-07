@@ -206,6 +206,8 @@ StorageRouter { adapters[], resolve(target) }     // ★ 매트릭스 신규
 - rootric (로고스): Vercel SaaS 배포 = (b) 결정적 차단. (a) submodule 채택.
 - plott (플로터): (b) 채택. plott-wiki MVP 미착수 → pnpm 처음부터. 2단계 sibling.
 
+**plott 환경 변경 (Mercury 26차, 2026-10-07)**: plott 합류 착수 시점에 환경 2건 변경 → **(b)→(a) 재배정**. ① 약국 데이터가 Supabase → **Vultr 자체 Postgres + FastAPI(Python)** 로 이동(테넌트 키 = `pharmacy_data_user_id`) ② plott-home = Vercel 배포 → (b) sibling 불가. 채택: **(a) submodule + pack:dist tarball + wiki-core 를 Vultr Node 서비스로 분리 실행**(FastAPI → localhost HTTP). 위키 서비스가 Vultr 라 Vercel 트랩(A.14) 비해당. 상세: `docs/phase4_plugin_guide.md` §2.2.1(RLS 미사용 배포 클래스)·§2.2.2(Node 서비스 토폴로지), `docs/domain_feedback_log.md` Mercury 26차.
+
 **Phase 4 가이드 박제 시점**: enroute 1차 합류 (b) 검증 통과 후 `docs/phase4_plugin_guide.md` 신규 §0 박스로 link 패턴 매트릭스 + npm→pnpm 마이그레이션 trap 5종 박제. 검증된 precedent 만 가이드에 박제 — 행동 원칙 #5 YAGNI.
 
 자세한 내용은 `docs/domain_feedback_log.md` "Mercury 11차 — link 패턴 환경 매트릭스" 참조.
